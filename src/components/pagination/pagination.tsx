@@ -6,9 +6,10 @@ import * as S from "./pagination.style";
 interface PaginationProps {
   page: number;
   totalPages: number;
+  total: number;
 }
 
-const Pagination = ({ page, totalPages }: PaginationProps) => {
+const Pagination = ({ page, totalPages, total }: PaginationProps) => {
   const router = useRouter();
   const nextPage = Number(page) + 1;
   const prevPage = Number(page) - 1;
@@ -33,6 +34,7 @@ const Pagination = ({ page, totalPages }: PaginationProps) => {
           Next Page ({Math.round(nextPage)})
         </button>
       </S.BtnWrapper>
+      <div>Total Results: {total}</div>
       <div>Total Pages: {totalPages}</div>
     </S.Wrapper>
   );

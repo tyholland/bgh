@@ -9,7 +9,7 @@ interface HomeProps {
 }
 
 const Home = ({ csvData }: HomeProps) => {
-  const { data, page, totalPages, companies, scrapDates } = csvData;
+  const { data, page, totalPages, companies, scrapDates, total } = csvData;
 
   return (
     <S.Wrapper>
@@ -20,7 +20,7 @@ const Home = ({ csvData }: HomeProps) => {
           return <Card job={item} key={index} />;
         })}
       </S.CardWrapper>
-      <Pagination page={page} totalPages={totalPages} />
+      <Pagination page={page} totalPages={totalPages} total={total} />
     </S.Wrapper>
   );
 };
