@@ -1,7 +1,7 @@
 import Papa from "papaparse";
 import Home from "../content/home/home";
 
-const getCSVData = async (page = 1, limit = 10) => {
+const getCSVData = async (page = 1, search = "", limit = 10) => {
   const res = await fetch(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyHqBt_Nu24Rrfr26tI1nMCc7s2JYAb2Kxf61pYZKy3u-iYxjFrP3ivvzXMG5OM1EKLpwdCESBpq9R/pub?output=csv",
     {
@@ -16,7 +16,15 @@ const getCSVData = async (page = 1, limit = 10) => {
     skipEmptyLines: true,
   });
 
-  const allData = parsedData.data;
+  let allData = parsedData.data;
+
+  if (search) {
+    allData = allData.filter(
+      (item: any) =>
+        item["Company"]?.toLowerCase().includes(search.toLowerCase()) ||
+        item["Role Name"]?.toLowerCase().includes(search.toLowerCase()),
+    );
+  }
 
   const start = (page - 1) * limit;
   const end = start + limit;
@@ -31,7 +39,7 @@ const getCSVData = async (page = 1, limit = 10) => {
 
 const Page = async ({ searchParams }: any) => {
   const params = await searchParams;
-  const data = await getCSVData(params.page);
+  const data = await getCSVData(params.page, params.search);
 
   return (
     <>
