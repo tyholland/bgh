@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import * as S from "./pagination.style";
 
 interface PaginationProps {
   page: number;
@@ -23,15 +24,17 @@ const Pagination = ({ page, totalPages }: PaginationProps) => {
   };
 
   return (
-    <div>
-      <button onClick={() => goToNewPage(prevPage)}>
-        Previous Page ({prevPage})
-      </button>
-      <button onClick={() => goToNewPage(nextPage)}>
-        Next Page ({Math.round(nextPage)})
-      </button>
+    <S.Wrapper>
+      <S.BtnWrapper>
+        <button onClick={() => goToNewPage(prevPage)}>
+          Previous Page ({prevPage})
+        </button>
+        <button onClick={() => goToNewPage(nextPage)}>
+          Next Page ({Math.round(nextPage)})
+        </button>
+      </S.BtnWrapper>
       <div>Total Pages: {totalPages}</div>
-    </div>
+    </S.Wrapper>
   );
 };
 

@@ -9,4 +9,8 @@ export const Wrapper = styled.div`
   border-radius: 10px;
   box-shadow: 5px 5px 5px #ddd;
   overflow-wrap: break-word;
+
+  @media only screen and (max-width: 800px) {
+    width: 100%;
+  }
 `;
