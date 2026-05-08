@@ -1,14 +1,17 @@
-import fs from "fs";
-import path from "path";
 import Papa from "papaparse";
 import Home from "../content/home/home";
 
 const getCSVData = async () => {
-  const filePath = path.join(process.cwd(), "data", "jobs.csv");
+  const res = await fetch(
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyHqBt_Nu24Rrfr26tI1nMCc7s2JYAb2Kxf61pYZKy3u-iYxjFrP3ivvzXMG5OM1EKLpwdCESBpq9R/pub?output=csv",
+    {
+      cache: "no-store",
+    },
+  );
 
-  const fileContent = fs.readFileSync(filePath, "utf8");
+  const csvText = await res.text();
 
-  const parsedData = Papa.parse(fileContent, {
+  const parsedData = Papa.parse(csvText, {
     header: true,
     skipEmptyLines: true,
   });
