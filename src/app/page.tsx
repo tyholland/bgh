@@ -22,10 +22,8 @@ const getCSVData = async (params: any, limit = 10) => {
   let allData = parsedData.data;
 
   if (search) {
-    allData = allData.filter(
-      (item: any) =>
-        item["Company"]?.toLowerCase().includes(search.toLowerCase()) ||
-        item["Role Name"]?.toLowerCase().includes(search.toLowerCase()),
+    allData = allData.filter((item: any) =>
+      item["Role Name"]?.toLowerCase().includes(search.toLowerCase()),
     );
   }
 

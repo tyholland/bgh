@@ -17,3 +17,8 @@ export const CardWrapper = styled.div`
   flex-wrap: wrap;
   gap: 20px;
 `;
+
+export const ResultsWrapper = styled.div`
+  display: flex;
+  gap: 30px;
+`;

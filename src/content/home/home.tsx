@@ -14,13 +14,17 @@ const Home = ({ csvData }: HomeProps) => {
   return (
     <S.Wrapper>
       <Search />
-      <Filter companies={companies} scrapDates={scrapDates} />
-      <S.CardWrapper>
-        {data.map((item: any, index: number) => {
-          return <Card job={item} key={index} />;
-        })}
-      </S.CardWrapper>
-      <Pagination page={page} totalPages={totalPages} total={total} />
+      <S.ResultsWrapper>
+        <Filter companies={companies} scrapDates={scrapDates} />
+        <div>
+          <S.CardWrapper>
+            {data.map((item: any, index: number) => {
+              return <Card job={item} key={index} />;
+            })}
+          </S.CardWrapper>
+          <Pagination page={page} totalPages={totalPages} total={total} />
+        </div>
+      </S.ResultsWrapper>
     </S.Wrapper>
   );
 };

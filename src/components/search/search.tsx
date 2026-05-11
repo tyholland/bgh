@@ -20,7 +20,7 @@ const Search = () => {
     <S.Wrapper>
       <S.Input
         type="text"
-        placeholder="Enter company or position"
+        placeholder="Enter position"
         onChange={handledSearchedWord}
       />
       <button onClick={handleSearchBtn}>Search</button>
