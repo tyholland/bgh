@@ -1,16 +1,17 @@
 "use client";
 
-import { ChangeEvent } from "react";
+import { ChangeEvent, useState } from "react";
 import * as S from "./filter.style";
 import { useRouter } from "next/navigation";
 
 interface FilterProps {
-  companies: any;
-  scrapDates: any;
+  companies: string[];
+  scrapDates: string[];
 }
 
 const Filter = ({ companies, scrapDates }: FilterProps) => {
   const router = useRouter();
+  const [keyword, setKeyword] = useState<string>("");
 
   const handleCompanyFilter = (e: ChangeEvent<HTMLSelectElement>) => {
     const filterChoice = e.target.value;
@@ -52,13 +53,32 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
     router.push(updatedQuery);
   };
 
+  const handleKeyword = (e: ChangeEvent<HTMLInputElement>) => {
+    setKeyword(e.target.value);
+  };
+
+  const handleKeywordSearch = () => {
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+
+    params.set("keyword", keyword);
+    const updatedQuery = `?${params.toString()}`;
+
+    router.push(updatedQuery);
+  };
+
   return (
     <S.Wrapper>
       <div>
         <div>Keyword Search</div>
         <S.FilterContent>
-          <S.Input type="text" name="keyword" placeholder="Enter keywords" />
-          <button onClick={() => handleReset("company")}>Search</button>
+          <S.Input
+            type="text"
+            name="keyword"
+            placeholder="Enter keywords"
+            onChange={handleKeyword}
+          />
+          <button onClick={handleKeywordSearch}>Search</button>
           <button className="reset" onClick={() => handleReset("company")}>
             reset
           </button>
@@ -74,7 +94,7 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
           </S.FilterContent>
           <S.Select name="companySelect" onChange={handleCompanyFilter}>
             <option value="">Select Company</option>
-            {companies.map((item: any, index: number) => (
+            {companies.map((item: string, index: number) => (
               <option value={item} key={index}>
                 {item}
               </option>
@@ -92,7 +112,7 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
           </S.FilterContent>
           <S.Select name="dateSelect" onChange={handleDateFilter}>
             <option value="">Select Posted Date</option>
-            {scrapDates.map((item: any, index: number) => (
+            {scrapDates.map((item: string, index: number) => (
               <option value={item} key={index}>
                 {item}
               </option>
@@ -109,7 +129,9 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
         </S.FilterContent>
         TBD
       </div>
-      <button onClick={() => handleReset("all")}>Reset All Filters</button>
+      <button className="resetAll" onClick={() => handleReset("all")}>
+        Reset All Filters
+      </button>
     </S.Wrapper>
   );
 };

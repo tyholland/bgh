@@ -13,6 +13,14 @@ export const Wrapper = styled.div`
   @media only screen and (max-width: 800px) {
     flex-direction: column;
   }
+
+  .resetAll {
+    width: 50%;
+    border: none;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 10px;
+  }
 `;
 
 export const Select = styled.select`

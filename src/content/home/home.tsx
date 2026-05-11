@@ -3,9 +3,10 @@ import * as S from "./home.style";
 import Pagination from "@/components/pagination/pagination";
 import Search from "@/components/search/search";
 import Filter from "@/components/filter/filter";
+import { AllSearchData, CsvData } from "@/types";
 
 interface HomeProps {
-  csvData: any;
+  csvData: AllSearchData;
 }
 
 const Home = ({ csvData }: HomeProps) => {
@@ -18,7 +19,7 @@ const Home = ({ csvData }: HomeProps) => {
         <Filter companies={companies} scrapDates={scrapDates} />
         <div>
           <S.CardWrapper>
-            {data.map((item: any, index: number) => {
+            {data.map((item: CsvData, index: number) => {
               return <Card job={item} key={index} />;
             })}
           </S.CardWrapper>

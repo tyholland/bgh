@@ -2,9 +2,10 @@
 
 import moment from "moment";
 import * as S from "./card.style";
+import { CsvData } from "@/types";
 
 interface CardProps {
-  job: any;
+  job: CsvData;
 }
 
 const Card = ({ job }: CardProps) => {
