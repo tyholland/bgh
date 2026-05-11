@@ -54,13 +54,16 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
 
   return (
     <S.Wrapper>
-      <S.FilterContent>
-        <S.Input type="text" name="keyword" placeholder="Enter keywords" />
-        <button onClick={() => handleReset("company")}>Search</button>
-        <button className="reset" onClick={() => handleReset("company")}>
-          reset
-        </button>
-      </S.FilterContent>
+      <div>
+        <div>Keyword Search</div>
+        <S.FilterContent>
+          <S.Input type="text" name="keyword" placeholder="Enter keywords" />
+          <button onClick={() => handleReset("company")}>Search</button>
+          <button className="reset" onClick={() => handleReset("company")}>
+            reset
+          </button>
+        </S.FilterContent>
+      </div>
       {!!companies && companies.length > 0 && (
         <div>
           <S.FilterContent>
@@ -69,14 +72,14 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
               reset
             </button>
           </S.FilterContent>
-          <select onChange={handleCompanyFilter}>
+          <S.Select name="companySelect" onChange={handleCompanyFilter}>
             <option value="">Select Company</option>
             {companies.map((item: any, index: number) => (
               <option value={item} key={index}>
                 {item}
               </option>
             ))}
-          </select>
+          </S.Select>
         </div>
       )}
       {!!scrapDates && scrapDates.length > 0 && (
@@ -87,16 +90,25 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
               reset
             </button>
           </S.FilterContent>
-          <select onChange={handleDateFilter}>
+          <S.Select name="dateSelect" onChange={handleDateFilter}>
             <option value="">Select Posted Date</option>
             {scrapDates.map((item: any, index: number) => (
               <option value={item} key={index}>
                 {item}
               </option>
             ))}
-          </select>
+          </S.Select>
         </div>
       )}
+      <div>
+        <S.FilterContent>
+          <div>Industry</div>
+          {/* <button className="reset" onClick={() => handleReset("date")}>
+            reset
+          </button> */}
+        </S.FilterContent>
+        TBD
+      </div>
       <button onClick={() => handleReset("all")}>Reset All Filters</button>
     </S.Wrapper>
   );

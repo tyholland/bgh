@@ -16,14 +16,30 @@ const Search = () => {
     router.push(`/?search=${searchWord}`);
   };
 
+  const handleClear = () => {
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+
+    params.set("search", "");
+    params.set("company", "");
+    params.set("date", "");
+    params.set("industry", "");
+    params.set("keyword", "");
+
+    const updatedQuery = `?${params.toString()}`;
+
+    router.push(updatedQuery);
+  };
+
   return (
     <S.Wrapper>
       <S.Input
         type="text"
-        placeholder="Enter position"
+        placeholder="Enter job position"
         onChange={handledSearchedWord}
       />
       <button onClick={handleSearchBtn}>Search</button>
+      <button onClick={handleClear}>Clear</button>
     </S.Wrapper>
   );
 };
