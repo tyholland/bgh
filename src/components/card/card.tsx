@@ -1,5 +1,6 @@
 "use client";
 
+import moment from "moment";
 import * as S from "./card.style";
 
 interface CardProps {
@@ -11,12 +12,19 @@ const Card = ({ job }: CardProps) => {
     window.open(job.Link);
   };
 
+  const currentDate = moment(job.Scrape_Date).format("YYYYMMDD");
+  const postedTime = moment(currentDate, "YYYYMMDD").fromNow();
+
   return (
     <S.Wrapper>
-      <div>Company Name: {job.Company}</div>
-      <div>Position: {job["Role Name"]}</div>
-      <div>Date posted: {job.Scrape_Date}</div>
-      <button onClick={openNewTab}>Apply Now</button>
+      <S.Section className="first">
+        <div className="company">{job.Company}</div>
+        <div className="position">{job["Role Name"]}</div>
+      </S.Section>
+      <S.Section className="second">
+        <button onClick={openNewTab}>See Position</button>
+        <div className="posted">Posted: {postedTime}</div>
+      </S.Section>
     </S.Wrapper>
   );
 };
