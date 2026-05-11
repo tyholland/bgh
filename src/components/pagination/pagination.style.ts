@@ -1,9 +1,17 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  padding: 10px;
+  border: 1px solid #000;
+  margin: 30px 0;
+
+  ul {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+    list-style: none;
+    justify-content: center;
+  }
 `;
 
 export const BtnWrapper = styled.div`

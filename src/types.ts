@@ -22,3 +22,7 @@ export interface AllSearchData {
   companies: string[];
   scrapDates: string[];
 }
+
+export interface PaginationClick {
+  selected: number;
+}

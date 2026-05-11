@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import * as S from "./pagination.style";
+import ReactPaginate from "react-paginate";
+import { PaginationClick } from "@/types";
 
 interface PaginationProps {
   page: number;
@@ -11,14 +13,14 @@ interface PaginationProps {
 
 const Pagination = ({ page, totalPages, total }: PaginationProps) => {
   const router = useRouter();
-  const nextPage = Number(page) + 1;
-  const prevPage = Number(page) - 1;
+  // const nextPage = Number(page) + 1;
+  // const prevPage = Number(page) - 1;
 
-  const goToNewPage = (pageNum: number) => {
+  const goToNewPage = (pageNum: PaginationClick) => {
     const query = window.location.search;
     const params = new URLSearchParams(query);
 
-    params.set("page", `${pageNum}`);
+    params.set("page", `${pageNum.selected + 1}`);
     const updatedQuery = `?${params.toString()}`;
 
     router.push(updatedQuery);
@@ -26,16 +28,15 @@ const Pagination = ({ page, totalPages, total }: PaginationProps) => {
 
   return (
     <S.Wrapper>
-      <S.BtnWrapper>
-        <button onClick={() => goToNewPage(prevPage)}>
-          Previous Page ({prevPage})
-        </button>
-        <button onClick={() => goToNewPage(nextPage)}>
-          Next Page ({Math.round(nextPage)})
-        </button>
-      </S.BtnWrapper>
-      <div>Total Results: {total}</div>
-      <div>Total Pages: {totalPages}</div>
+      <ReactPaginate
+        breakLabel="..."
+        nextLabel="next >"
+        onPageChange={goToNewPage}
+        pageRangeDisplayed={5}
+        pageCount={totalPages}
+        previousLabel="< previous"
+        renderOnZeroPageCount={null}
+      />
     </S.Wrapper>
   );
 };
