@@ -6,7 +6,6 @@ import Pagination from "@/components/pagination/pagination";
 import Search from "@/components/search/search";
 import Filter from "@/components/filter/filter";
 import { AllSearchData, CsvData } from "@/types";
-import ReactPaginate from "react-paginate";
 
 interface HomeProps {
   csvData: AllSearchData;
