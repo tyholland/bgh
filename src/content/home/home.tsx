@@ -21,6 +21,8 @@ const Home = ({ csvData }: HomeProps) => {
       <S.ResultsWrapper>
         <Filter companies={companies} scrapDates={scrapDates} />
         <div>
+          <div>Results: {total} jobs</div>
+          <Pagination page={page} totalPages={totalPages} total={total} />
           <S.CardWrapper>
             {data.map((item: CsvData, index: number) => {
               return <Card job={item} key={index} />;

@@ -11,6 +11,23 @@ export const Wrapper = styled.div`
     align-items: center;
     list-style: none;
     justify-content: center;
+
+    li {
+      &.selected {
+        background: #000;
+        color: #fff;
+        padding: 4px;
+        border-radius: 5px;
+      }
+    }
+
+    a {
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 `;
 

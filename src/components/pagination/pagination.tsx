@@ -13,8 +13,6 @@ interface PaginationProps {
 
 const Pagination = ({ page, totalPages, total }: PaginationProps) => {
   const router = useRouter();
-  // const nextPage = Number(page) + 1;
-  // const prevPage = Number(page) - 1;
 
   const goToNewPage = (pageNum: PaginationClick) => {
     const query = window.location.search;
