@@ -20,6 +20,11 @@ export const Wrapper = styled.div`
     padding: 10px;
     border-radius: 20px;
     border: none;
+    background: #1439e6;
+
+    @media only screen and (max-width: 800px) {
+      width: 90%;
+    }
 
     &:hover {
       cursor: pointer;
@@ -28,6 +33,11 @@ export const Wrapper = styled.div`
 
   .company {
     font-size: 14px;
+    background: #6faeff;
+    border-radius: 20px;
+    padding: 3px 12px;
+    width: fit-content;
+    color: #000;
   }
 
   .position {
@@ -37,6 +47,12 @@ export const Wrapper = styled.div`
 
   .posted {
     font-size: 12px;
+    width: 50%;
+    text-align: center;
+
+    @media only screen and (max-width: 800px) {
+      width: 90%;
+    }
   }
 `;
 

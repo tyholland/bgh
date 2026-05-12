@@ -20,6 +20,8 @@ export const Wrapper = styled.div`
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 10px;
+    background: #ff6b6b;
+    cursor: pointer;
   }
 `;
 
@@ -43,6 +45,7 @@ export const FilterContent = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
+  margin-bottom: 5px;
 
   button {
     with: 100%;
@@ -50,16 +53,34 @@ export const FilterContent = styled.div`
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 10px;
+    background: #1439e6;
 
     &.reset {
-      color: #000;
-      background: transparent;
+      color: #fff;
+      background: #ff6b6b;
 
       &:hover {
-        text-decoration: underline;
         cursor: pointer;
       }
     }
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
+
+export const Section = styled.div`
+  display: flex;
+  gap: 8px;
+
+  button {
+    with: 100%;
+    border: none;
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 10px;
+    background: #1439e6;
 
     &:hover {
       cursor: pointer;

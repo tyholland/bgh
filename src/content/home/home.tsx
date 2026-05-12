@@ -17,6 +17,7 @@ const Home = ({ csvData }: HomeProps) => {
 
   return (
     <S.Wrapper>
+      <img src="/bgh-logo.png" width="200" />
       <Search />
       <S.ResultsWrapper>
         <Filter companies={companies} scrapDates={scrapDates} />

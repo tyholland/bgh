@@ -70,8 +70,13 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
   return (
     <S.Wrapper>
       <div>
-        <div>Keyword Search</div>
         <S.FilterContent>
+          <div>Keyword Search</div>
+          <button className="reset" onClick={() => handleReset("company")}>
+            reset
+          </button>
+        </S.FilterContent>
+        <S.Section>
           <S.Input
             type="text"
             name="keyword"
@@ -79,10 +84,7 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
             onChange={handleKeyword}
           />
           <button onClick={handleKeywordSearch}>Search</button>
-          <button className="reset" onClick={() => handleReset("company")}>
-            reset
-          </button>
-        </S.FilterContent>
+        </S.Section>
       </div>
       {!!companies && companies.length > 0 && (
         <div>

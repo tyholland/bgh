@@ -4,7 +4,6 @@ export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 50px;
-  margin-top: 3%;
   padding: 0 2%;
 
   @media only screen and (max-width: 800px) {
@@ -21,4 +20,8 @@ export const CardWrapper = styled.div`
 export const ResultsWrapper = styled.div`
   display: flex;
   gap: 30px;
+
+  @media only screen and (max-width: 800px) {
+    flex-direction: column;
+  }
 `;

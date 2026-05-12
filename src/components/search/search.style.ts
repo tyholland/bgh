@@ -10,6 +10,16 @@ export const Wrapper = styled.div`
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 10px;
+    background: #1439e6;
+
+    &.reset {
+      color: #fff;
+      background: #ff6b6b;
+
+      &:hover {
+        cursor: pointer;
+      }
+    }
 
     &:hover {
       cursor: pointer;

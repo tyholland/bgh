@@ -28,11 +28,11 @@ const Pagination = ({ page, totalPages, total }: PaginationProps) => {
     <S.Wrapper>
       <ReactPaginate
         breakLabel="..."
-        nextLabel="next >"
+        nextLabel=">"
         onPageChange={goToNewPage}
-        pageRangeDisplayed={5}
+        pageRangeDisplayed={3}
         pageCount={totalPages}
-        previousLabel="< previous"
+        previousLabel="<"
         renderOnZeroPageCount={null}
       />
     </S.Wrapper>

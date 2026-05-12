@@ -39,7 +39,9 @@ const Search = () => {
         onChange={handledSearchedWord}
       />
       <button onClick={handleSearchBtn}>Search</button>
-      <button onClick={handleClear}>Clear</button>
+      <button className="reset" onClick={handleClear}>
+        Clear All
+      </button>
     </S.Wrapper>
   );
 };

@@ -1,31 +1,42 @@
 import styled from "styled-components";
 
 export const Wrapper = styled.div`
-  padding: 10px;
-  border: 1px solid #000;
+  padding: 10px 0;
   margin: 30px 0;
 
   ul {
     display: flex;
-    gap: 40px;
+    gap: 30px;
     align-items: center;
     list-style: none;
     justify-content: center;
 
+    @media only screen and (max-width: 800px) {
+      gap: 15px;
+    }
+
     li {
+      color: #1439e6;
+      padding: 3px 0;
+      border-radius: 5px;
+
       &.selected {
-        background: #000;
+        background: #1439e6;
         color: #fff;
-        padding: 4px;
-        border-radius: 5px;
+
+        a:hover {
+          background: transparent;
+        }
       }
     }
 
     a {
       cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 5px;
 
       &:hover {
-        text-decoration: underline;
+        background: #ededed;
       }
     }
   }
