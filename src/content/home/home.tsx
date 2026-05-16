@@ -5,10 +5,12 @@ import * as S from "./home.style";
 import Pagination from "@/components/pagination/pagination";
 import Search from "@/components/search/search";
 import Filter from "@/components/filter/filter";
-import { AllSearchData, CsvData } from "@/types";
+import { AllSearchData } from "@/types";
 import { useAtom } from "jotai";
 import { jobAtom } from "@/caches/JobsAtom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import List from "@/components/list/list";
+import ToggleButton from "react-toggle-button";
 
 interface HomeProps {
   csvData: AllSearchData;
@@ -16,6 +18,7 @@ interface HomeProps {
 
 const Home = ({ csvData }: HomeProps) => {
   const [jobData, setJobData] = useAtom(jobAtom);
+  const [isListView, setIsListView] = useState<boolean>(false);
 
   const getAllJobInfo = () => {
     setJobData(csvData);
@@ -39,16 +42,25 @@ const Home = ({ csvData }: HomeProps) => {
               industries={jobData.industries}
             />
             <div>
-              <div>Results: {jobData.total} jobs</div>
+              <S.Section>
+                <div>Results: {jobData.total} jobs</div>
+                <S.ListSection>
+                  <strong>List View</strong>
+                  <ToggleButton
+                    value={isListView}
+                    onToggle={(value: boolean) => {
+                      setIsListView(!value);
+                    }}
+                  />
+                </S.ListSection>
+              </S.Section>
               <Pagination
                 page={jobData.page}
                 totalPages={jobData.totalPages}
                 total={jobData.total}
               />
-              <S.CardWrapper>
-                {jobData.data.map((item: CsvData, index: number) => {
-                  return <Card job={item} key={index} />;
-                })}
+              <S.CardWrapper className={isListView ? "list" : ""}>
+                {isListView ? <List /> : <Card />}
               </S.CardWrapper>
               <Pagination
                 page={jobData.page}

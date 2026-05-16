@@ -16,6 +16,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-paginate": "^8.3.0",
+    "react-toggle-button": "^2.2.0",
     "styled-components": "^6.4.1"
   },
   "devDependencies": {

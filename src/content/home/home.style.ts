@@ -15,6 +15,10 @@ export const CardWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+
+  &.list {
+    gap: 0;
+  }
 `;
 
 export const ResultsWrapper = styled.div`
@@ -28,4 +32,16 @@ export const ResultsWrapper = styled.div`
   @media only screen and (max-width: 950px) {
     flex-direction: column;
   }
+`;
+
+export const Section = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 15px;
+`;
+
+export const ListSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
