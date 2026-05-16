@@ -21,6 +21,10 @@ export const ResultsWrapper = styled.div`
   display: flex;
   gap: 30px;
 
+  > div:first-child {
+    min-width: 300px;
+  }
+
   @media only screen and (max-width: 950px) {
     flex-direction: column;
   }

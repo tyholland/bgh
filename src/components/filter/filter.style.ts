@@ -31,6 +31,7 @@ export const Select = styled.select`
   background: #fff;
   color: #000;
   padding: 5px 10px;
+  width: 100%;
 `;
 
 export const Input = styled.input`

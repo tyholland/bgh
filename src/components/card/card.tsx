@@ -19,7 +19,10 @@ const Card = ({ job }: CardProps) => {
   return (
     <S.Wrapper>
       <S.Section className="first">
-        <div className="company">{job.Company}</div>
+        <div className="grid">
+          <div className="company">{job.Company}</div>
+          <div className="industry">{job["Primary Industry"]}</div>
+        </div>
         <div className="position">{job["Role Name"]}</div>
       </S.Section>
       <S.Section className="second">

@@ -2,7 +2,6 @@
 
 import { ChangeEvent, useState } from "react";
 import * as S from "./filter.style";
-import { useRouter } from "next/navigation";
 import { filterJobSearch } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
 import { useAtom } from "jotai";
@@ -14,7 +13,6 @@ interface FilterProps {
 }
 
 const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
-  const router = useRouter();
   const [jobData, setJobData] = useAtom(jobAtom);
   const [keyword, setKeyword] = useState<string>("");
 
@@ -109,6 +107,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
             type="text"
             name="keyword"
             placeholder="Enter keywords"
+            value={keyword}
             onChange={handleKeyword}
           />
           <button onClick={handleKeywordSearch}>Search</button>

@@ -31,13 +31,24 @@ export const Wrapper = styled.div`
     }
   }
 
-  .company {
+  .grid {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .company,
+  .industry {
     font-size: 14px;
     background: #6faeff;
     border-radius: 20px;
-    padding: 3px 12px;
+    padding: 4px 12px;
     width: fit-content;
     color: #000;
+  }
+
+  .industry {
+    background: #ededed;
   }
 
   .position {
