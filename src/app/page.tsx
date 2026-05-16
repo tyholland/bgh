@@ -3,11 +3,11 @@ import Home from "../content/home/home";
 import { CsvData, UrlParams } from "@/types";
 
 const getCSVData = async (params: UrlParams, limit = 10) => {
-  const { page: pageNum, search, company, date, keyword } = params;
+  const { page: pageNum, search, company, date, keyword, industry } = params;
   const page = pageNum || 1;
 
   const res = await fetch(
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQyHqBt_Nu24Rrfr26tI1nMCc7s2JYAb2Kxf61pYZKy3u-iYxjFrP3ivvzXMG5OM1EKLpwdCESBpq9R/pub?output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTCojX6uxGRp22IEXXnqLI4gHc9F26jyAwqhHlyaFh1_YbhQnWE-Dp6p-33liZXUjf4Ze4P5KbTwL3Y/pub?gid=1171311859&single=true&output=csv",
     {
       cache: "no-store",
     },
@@ -38,6 +38,13 @@ const getCSVData = async (params: UrlParams, limit = 10) => {
     );
   }
 
+  if (industry) {
+    filteredData = filteredData.filter(
+      (item: CsvData) =>
+        item["Primary Industry"]?.toLowerCase() === industry.toLowerCase(),
+    );
+  }
+
   if (keyword) {
     filteredData = filteredData.filter((item: CsvData) =>
       item["Role Name"]?.toLowerCase().includes(keyword.toLowerCase()),
@@ -59,6 +66,9 @@ const getCSVData = async (params: UrlParams, limit = 10) => {
   const scrapDates: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
   ];
+  const industries: string[] = [
+    ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
+  ];
 
   return {
     data: filteredData.slice(start, end),
@@ -66,8 +76,9 @@ const getCSVData = async (params: UrlParams, limit = 10) => {
     total: filteredData.length,
     page,
     totalPages: Math.ceil(filteredData.length / limit),
-    companies,
-    scrapDates,
+    companies: companies.sort(),
+    scrapDates: scrapDates.sort(),
+    industries: industries.sort(),
   };
 };
 

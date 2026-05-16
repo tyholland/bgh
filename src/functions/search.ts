@@ -25,6 +25,9 @@ export const updateSearchParams = (
   const scrapDates: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
   ];
+  const industries: string[] = [
+    ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
+  ];
 
   setData({
     data: filteredData.slice(start, end),
@@ -32,8 +35,9 @@ export const updateSearchParams = (
     total: filteredData.length,
     page: searchData.page,
     totalPages: Math.ceil(filteredData.length / limit),
-    companies,
-    scrapDates,
+    companies: companies.sort(),
+    scrapDates: scrapDates.sort(),
+    industries: industries.sort(),
   });
 };
 
@@ -57,6 +61,9 @@ export const clearAllSearched = (
   const scrapDates: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
   ];
+  const industries: string[] = [
+    ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
+  ];
 
   setData({
     ...searchData,
@@ -64,8 +71,9 @@ export const clearAllSearched = (
     total: filteredData.length,
     page,
     totalPages: Math.ceil(filteredData.length / limit),
-    companies,
-    scrapDates,
+    companies: companies.sort(),
+    scrapDates: scrapDates.sort(),
+    industries: industries.sort(),
   });
 };
 
@@ -98,6 +106,13 @@ export const filterJobSearch = (
     );
   }
 
+  if (industry) {
+    filteredData = filteredData.filter(
+      (item: CsvData) =>
+        item["Primary Industry"]?.toLowerCase() === industry.toLowerCase(),
+    );
+  }
+
   if (keyword) {
     filteredData = filteredData.filter((item: CsvData) =>
       item["Role Name"]?.toLowerCase().includes(keyword.toLowerCase()),
@@ -119,6 +134,9 @@ export const filterJobSearch = (
   const scrapDates: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
   ];
+  const industries: string[] = [
+    ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
+  ];
 
   setData({
     data: filteredData.slice(start, end),
@@ -126,7 +144,8 @@ export const filterJobSearch = (
     total: filteredData.length,
     page: page ? Number(page) : 1,
     totalPages: Math.ceil(filteredData.length / limit),
-    companies,
-    scrapDates,
+    companies: companies.sort(),
+    scrapDates: scrapDates.sort(),
+    industries: industries.sort(),
   });
 };

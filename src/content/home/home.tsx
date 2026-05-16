@@ -36,6 +36,7 @@ const Home = ({ csvData }: HomeProps) => {
             <Filter
               companies={jobData.companies}
               scrapDates={jobData.scrapDates}
+              industries={jobData.industries}
             />
             <div>
               <div>Results: {jobData.total} jobs</div>

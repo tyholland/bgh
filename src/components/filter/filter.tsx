@@ -10,9 +10,10 @@ import { useAtom } from "jotai";
 interface FilterProps {
   companies: string[];
   scrapDates: string[];
+  industries: string[];
 }
 
-const Filter = ({ companies, scrapDates }: FilterProps) => {
+const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
   const router = useRouter();
   const [jobData, setJobData] = useAtom(jobAtom);
   const [keyword, setKeyword] = useState<string>("");
@@ -23,6 +24,18 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
     const params = new URLSearchParams(query);
 
     params.set("company", filterChoice);
+    const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
+
+    jobData && filterJobSearch(jobData, params, setJobData);
+  };
+
+  const handleIndustryFilter = (e: ChangeEvent<HTMLSelectElement>) => {
+    const filterChoice = e.target.value;
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+
+    params.set("industry", filterChoice);
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
@@ -87,7 +100,7 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
       <div>
         <S.FilterContent>
           <div>Keyword Search</div>
-          <button className="reset" onClick={() => handleReset("company")}>
+          <button className="reset" onClick={() => handleReset("keyword")}>
             reset
           </button>
         </S.FilterContent>
@@ -123,6 +136,28 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
           </S.Select>
         </div>
       )}
+      {!!industries && industries.length > 0 && (
+        <div>
+          <S.FilterContent>
+            <div>Industry</div>
+            <button className="reset" onClick={() => handleReset("industry")}>
+              reset
+            </button>
+          </S.FilterContent>
+          <S.Select name="industrySelect" onChange={handleIndustryFilter}>
+            <option value="">Select Industry</option>
+            {industries.map((item: string, index: number) => (
+              <option
+                value={item}
+                selected={item === handleSelectedOption("industry")}
+                key={index}
+              >
+                {item}
+              </option>
+            ))}
+          </S.Select>
+        </div>
+      )}
       {!!scrapDates && scrapDates.length > 0 && (
         <div>
           <S.FilterContent>
@@ -141,15 +176,6 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
           </S.Select>
         </div>
       )}
-      <div>
-        <S.FilterContent>
-          <div>Industry</div>
-          {/* <button className="reset" onClick={() => handleReset("date")}>
-            reset
-          </button> */}
-        </S.FilterContent>
-        TBD
-      </div>
       <button className="resetAll" onClick={() => handleReset("all")}>
         Reset All Filters
       </button>
