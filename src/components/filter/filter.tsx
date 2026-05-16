@@ -3,6 +3,9 @@
 import { ChangeEvent, useState } from "react";
 import * as S from "./filter.style";
 import { useRouter } from "next/navigation";
+import { filterJobSearch } from "@/functions/search";
+import { jobAtom } from "@/caches/JobsAtom";
+import { useAtom } from "jotai";
 
 interface FilterProps {
   companies: string[];
@@ -11,6 +14,7 @@ interface FilterProps {
 
 const Filter = ({ companies, scrapDates }: FilterProps) => {
   const router = useRouter();
+  const [jobData, setJobData] = useAtom(jobAtom);
   const [keyword, setKeyword] = useState<string>("");
 
   const handleCompanyFilter = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -20,8 +24,9 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
 
     params.set("company", filterChoice);
     const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
 
-    router.push(updatedQuery);
+    jobData && filterJobSearch(jobData, params, setJobData);
   };
 
   const handleDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -31,8 +36,9 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
 
     params.set("date", filterChoice);
     const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
 
-    router.push(updatedQuery);
+    jobData && filterJobSearch(jobData, params, setJobData);
   };
 
   const handleReset = (filter: string) => {
@@ -49,8 +55,9 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
     }
 
     const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
 
-    router.push(updatedQuery);
+    jobData && filterJobSearch(jobData, params, setJobData);
   };
 
   const handleKeyword = (e: ChangeEvent<HTMLInputElement>) => {
@@ -63,8 +70,16 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
 
     params.set("keyword", keyword);
     const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
 
-    router.push(updatedQuery);
+    jobData && filterJobSearch(jobData, params, setJobData);
+  };
+
+  const handleSelectedOption = (val: string) => {
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+
+    return params.get(val);
   };
 
   return (
@@ -97,7 +112,11 @@ const Filter = ({ companies, scrapDates }: FilterProps) => {
           <S.Select name="companySelect" onChange={handleCompanyFilter}>
             <option value="">Select Company</option>
             {companies.map((item: string, index: number) => (
-              <option value={item} key={index}>
+              <option
+                value={item}
+                selected={item === handleSelectedOption("company")}
+                key={index}
+              >
                 {item}
               </option>
             ))}

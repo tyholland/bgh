@@ -43,9 +43,8 @@ export const clearAllSearched = (
 ) => {
   const limit = 10;
   const page = 1;
-  const allData: CsvData[] = searchData.allData as CsvData[];
 
-  let filteredData: CsvData[] = allData.sort((a: any, b: any) => {
+  let filteredData: CsvData[] = searchData.allData.sort((a: any, b: any) => {
     return a.Scrape_Date - b.Scrape_Date;
   });
 
@@ -60,8 +59,8 @@ export const clearAllSearched = (
   ];
 
   setData({
+    ...searchData,
     data: filteredData.slice(start, end),
-    allData: searchData.allData,
     total: filteredData.length,
     page,
     totalPages: Math.ceil(filteredData.length / limit),
@@ -70,21 +69,46 @@ export const clearAllSearched = (
   });
 };
 
-export const filterByCompany = (
+export const filterJobSearch = (
   searchData: AllSearchData,
-  filter: string,
+  params: URLSearchParams,
   setData: (val: AllSearchData) => void,
 ) => {
   const limit = 10;
-  const allData: CsvData[] = searchData.allData as CsvData[];
+  const search = params.get("search");
+  const page = params.get("page");
+  const company = params.get("company");
+  const date = params.get("date");
+  const industry = params.get("industry");
+  const keyword = params.get("keyword");
+
+  let allData: CsvData[] = searchData.allData as CsvData[];
+
+  allData = allData.filter((item: CsvData) =>
+    item["Role Name"]?.toLowerCase().includes((search || "").toLowerCase()),
+  );
 
   let filteredData: CsvData[] = allData.sort((a: any, b: any) => {
     return a.Scrape_Date - b.Scrape_Date;
   });
 
-  filteredData = filteredData.filter(
-    (item: CsvData) => item.Company?.toLowerCase() === filter.toLowerCase(),
-  );
+  if (company) {
+    filteredData = filteredData.filter(
+      (item: CsvData) => item.Company?.toLowerCase() === company.toLowerCase(),
+    );
+  }
+
+  if (keyword) {
+    filteredData = filteredData.filter((item: CsvData) =>
+      item["Role Name"]?.toLowerCase().includes(keyword.toLowerCase()),
+    );
+  }
+
+  if (date) {
+    filteredData = filteredData.filter(
+      (item: CsvData) => item.Scrape_Date?.toLowerCase() === date.toLowerCase(),
+    );
+  }
 
   const start = (searchData.page - 1) * limit;
   const end = start + limit;
@@ -100,7 +124,7 @@ export const filterByCompany = (
     data: filteredData.slice(start, end),
     allData: searchData.allData,
     total: filteredData.length,
-    page: searchData.page,
+    page: page ? Number(page) : 1,
     totalPages: Math.ceil(filteredData.length / limit),
     companies,
     scrapDates,
