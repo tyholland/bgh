@@ -6,7 +6,7 @@ export const Wrapper = styled.div`
   gap: 50px;
   padding: 0 2%;
 
-  @media only screen and (max-width: 800px) {
+  @media only screen and (max-width: 950px) {
     padding: 2%;
   }
 `;
@@ -21,7 +21,7 @@ export const ResultsWrapper = styled.div`
   display: flex;
   gap: 30px;
 
-  @media only screen and (max-width: 800px) {
+  @media only screen and (max-width: 950px) {
     flex-direction: column;
   }
 `;

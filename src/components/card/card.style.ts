@@ -11,7 +11,7 @@ export const Wrapper = styled.div`
   justify-content: space-between;
   align-items: center;
 
-  @media only screen and (max-width: 800px) {
+  @media only screen and (max-width: 950px) {
     width: 100%;
   }
 
@@ -22,7 +22,7 @@ export const Wrapper = styled.div`
     border: none;
     background: #1439e6;
 
-    @media only screen and (max-width: 800px) {
+    @media only screen and (max-width: 950px) {
       width: 90%;
     }
 
@@ -50,7 +50,7 @@ export const Wrapper = styled.div`
     width: 50%;
     text-align: center;
 
-    @media only screen and (max-width: 800px) {
+    @media only screen and (max-width: 950px) {
       width: 90%;
     }
   }

@@ -11,7 +11,7 @@ export const Wrapper = styled.div`
     list-style: none;
     justify-content: center;
 
-    @media only screen and (max-width: 800px) {
+    @media only screen and (max-width: 950px) {
       gap: 15px;
     }
 

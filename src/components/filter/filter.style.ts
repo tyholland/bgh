@@ -10,7 +10,7 @@ export const Wrapper = styled.div`
   box-shadow: 5px 5px 5px #ddd;
   height: 100%;
 
-  @media only screen and (max-width: 800px) {
+  @media only screen and (max-width: 950px) {
     flex-direction: column;
   }
 
