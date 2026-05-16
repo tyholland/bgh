@@ -2,10 +2,12 @@
 
 import { ChangeEvent, useState } from "react";
 import * as S from "./search.style";
-import { useRouter } from "next/navigation";
+import { useAtom } from "jotai";
+import { jobAtom } from "@/caches/JobsAtom";
+import { clearAllSearched, updateSearchParams } from "@/functions/search";
 
 const Search = () => {
-  const router = useRouter();
+  const [jobData, setJobData] = useAtom(jobAtom);
   const [searchWord, setSearchWord] = useState<string>("");
 
   const handledSearchedWord = (e: ChangeEvent<HTMLInputElement>) => {
@@ -13,22 +15,16 @@ const Search = () => {
   };
 
   const handleSearchBtn = () => {
-    router.push(`/?search=${searchWord}`);
+    window.history.pushState({}, "", `/?search=${searchWord}`);
+
+    jobData && updateSearchParams(jobData, searchWord, setJobData);
   };
 
   const handleClear = () => {
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
+    window.history.pushState({}, "", "/");
+    setSearchWord("");
 
-    params.set("search", "");
-    params.set("company", "");
-    params.set("date", "");
-    params.set("industry", "");
-    params.set("keyword", "");
-
-    const updatedQuery = `?${params.toString()}`;
-
-    router.push(updatedQuery);
+    jobData && clearAllSearched(jobData, setJobData);
   };
 
   return (
@@ -36,6 +32,7 @@ const Search = () => {
       <S.Input
         type="text"
         placeholder="Enter job position"
+        value={searchWord}
         onChange={handledSearchedWord}
       />
       <button onClick={handleSearchBtn}>Search</button>

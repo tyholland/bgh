@@ -62,7 +62,7 @@ const getCSVData = async (params: UrlParams, limit = 10) => {
 
   return {
     data: filteredData.slice(start, end),
-    allData: filteredData,
+    allData: parsedData.data as CsvData[],
     total: filteredData.length,
     page,
     totalPages: Math.ceil(filteredData.length / limit),
