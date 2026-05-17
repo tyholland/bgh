@@ -54,19 +54,11 @@ const Home = ({ csvData }: HomeProps) => {
                   />
                 </S.ListSection>
               </S.Section>
-              <Pagination
-                page={jobData.page}
-                totalPages={jobData.totalPages}
-                total={jobData.total}
-              />
+              <Pagination totalPages={jobData.totalPages} />
               <S.CardWrapper className={isListView ? "list" : ""}>
                 {isListView ? <List /> : <Card />}
               </S.CardWrapper>
-              <Pagination
-                page={jobData.page}
-                totalPages={jobData.totalPages}
-                total={jobData.total}
-              />
+              <Pagination totalPages={jobData.totalPages} />
             </div>
           </S.ResultsWrapper>
         </>

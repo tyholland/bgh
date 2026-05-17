@@ -5,6 +5,7 @@ import * as S from "./list.style";
 import { CsvData } from "@/types";
 import { useAtomValue } from "jotai";
 import { jobAtom } from "@/caches/JobsAtom";
+import { trackEvent } from "@/functions/mixpanel";
 
 const List = () => {
   const jobData = useAtomValue(jobAtom);
@@ -33,6 +34,11 @@ const List = () => {
       {jobData?.data.map((item: CsvData, index: number) => {
         const openNewTab = () => {
           window.open(item.Link);
+
+          trackEvent("See Role", {
+            type: "card",
+            item,
+          });
         };
 
         const currentDate = moment(item.Scrape_Date).format("YYYYMMDD");

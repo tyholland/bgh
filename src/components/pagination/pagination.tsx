@@ -1,18 +1,18 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import * as S from "./pagination.style";
 import ReactPaginate from "react-paginate";
 import { PaginationClick } from "@/types";
+import { useAtom } from "jotai";
+import { jobAtom } from "@/caches/JobsAtom";
+import { filterJobSearch } from "@/functions/search";
 
 interface PaginationProps {
-  page: number;
   totalPages: number;
-  total: number;
 }
 
-const Pagination = ({ page, totalPages, total }: PaginationProps) => {
-  const router = useRouter();
+const Pagination = ({ totalPages }: PaginationProps) => {
+  const [jobData, setJobData] = useAtom(jobAtom);
 
   const goToNewPage = (pageNum: PaginationClick) => {
     const query = window.location.search;
@@ -20,8 +20,9 @@ const Pagination = ({ page, totalPages, total }: PaginationProps) => {
 
     params.set("page", `${pageNum.selected + 1}`);
     const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
 
-    router.push(updatedQuery);
+    jobData && filterJobSearch(jobData, params, setJobData);
   };
 
   return (

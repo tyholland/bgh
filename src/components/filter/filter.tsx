@@ -5,6 +5,7 @@ import * as S from "./filter.style";
 import { filterJobSearch } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
 import { useAtom } from "jotai";
+import { trackEvent } from "@/functions/mixpanel";
 
 interface FilterProps {
   companies: string[];
@@ -26,6 +27,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     window.history.pushState({}, "", updatedQuery);
 
     jobData && filterJobSearch(jobData, params, setJobData);
+
+    trackEvent("Filter", {
+      type: "company",
+      value: filterChoice,
+    });
   };
 
   const handleIndustryFilter = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -38,6 +44,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     window.history.pushState({}, "", updatedQuery);
 
     jobData && filterJobSearch(jobData, params, setJobData);
+
+    trackEvent("Filter", {
+      type: "industry",
+      value: filterChoice,
+    });
   };
 
   const handleDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -50,6 +61,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     window.history.pushState({}, "", updatedQuery);
 
     jobData && filterJobSearch(jobData, params, setJobData);
+
+    trackEvent("Filter", {
+      type: "date",
+      value: filterChoice,
+    });
   };
 
   const handleReset = (filter: string) => {
@@ -73,6 +89,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     window.history.pushState({}, "", updatedQuery);
 
     jobData && filterJobSearch(jobData, params, setJobData);
+
+    trackEvent("Filter", {
+      type: "reset",
+      value: filter === "all" ? "all filters" : filter,
+    });
   };
 
   const handleKeyword = (e: ChangeEvent<HTMLInputElement>) => {
@@ -88,6 +109,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     window.history.pushState({}, "", updatedQuery);
 
     jobData && filterJobSearch(jobData, params, setJobData);
+
+    trackEvent("Filter", {
+      type: "keyword",
+      value: keyword,
+    });
   };
 
   const handleSelectedOption = (val: string) => {
