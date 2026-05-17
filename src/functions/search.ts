@@ -12,8 +12,12 @@ export const updateSearchParams = (
     item["Role Name"]?.toLowerCase().includes(searchWord.toLowerCase()),
   );
 
-  let filteredData: CsvData[] = allData.sort((a: any, b: any) => {
-    return a.Scrape_Date - b.Scrape_Date;
+  let filteredData: CsvData[] = allData.sort((a: CsvData, b: CsvData) => {
+    const dateA = a.Scrape_Date ? new Date(a.Scrape_Date).getTime() : 0;
+
+    const dateB = b.Scrape_Date ? new Date(b.Scrape_Date).getTime() : 0;
+
+    return dateB - dateA;
   });
 
   const start = (searchData.page - 1) * limit;
@@ -48,9 +52,15 @@ export const clearAllSearched = (
   const limit = 10;
   const page = 1;
 
-  let filteredData: CsvData[] = searchData.allData.sort((a: any, b: any) => {
-    return a.Scrape_Date - b.Scrape_Date;
-  });
+  let filteredData: CsvData[] = searchData.allData.sort(
+    (a: CsvData, b: CsvData) => {
+      const dateA = a.Scrape_Date ? new Date(a.Scrape_Date).getTime() : 0;
+
+      const dateB = b.Scrape_Date ? new Date(b.Scrape_Date).getTime() : 0;
+
+      return dateB - dateA;
+    },
+  );
 
   const start = (page - 1) * limit;
   const end = start + limit;
@@ -96,8 +106,12 @@ export const filterJobSearch = (
     item["Role Name"]?.toLowerCase().includes((search || "").toLowerCase()),
   );
 
-  let filteredData: CsvData[] = allData.sort((a: any, b: any) => {
-    return a.Scrape_Date - b.Scrape_Date;
+  let filteredData: CsvData[] = allData.sort((a: CsvData, b: CsvData) => {
+    const dateA = a.Scrape_Date ? new Date(a.Scrape_Date).getTime() : 0;
+
+    const dateB = b.Scrape_Date ? new Date(b.Scrape_Date).getTime() : 0;
+
+    return dateB - dateA;
   });
 
   if (company) {

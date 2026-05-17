@@ -156,14 +156,18 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
               reset
             </button>
           </S.FilterContent>
-          <S.Select name="companySelect" onChange={handleCompanyFilter}>
+          <S.Select
+            name="companySelect"
+            onChange={handleCompanyFilter}
+            defaultValue={
+              companies.filter(
+                (item: string) => item === handleSelectedOption("company"),
+              )[0]
+            }
+          >
             <option value="">Select Company</option>
             {companies.map((item: string, index: number) => (
-              <option
-                value={item}
-                selected={item === handleSelectedOption("company")}
-                key={index}
-              >
+              <option value={item} key={index}>
                 {item}
               </option>
             ))}
@@ -178,14 +182,18 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
               reset
             </button>
           </S.FilterContent>
-          <S.Select name="industrySelect" onChange={handleIndustryFilter}>
+          <S.Select
+            name="industrySelect"
+            onChange={handleIndustryFilter}
+            defaultValue={
+              companies.filter(
+                (item: string) => item === handleSelectedOption("industry"),
+              )[0]
+            }
+          >
             <option value="">Select Industry</option>
             {industries.map((item: string, index: number) => (
-              <option
-                value={item}
-                selected={item === handleSelectedOption("industry")}
-                key={index}
-              >
+              <option value={item} key={index}>
                 {item}
               </option>
             ))}

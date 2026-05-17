@@ -28,8 +28,12 @@ const getCSVData = async (params: UrlParams, limit = 10) => {
     );
   }
 
-  let filteredData: CsvData[] = allData.sort((a: any, b: any) => {
-    return a.Scrape_Date - b.Scrape_Date;
+  let filteredData = allData.sort((a: CsvData, b: CsvData) => {
+    const dateA = a.Scrape_Date ? new Date(a.Scrape_Date).getTime() : 0;
+
+    const dateB = b.Scrape_Date ? new Date(b.Scrape_Date).getTime() : 0;
+
+    return dateB - dateA;
   });
 
   if (company) {
