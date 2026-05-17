@@ -114,8 +114,10 @@ export const filterJobSearch = (
   }
 
   if (keyword) {
+    const keywordSplit = keyword.split(",").map((k) => k.trim().toLowerCase());
+
     filteredData = filteredData.filter((item: CsvData) =>
-      item["Role Name"]?.toLowerCase().includes(keyword.toLowerCase()),
+      keywordSplit.some((k) => item["Role Name"]?.toLowerCase().includes(k)),
     );
   }
 

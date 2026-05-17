@@ -88,3 +88,9 @@ export const Section = styled.div`
     }
   }
 `;
+
+export const Disclaimer = styled.div`
+  font-size: 12px;
+  margin-top: 8px;
+  color: #999;
+`;

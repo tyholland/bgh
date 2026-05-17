@@ -46,8 +46,10 @@ const getCSVData = async (params: UrlParams, limit = 10) => {
   }
 
   if (keyword) {
+    const keywordSplit = keyword.split(",").map((k) => k.trim().toLowerCase());
+
     filteredData = filteredData.filter((item: CsvData) =>
-      item["Role Name"]?.toLowerCase().includes(keyword.toLowerCase()),
+      keywordSplit.some((k) => item["Role Name"]?.toLowerCase().includes(k)),
     );
   }
 

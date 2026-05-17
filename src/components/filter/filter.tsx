@@ -65,6 +65,10 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       params.set(filter, "");
     }
 
+    if (filter === "keyword") {
+      setKeyword("");
+    }
+
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
@@ -106,12 +110,17 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
           <S.Input
             type="text"
             name="keyword"
-            placeholder="Enter keywords"
+            placeholder="Enter multiple keywords"
             value={keyword}
             onChange={handleKeyword}
           />
           <button onClick={handleKeywordSearch}>Search</button>
         </S.Section>
+        <S.Disclaimer>
+          Separate keywords with a comma.
+          <br />
+          Ex: service, care, sales
+        </S.Disclaimer>
       </div>
       {!!companies && companies.length > 0 && (
         <div>
