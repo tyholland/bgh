@@ -3,6 +3,12 @@ import styled from "styled-components";
 export const Wrapper = styled.div`
   padding: 10px 0;
   margin: 30px 0;
+  padding: 1%;
+  border: 1px solid #000;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 5px 5px 5px #ddd;
+  background: #fff;
 
   ul {
     display: flex;

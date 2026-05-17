@@ -10,6 +10,7 @@ export const Wrapper = styled.div`
   overflow-wrap: break-word;
   justify-content: space-between;
   align-items: center;
+  background: #fff;
 
   @media only screen and (max-width: 950px) {
     width: 100%;

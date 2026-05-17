@@ -9,6 +9,7 @@ export const Wrapper = styled.div`
   width: 100%;
   overflow-wrap: break-word;
   align-items: center;
+  background: #fff;
 
   &:first-child {
     border-top: 1px solid #000;
