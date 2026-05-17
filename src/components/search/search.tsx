@@ -42,6 +42,7 @@ const Search = () => {
     <S.Wrapper>
       <S.Input
         type="text"
+        name="mainSearch"
         placeholder="Enter job role"
         value={searchWord}
         onChange={handledSearchedWord}

@@ -3,6 +3,7 @@ import styled from "styled-components";
 export const Wrapper = styled.div`
   display: flex;
   gap: 10px;
+  justify-content: center;
 
   button {
     with: 100%;
@@ -33,4 +34,5 @@ export const Input = styled.input`
   border: 1px solid #000;
   border-radius: 10px;
   padding: 5px 10px;
+  width: 400px;
 `;
