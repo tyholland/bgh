@@ -21,8 +21,13 @@ export const Wrapper = styled.div`
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 10px;
-    background: #ff6b6b;
+    background: #ddd;
+    color: #999;
     cursor: pointer;
+
+    &:hover {
+      color: #000;
+    }
   }
 `;
 
@@ -58,11 +63,12 @@ export const FilterContent = styled.div`
     background: #1439e6;
 
     &.reset {
-      color: #fff;
-      background: #ff6b6b;
+      background: #ddd;
+      color: #999;
 
       &:hover {
         cursor: pointer;
+        color: #000;
       }
     }
 

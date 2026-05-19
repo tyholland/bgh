@@ -11,8 +11,13 @@ export const Wrapper = styled.div`
   align-items: center;
   background: #fff;
 
+  &:hover {
+    background: #6ad5b5;
+  }
+
   &:first-child {
     border-top: 1px solid #000;
+    background: #fff;
   }
 
   @media only screen and (max-width: 950px) {

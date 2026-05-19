@@ -4,13 +4,19 @@ export const Wrapper = styled.div`
   display: flex;
   padding: 2%;
   border: 1px solid #000;
-  width: 100%;
+  width: 31%;
   border-radius: 10px;
   box-shadow: 5px 5px 5px #ddd;
   overflow-wrap: break-word;
-  justify-content: space-between;
   align-items: center;
   background: #fff;
+  gap: 25px;
+  flex-direction: column;
+  min-height: 250px;
+
+  &:hover {
+    background: #6ad5b5;
+  }
 
   @media only screen and (max-width: 950px) {
     width: 100%;
@@ -34,22 +40,23 @@ export const Wrapper = styled.div`
 
   .grid {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 10px;
   }
 
   .company,
   .industry {
     font-size: 14px;
-    background: #6faeff;
-    border-radius: 20px;
-    padding: 4px 12px;
+    background: #514c4c;
+    border-radius: 10px;
+    padding: 6px 10px;
     width: fit-content;
-    color: #000;
+    color: #fff;
   }
 
   .industry {
-    background: #ededed;
+    background: #6fd8b8;
+    color: #000;
   }
 
   .position {
@@ -59,26 +66,24 @@ export const Wrapper = styled.div`
 
   .posted {
     font-size: 12px;
-    width: 50%;
-    text-align: center;
-
-    @media only screen and (max-width: 950px) {
-      width: 90%;
-    }
+    width: 100%;
+    text-align: right;
   }
 `;
 
 export const Section = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 15px;
 
   &.first {
-    width: 70%;
+    width: 100%;
+    min-height: 160px;
   }
 
   &.second {
-    width: 30%;
-    align-items: flex-end;
+    width: 100%;
+    justify-content: flex-end;
+    flex-direction: row;
   }
 `;

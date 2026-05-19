@@ -14,11 +14,12 @@ export const Wrapper = styled.div`
     background: #1439e6;
 
     &.reset {
-      color: #fff;
-      background: #ff6b6b;
+      color: #999;
+      background: #ddd;
 
       &:hover {
         cursor: pointer;
+        color: #000;
       }
     }
 

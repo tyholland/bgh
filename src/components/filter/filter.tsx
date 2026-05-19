@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useState } from "react";
 import * as S from "./filter.style";
-import { filterJobSearch } from "@/functions/search";
+import { handleSearchParams } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
 import { useAtom } from "jotai";
 import { trackEvent } from "@/functions/mixpanel";
@@ -26,7 +26,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
-    jobData && filterJobSearch(jobData, params, setJobData);
+    jobData && handleSearchParams(jobData, params, setJobData);
 
     trackEvent("Filter", {
       type: "company",
@@ -43,7 +43,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
-    jobData && filterJobSearch(jobData, params, setJobData);
+    jobData && handleSearchParams(jobData, params, setJobData);
 
     trackEvent("Filter", {
       type: "industry",
@@ -60,7 +60,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
-    jobData && filterJobSearch(jobData, params, setJobData);
+    jobData && handleSearchParams(jobData, params, setJobData);
 
     trackEvent("Filter", {
       type: "date",
@@ -88,7 +88,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
-    jobData && filterJobSearch(jobData, params, setJobData);
+    jobData && handleSearchParams(jobData, params, setJobData);
 
     trackEvent("Filter", {
       type: "reset",
@@ -108,7 +108,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
-    jobData && filterJobSearch(jobData, params, setJobData);
+    jobData && handleSearchParams(jobData, params, setJobData);
 
     trackEvent("Filter", {
       type: "keyword",
@@ -159,10 +159,10 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
           <S.Select
             name="companySelect"
             onChange={handleCompanyFilter}
-            defaultValue={
+            value={
               companies.filter(
                 (item: string) => item === handleSelectedOption("company"),
-              )[0]
+              )[0] || ""
             }
           >
             <option value="">Select Company</option>
@@ -185,10 +185,10 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
           <S.Select
             name="industrySelect"
             onChange={handleIndustryFilter}
-            defaultValue={
-              companies.filter(
+            value={
+              industries.filter(
                 (item: string) => item === handleSelectedOption("industry"),
-              )[0]
+              )[0] || ""
             }
           >
             <option value="">Select Industry</option>

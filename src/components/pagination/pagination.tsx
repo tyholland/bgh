@@ -5,7 +5,7 @@ import ReactPaginate from "react-paginate";
 import { PaginationClick } from "@/types";
 import { useAtom } from "jotai";
 import { jobAtom } from "@/caches/JobsAtom";
-import { filterJobSearch } from "@/functions/search";
+import { handleSearchParams } from "@/functions/search";
 
 interface PaginationProps {
   totalPages: number;
@@ -22,7 +22,7 @@ const Pagination = ({ totalPages }: PaginationProps) => {
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
-    jobData && filterJobSearch(jobData, params, setJobData);
+    jobData && handleSearchParams(jobData, params, setJobData);
   };
 
   return (

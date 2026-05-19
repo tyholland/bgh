@@ -4,7 +4,7 @@ import { ChangeEvent, useState } from "react";
 import * as S from "./search.style";
 import { useAtom } from "jotai";
 import { jobAtom } from "@/caches/JobsAtom";
-import { clearAllSearched, updateSearchParams } from "@/functions/search";
+import { handleSearchParams } from "@/functions/search";
 import { trackEvent } from "@/functions/mixpanel";
 
 const Search = () => {
@@ -16,9 +16,14 @@ const Search = () => {
   };
 
   const handleSearchBtn = () => {
-    window.history.pushState({}, "", `/?search=${searchWord}`);
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
 
-    jobData && updateSearchParams(jobData, searchWord, setJobData);
+    params.set("search", searchWord);
+    const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
+
+    jobData && handleSearchParams(jobData, params, setJobData);
 
     trackEvent("Search", {
       type: "input field",
@@ -27,14 +32,20 @@ const Search = () => {
   };
 
   const handleClear = () => {
-    window.history.pushState({}, "", "/");
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+
+    params.set("search", "");
+    const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
+
     setSearchWord("");
 
-    jobData && clearAllSearched(jobData, setJobData);
+    jobData && handleSearchParams(jobData, params, setJobData);
 
     trackEvent("Search", {
-      type: "clear all",
-      value: "clear all search and filters",
+      type: "clear",
+      value: "clear search input",
     });
   };
 
@@ -49,7 +60,7 @@ const Search = () => {
       />
       <button onClick={handleSearchBtn}>Search</button>
       <button className="reset" onClick={handleClear}>
-        Clear All
+        Clear
       </button>
     </S.Wrapper>
   );

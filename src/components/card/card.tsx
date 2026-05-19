@@ -27,16 +27,14 @@ const Card = () => {
 
         return (
           <S.Wrapper key={index}>
+            <div className="posted">Posted: {postedTime}</div>
             <S.Section className="first">
-              <div className="grid">
-                <div className="company">{item.Company}</div>
-                <div className="industry">{item["Primary Industry"]}</div>
-              </div>
+              <div className="company">{item.Company}</div>
               <div className="position">{item["Role Name"]}</div>
+              {/* <div className="industry">{item["Primary Industry"]}</div> */}
             </S.Section>
             <S.Section className="second">
               <button onClick={openNewTab}>See Role</button>
-              <div className="posted">Posted: {postedTime}</div>
             </S.Section>
           </S.Wrapper>
         );

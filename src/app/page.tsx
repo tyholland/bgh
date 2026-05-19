@@ -2,7 +2,7 @@ import Papa from "papaparse";
 import Home from "../content/home/home";
 import { CsvData, UrlParams } from "@/types";
 
-const getCSVData = async (params: UrlParams, limit = 10) => {
+const getCSVData = async (params: UrlParams, limit = 18) => {
   const { page: pageNum, search, company, date, keyword, industry } = params;
   const page = pageNum || 1;
 
