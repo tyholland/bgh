@@ -11,6 +11,7 @@ import { jobAtom } from "@/caches/JobsAtom";
 import { useEffect, useState } from "react";
 import List from "@/components/list/list";
 import ToggleButton from "react-toggle-button";
+import Nav from "@/components/nav/nav";
 
 interface HomeProps {
   csvData: AllSearchData;
@@ -30,7 +31,6 @@ const Home = ({ csvData }: HomeProps) => {
 
   return (
     <S.Wrapper>
-      <img src="/bgh-logo.png" width="200" />
       {!jobData && <div>Loading...</div>}
       {!!jobData && (
         <>
