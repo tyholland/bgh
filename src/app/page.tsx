@@ -92,11 +92,7 @@ const Page = async ({ searchParams }: any) => {
   const params = await searchParams;
   const data = await getCSVData(params);
 
-  return (
-    <>
-      <Home csvData={data} />
-    </>
-  );
+  return <Home csvData={data} />;
 };
 
 export default Page;

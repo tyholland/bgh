@@ -1,11 +1,5 @@
 import ContactPage from "../../content/contact/contact";
 
-const Contact = () => {
-  return (
-    <>
-      <ContactPage />
-    </>
-  );
-};
+const Contact = () => <ContactPage />;
 
 export default Contact;
