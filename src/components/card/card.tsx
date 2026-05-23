@@ -1,14 +1,16 @@
 "use client";
 
-import moment from "moment";
 import * as S from "./card.style";
 import { CsvData } from "@/types";
 import { useAtomValue } from "jotai";
 import { jobAtom } from "@/caches/JobsAtom";
 import { trackEvent } from "@/functions/mixpanel";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
 const Card = () => {
   const jobData = useAtomValue(jobAtom);
+  dayjs.extend(relativeTime);
 
   return (
     <>
@@ -22,8 +24,8 @@ const Card = () => {
           });
         };
 
-        const currentDate = moment(item.Scrape_Date).format("YYYYMMDD");
-        const postedTime = moment(currentDate, "YYYYMMDD").fromNow();
+        const currentDate = dayjs(item.Scrape_Date).format("YYYYMMDD");
+        const postedTime = dayjs(currentDate).fromNow();
 
         return (
           <S.Wrapper key={index}>

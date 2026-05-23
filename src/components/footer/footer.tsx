@@ -1,9 +1,10 @@
 "use client";
 
 import * as S from "./footer.style";
+import dayjs from "dayjs";
 
 const Footer = () => {
-  const year = new Date().getFullYear();
+  const year = dayjs().format("YYYY");
 
   return (
     <S.Wrapper>

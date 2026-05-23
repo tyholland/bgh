@@ -1,11 +1,14 @@
 "use client";
 
-import Nav from "@/components/nav/nav";
-
 const Contact = () => {
   return (
     <div>
-      <div>Hello</div>
+      Please provide us with any feedback. Your feedback will help make our
+      product stronger.
+      <div>First Name</div>
+      <div>Last Name</div>
+      <div>Email</div>
+      <div>Message</div>
     </div>
   );
 };

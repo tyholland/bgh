@@ -1,14 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import * as S from "./nav.style";
 import { trackEvent } from "@/functions/mixpanel";
 
 const Nav = () => {
   return (
     <S.Wrapper>
-      <img src="/bgh-logo.png" width="200" />
+      <Link href="/">
+        <img src="/bgh-logo.png" width="200" />
+      </Link>
       <S.Section>
-        <div>Feedback</div>
+        <button>Feedback</button>
         <S.LinksWrapper>
           <div>Sign In / Logged In</div>
         </S.LinksWrapper>

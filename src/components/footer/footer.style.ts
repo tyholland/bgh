@@ -8,4 +8,8 @@ export const Wrapper = styled.div`
   background: #fff;
   padding: 0 20px;
   height: 100px;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  max-width: 1340px;
 `;

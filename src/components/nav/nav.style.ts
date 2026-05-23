@@ -19,4 +19,12 @@ export const Section = styled.div`
   flex-direction: column;
   gap: 10px;
   text-align: right;
+
+  button {
+    background: #000;
+    color: yellow;
+    border: none;
+    border-radius: 10px;
+    padding: 4px;
+  }
 `;
