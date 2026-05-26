@@ -28,40 +28,39 @@ const Home = ({ csvData }: HomeProps) => {
     !jobData && getAllJobInfo();
   }, [jobData]);
 
+  if (!jobData) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <S.Wrapper>
-      {!jobData && <div>Loading...</div>}
-      {!!jobData && (
-        <>
-          <Search />
-          <S.ResultsWrapper>
-            <Filter
-              companies={jobData.companies}
-              scrapDates={jobData.scrapDates}
-              industries={jobData.industries}
-            />
-            <div>
-              <S.Section>
-                <div>Results: {jobData.total} jobs</div>
-                <S.ListSection>
-                  <strong>List View</strong>
-                  <ToggleButton
-                    value={isListView}
-                    onToggle={(value: boolean) => {
-                      setIsListView(!value);
-                    }}
-                  />
-                </S.ListSection>
-              </S.Section>
-              <Pagination totalPages={jobData.totalPages} />
-              <S.CardWrapper className={isListView ? "list" : ""}>
-                {isListView ? <List /> : <Card />}
-              </S.CardWrapper>
-              <Pagination totalPages={jobData.totalPages} />
-            </div>
-          </S.ResultsWrapper>
-        </>
-      )}
+      <Search />
+      <S.ResultsWrapper>
+        <Filter
+          companies={jobData.companies}
+          scrapDates={jobData.scrapDates}
+          industries={jobData.industries}
+        />
+        <div>
+          <S.Section>
+            <div>Results: {jobData.total} jobs</div>
+            <S.ListSection>
+              <strong>List View</strong>
+              <ToggleButton
+                value={isListView}
+                onToggle={(value: boolean) => {
+                  setIsListView(!value);
+                }}
+              />
+            </S.ListSection>
+          </S.Section>
+          <Pagination totalPages={jobData.totalPages} />
+          <S.CardWrapper className={isListView ? "list" : ""}>
+            {isListView ? <List /> : <Card />}
+          </S.CardWrapper>
+          <Pagination totalPages={jobData.totalPages} />
+        </div>
+      </S.ResultsWrapper>
     </S.Wrapper>
   );
 };

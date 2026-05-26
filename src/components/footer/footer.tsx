@@ -1,13 +1,12 @@
 "use client";
 
-import * as S from "./footer.style";
 import dayjs from "dayjs";
 
 const Footer = () => {
   const year = dayjs().format("YYYY");
 
   return (
-    <S.Wrapper>
+    <footer>
       <div>&copy; {year} BGH Scout.</div>
       <div>
         Site by{" "}
@@ -15,7 +14,7 @@ const Footer = () => {
           HeiPro Digital
         </a>
       </div>
-    </S.Wrapper>
+    </footer>
   );
 };
 

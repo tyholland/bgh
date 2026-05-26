@@ -4,7 +4,7 @@ export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 50px;
-  padding: 0 2%;
+  padding: 2%;
 
   @media only screen and (max-width: 950px) {
     padding: 2%;

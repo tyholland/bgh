@@ -1,4 +1,5 @@
 import { AllSearchData, CsvData } from "@/types";
+import dayjs from "dayjs";
 
 const limit = 18;
 
@@ -21,9 +22,9 @@ export const handleSearchParams = (
   );
 
   let filteredData: CsvData[] = allData.sort((a: CsvData, b: CsvData) => {
-    const dateA = a.Scrape_Date ? new Date(a.Scrape_Date).getTime() : 0;
+    const dateA = a.Scrape_Date ? dayjs(a.Scrape_Date).unix() : 0;
 
-    const dateB = b.Scrape_Date ? new Date(b.Scrape_Date).getTime() : 0;
+    const dateB = b.Scrape_Date ? dayjs(b.Scrape_Date).unix() : 0;
 
     return dateB - dateA;
   });

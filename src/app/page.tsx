@@ -1,6 +1,7 @@
 import Papa from "papaparse";
 import Home from "../content/home/home";
 import { CsvData, UrlParams } from "@/types";
+import dayjs from "dayjs";
 
 const getCSVData = async (params: UrlParams, limit = 18) => {
   const { page: pageNum, search, company, date, keyword, industry } = params;
@@ -29,9 +30,9 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   }
 
   let filteredData = allData.sort((a: CsvData, b: CsvData) => {
-    const dateA = a.Scrape_Date ? new Date(a.Scrape_Date).getTime() : 0;
+    const dateA = a.Scrape_Date ? dayjs(a.Scrape_Date).unix() : 0;
 
-    const dateB = b.Scrape_Date ? new Date(b.Scrape_Date).getTime() : 0;
+    const dateB = b.Scrape_Date ? dayjs(b.Scrape_Date).unix() : 0;
 
     return dateB - dateA;
   });

@@ -1,22 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import * as S from "./nav.style";
 import { trackEvent } from "@/functions/mixpanel";
+import { useRouter } from "next/navigation";
 
 const Nav = () => {
+  const navigate = useRouter();
+
+  const handleFeedback = () => {
+    trackEvent("Feedback", {
+      type: "button",
+    });
+
+    navigate.push("/contact");
+  };
+
   return (
-    <S.Wrapper>
+    <header>
       <Link href="/">
         <img src="/bgh-logo.png" width="200" />
       </Link>
-      <S.Section>
-        <button>Feedback</button>
-        <S.LinksWrapper>
+      <div className="section">
+        <button onClick={handleFeedback}>Feedback</button>
+        <div className="linksWrapper">
           <div>Sign In / Logged In</div>
-        </S.LinksWrapper>
-      </S.Section>
-    </S.Wrapper>
+        </div>
+      </div>
+    </header>
   );
 };
 
