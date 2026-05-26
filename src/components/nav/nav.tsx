@@ -8,11 +8,11 @@ const Nav = () => {
   const navigate = useRouter();
 
   const handleFeedback = () => {
+    navigate.push("/contact");
+
     trackEvent("Feedback", {
       type: "button",
     });
-
-    navigate.push("/contact");
   };
 
   return (
