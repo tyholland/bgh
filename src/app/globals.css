@@ -72,15 +72,16 @@ header {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    text-align: right;
+    align-items: flex-end;
 
     button {
       background: #000;
       color: yellow;
       border: none;
       border-radius: 10px;
-      padding: 4px;
+      padding: 6px 12px;
       cursor: pointer;
+      width: fit-content;
     }
   }
 
