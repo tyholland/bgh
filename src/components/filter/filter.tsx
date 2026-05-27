@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import * as S from "./filter.style";
 import { handleSearchParams } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
@@ -19,14 +19,29 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
   const [companyReset, setCompanyReset] = useState<boolean>(false);
   const [industryReset, setIndustryReset] = useState<boolean>(false);
   const [keywordBubble, setKeywordBubble] = useState<string>("");
+  const [companyArr, setCompanyArr] = useState<string[]>([]);
+  const [industryArr, setIndustryArr] = useState<string[]>([]);
+  const disabledAll =
+    keywordBubble.length === 0 &&
+    companyArr.length === 0 &&
+    industryArr.length === 0;
 
-  const handleCompanyFilter = (e: ChangeEvent<HTMLSelectElement>) => {
-    const filterChoice = e.target.value;
+  const handleFilter = (e: ChangeEvent<HTMLSelectElement>, type: string) => {
+    const filterChoice = Array.from(
+      e.target.selectedOptions,
+      (option) => option.value,
+    );
+
+    type === "company" && setCompanyArr(filterChoice);
+    type === "industry" && setIndustryArr(filterChoice);
+  };
+
+  const handleCompanyApply = () => {
     const query = window.location.search;
     const params = new URLSearchParams(query);
-    setCompanyReset(filterChoice.length > 0);
+    setCompanyReset(companyArr.length > 0);
 
-    params.set("company", filterChoice);
+    params.set("company", companyArr.toString());
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
@@ -34,17 +49,16 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
 
     trackEvent("Filter", {
       type: "company",
-      value: filterChoice,
+      value: companyArr.join(","),
     });
   };
 
-  const handleIndustryFilter = (e: ChangeEvent<HTMLSelectElement>) => {
-    const filterChoice = e.target.value;
+  const handleIndustryApply = () => {
     const query = window.location.search;
     const params = new URLSearchParams(query);
-    setIndustryReset(filterChoice.length > 0);
+    setIndustryReset(industryArr.length > 0);
 
-    params.set("industry", filterChoice);
+    params.set("industry", industryArr.toString());
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
@@ -52,7 +66,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
 
     trackEvent("Filter", {
       type: "industry",
-      value: filterChoice,
+      value: industryArr,
     });
   };
 
@@ -83,15 +97,28 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       params.set("industry", "");
       params.set("keyword", "");
       setCompanyReset(false);
+      setCompanyArr([]);
       setIndustryReset(false);
+      setIndustryArr([]);
+      setKeyword("");
+      setKeywordBubble("");
     } else {
       params.set(filter, "");
-      filter === "company" && setCompanyReset(false);
-      filter === "industry" && setIndustryReset(false);
-    }
 
-    if (filter === "keyword") {
-      setKeyword("");
+      if (filter === "company") {
+        setCompanyReset(false);
+        setCompanyArr([]);
+      }
+
+      if (filter === "industry") {
+        setIndustryReset(false);
+        setIndustryArr([]);
+      }
+
+      if (filter === "keyword") {
+        setKeyword("");
+        setKeywordBubble("");
+      }
     }
 
     const updatedQuery = `?${params.toString()}`;
@@ -139,13 +166,6 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     });
   };
 
-  const handleSelectedOption = (val: string) => {
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-
-    return params.get(val);
-  };
-
   return (
     <S.Wrapper>
       <div>
@@ -181,20 +201,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
         <div>
           <S.FilterContent>
             <div>Company</div>
-            {companyReset && (
-              <button className="reset" onClick={() => handleReset("company")}>
-                reset
-              </button>
-            )}
           </S.FilterContent>
           <S.Select
             name="companySelect"
-            onChange={handleCompanyFilter}
-            value={
-              companies.filter(
-                (item: string) => item === handleSelectedOption("company"),
-              )[0] || ""
-            }
+            onChange={(e: any) => handleFilter(e, "company")}
+            multiple
           >
             <option value="">Select Company</option>
             {companies.map((item: string, index: number) => (
@@ -203,6 +214,19 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
               </option>
             ))}
           </S.Select>
+          <S.FilterContent className="apply">
+            <button
+              onClick={handleCompanyApply}
+              disabled={companyArr.length === 0}
+            >
+              Apply
+            </button>
+            {companyReset && (
+              <button className="reset" onClick={() => handleReset("company")}>
+                reset
+              </button>
+            )}
+          </S.FilterContent>
         </div>
       )}
       {!!industries && industries.length > 0 && (
@@ -217,12 +241,8 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
           </S.FilterContent>
           <S.Select
             name="industrySelect"
-            onChange={handleIndustryFilter}
-            value={
-              industries.filter(
-                (item: string) => item === handleSelectedOption("industry"),
-              )[0] || ""
-            }
+            onChange={(e: any) => handleFilter(e, "industry")}
+            multiple
           >
             <option value="">Select Industry</option>
             {industries.map((item: string, index: number) => (
@@ -231,6 +251,19 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
               </option>
             ))}
           </S.Select>
+          <S.FilterContent className="apply">
+            <button
+              onClick={handleIndustryApply}
+              disabled={industryArr.length === 0}
+            >
+              Apply
+            </button>
+            {industryReset && (
+              <button className="reset" onClick={() => handleReset("industry")}>
+                reset
+              </button>
+            )}
+          </S.FilterContent>
         </div>
       )}
       {!!scrapDates && scrapDates.length > 0 && (
@@ -251,7 +284,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
           </S.Select>
         </div>
       )}
-      <button className="resetAll" onClick={() => handleReset("all")}>
+      <button
+        className="resetAll"
+        onClick={() => handleReset("all")}
+        disabled={disabledAll}
+      >
         Reset All Filters
       </button>
     </S.Wrapper>

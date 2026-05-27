@@ -21,12 +21,19 @@ export const Wrapper = styled.div`
     padding: 5px 10px;
     font-size: 12px;
     border-radius: 10px;
-    background: #ddd;
-    color: #999;
+    background: #ff6b6b;
+    color: #fff;
     cursor: pointer;
 
     &:hover {
-      color: #000;
+      box-shadow: 5px 5px 5px #ddd;
+    }
+
+    &:disabled {
+      cursor: no-drop;
+      background: #ddd;
+      color: #999;
+      box-shadow: none;
     }
   }
 `;
@@ -54,6 +61,10 @@ export const FilterContent = styled.div`
   align-items: center;
   margin-bottom: 5px;
 
+  &.apply {
+    margin-top: 5px;
+  }
+
   button {
     border: none;
     padding: 5px 10px;
@@ -74,6 +85,12 @@ export const FilterContent = styled.div`
 
     &:hover {
       cursor: pointer;
+    }
+
+    &:disabled {
+      cursor: no-drop;
+      background: #ddd;
+      color: #999;
     }
   }
 `;

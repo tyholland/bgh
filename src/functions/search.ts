@@ -30,15 +30,22 @@ export const handleSearchParams = (
   });
 
   if (company) {
-    filteredData = filteredData.filter(
-      (item: CsvData) => item.Company?.toLowerCase() === company.toLowerCase(),
+    const companySplit = company.split(",").map((k) => k.trim().toLowerCase());
+
+    filteredData = filteredData.filter((item: CsvData) =>
+      companySplit.some((k) => item.Company?.toLowerCase() === k.toLowerCase()),
     );
   }
 
   if (industry) {
-    filteredData = filteredData.filter(
-      (item: CsvData) =>
-        item["Primary Industry"]?.toLowerCase() === industry.toLowerCase(),
+    const industrySplit = industry
+      .split(",")
+      .map((k) => k.trim().toLowerCase());
+
+    filteredData = filteredData.filter((item: CsvData) =>
+      industrySplit.some(
+        (k) => item["Primary Industry"]?.toLowerCase() === k.toLowerCase(),
+      ),
     );
   }
 
