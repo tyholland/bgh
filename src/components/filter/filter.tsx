@@ -17,6 +17,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
   const [jobData, setJobData] = useAtom(jobAtom);
   const [keyword, setKeyword] = useState<string>("");
   const [companyReset, setCompanyReset] = useState<boolean>(false);
+  const [industryReset, setIndustryReset] = useState<boolean>(false);
   const [keywordBubble, setKeywordBubble] = useState<string>("");
 
   const handleCompanyFilter = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -41,6 +42,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     const filterChoice = e.target.value;
     const query = window.location.search;
     const params = new URLSearchParams(query);
+    setIndustryReset(filterChoice.length > 0);
 
     params.set("industry", filterChoice);
     const updatedQuery = `?${params.toString()}`;
@@ -80,9 +82,12 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       params.set("date", "");
       params.set("industry", "");
       params.set("keyword", "");
+      setCompanyReset(false);
+      setIndustryReset(false);
     } else {
       params.set(filter, "");
       filter === "company" && setCompanyReset(false);
+      filter === "industry" && setIndustryReset(false);
     }
 
     if (filter === "keyword") {
@@ -204,9 +209,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
         <div>
           <S.FilterContent>
             <div>Industry</div>
-            <button className="reset" onClick={() => handleReset("industry")}>
-              reset
-            </button>
+            {industryReset && (
+              <button className="reset" onClick={() => handleReset("industry")}>
+                reset
+              </button>
+            )}
           </S.FilterContent>
           <S.Select
             name="industrySelect"
