@@ -22,9 +22,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
   const [companyArr, setCompanyArr] = useState<string[]>([]);
   const [industryArr, setIndustryArr] = useState<string[]>([]);
   const disabledAll =
-    keywordBubble.length === 0 &&
-    companyArr.length === 0 &&
-    industryArr.length === 0;
+    keywordBubble.length === 0 && !companyReset && !industryReset;
 
   const handleFilter = (e: ChangeEvent<HTMLSelectElement>, type: string) => {
     const filterChoice = Array.from(
@@ -93,13 +91,13 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
 
     if (filter === "all") {
       params.set("company", "");
-      params.set("date", "");
-      params.set("industry", "");
-      params.set("keyword", "");
       setCompanyReset(false);
       setCompanyArr([]);
+      params.set("date", "");
+      params.set("industry", "");
       setIndustryReset(false);
       setIndustryArr([]);
+      params.set("keyword", "");
       setKeyword("");
       setKeywordBubble("");
     } else {
@@ -200,14 +198,16 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       {!!companies && companies.length > 0 && (
         <div>
           <S.FilterContent>
-            <div>Company</div>
+            <div>
+              Company <span className="multi">(multi-select)</span>
+            </div>
           </S.FilterContent>
           <S.Select
             name="companySelect"
             onChange={(e: any) => handleFilter(e, "company")}
             multiple
+            value={companyArr}
           >
-            <option value="">Select Company</option>
             {companies.map((item: string, index: number) => (
               <option value={item} key={index}>
                 {item}
@@ -232,19 +232,16 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       {!!industries && industries.length > 0 && (
         <div>
           <S.FilterContent>
-            <div>Industry</div>
-            {industryReset && (
-              <button className="reset" onClick={() => handleReset("industry")}>
-                reset
-              </button>
-            )}
+            <div>
+              Industry <span className="multi">(multi-select)</span>
+            </div>
           </S.FilterContent>
           <S.Select
             name="industrySelect"
             onChange={(e: any) => handleFilter(e, "industry")}
             multiple
+            value={industryArr}
           >
-            <option value="">Select Industry</option>
             {industries.map((item: string, index: number) => (
               <option value={item} key={index}>
                 {item}

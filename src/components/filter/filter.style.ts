@@ -93,6 +93,11 @@ export const FilterContent = styled.div`
       color: #999;
     }
   }
+
+  .multi {
+    color: #999;
+    font-size: 12px;
+  }
 `;
 
 export const KeywordBubble = styled.div`
