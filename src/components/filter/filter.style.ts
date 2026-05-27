@@ -78,12 +78,28 @@ export const FilterContent = styled.div`
   }
 `;
 
+export const KeywordBubble = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  margin-top: 5px;
+
+  .bubble {
+    background: #6faeff;
+    border-radius: 10px;
+    padding: 2px 6px;
+    color: #fff;
+    width: fit-content;
+  }
+`;
+
 export const Section = styled.div`
   display: flex;
   gap: 8px;
 
   button {
-    with: 100%;
+    width: 100%;
     border: none;
     padding: 5px 10px;
     font-size: 12px;
@@ -92,6 +108,12 @@ export const Section = styled.div`
 
     &:hover {
       cursor: pointer;
+    }
+
+    &:disabled {
+      cursor: no-drop;
+      background: #ddd;
+      color: #999;
     }
   }
 `;

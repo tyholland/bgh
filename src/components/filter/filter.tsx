@@ -16,6 +16,7 @@ interface FilterProps {
 const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
   const [jobData, setJobData] = useAtom(jobAtom);
   const [keyword, setKeyword] = useState<string>("");
+  const [keywordBubble, setKeywordBubble] = useState<string>("");
 
   const handleCompanyFilter = (e: ChangeEvent<HTMLSelectElement>) => {
     const filterChoice = e.target.value;
@@ -97,12 +98,26 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
   };
 
   const handleKeyword = (e: ChangeEvent<HTMLInputElement>) => {
-    setKeyword(e.target.value);
+    const choosen = e.target.value;
+    setKeyword(choosen);
+
+    if (choosen === "") {
+      const query = window.location.search;
+      const params = new URLSearchParams(query);
+      params.set("keyword", "");
+      setKeywordBubble("");
+
+      const updatedQuery = `?${params.toString()}`;
+      window.history.pushState({}, "", updatedQuery);
+
+      jobData && handleSearchParams(jobData, params, setJobData);
+    }
   };
 
   const handleKeywordSearch = () => {
     const query = window.location.search;
     const params = new URLSearchParams(query);
+    setKeywordBubble(keyword);
 
     params.set("keyword", keyword);
     const updatedQuery = `?${params.toString()}`;
@@ -128,9 +143,6 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       <div>
         <S.FilterContent>
           <div>Keyword Search</div>
-          <button className="reset" onClick={() => handleReset("keyword")}>
-            reset
-          </button>
         </S.FilterContent>
         <S.Section>
           <S.Input
@@ -140,13 +152,22 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
             value={keyword}
             onChange={handleKeyword}
           />
-          <button onClick={handleKeywordSearch}>Search</button>
+          <button onClick={handleKeywordSearch} disabled={keyword.length === 0}>
+            Search
+          </button>
         </S.Section>
         <S.Disclaimer>
           Separate keywords with a comma.
           <br />
           Ex: service, care, sales
         </S.Disclaimer>
+        {keywordBubble && (
+          <S.KeywordBubble>
+            {keywordBubble.split(",").map((item: string) => (
+              <div className="bubble">{item}</div>
+            ))}
+          </S.KeywordBubble>
+        )}
       </div>
       {!!companies && companies.length > 0 && (
         <div>
