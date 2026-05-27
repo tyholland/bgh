@@ -12,7 +12,19 @@ const Search = () => {
   const [searchWord, setSearchWord] = useState<string>("");
 
   const handledSearchedWord = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchWord(e.target.value);
+    const choosen = e.target.value;
+    setSearchWord(choosen);
+
+    if (choosen === "") {
+      const query = window.location.search;
+      const params = new URLSearchParams(query);
+      params.set("search", "");
+
+      const updatedQuery = `?${params.toString()}`;
+      window.history.pushState({}, "", updatedQuery);
+
+      jobData && handleSearchParams(jobData, params, setJobData);
+    }
   };
 
   const handleSearchBtn = () => {
@@ -58,10 +70,14 @@ const Search = () => {
         value={searchWord}
         onChange={handledSearchedWord}
       />
-      <button onClick={handleSearchBtn}>Search</button>
-      <button className="reset" onClick={handleClear}>
-        Clear
+      <button onClick={handleSearchBtn} disabled={searchWord.length === 0}>
+        Search
       </button>
+      {searchWord.length !== 0 && (
+        <button className="reset" onClick={handleClear}>
+          Clear
+        </button>
+      )}
     </S.Wrapper>
   );
 };

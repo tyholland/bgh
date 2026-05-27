@@ -55,7 +55,6 @@ export const FilterContent = styled.div`
   margin-bottom: 5px;
 
   button {
-    with: 100%;
     border: none;
     padding: 5px 10px;
     font-size: 12px;
