@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./filter.style";
 import { handleSearchParams } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
@@ -16,12 +16,14 @@ interface FilterProps {
 const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
   const [jobData, setJobData] = useAtom(jobAtom);
   const [keyword, setKeyword] = useState<string>("");
+  const [companyReset, setCompanyReset] = useState<boolean>(false);
   const [keywordBubble, setKeywordBubble] = useState<string>("");
 
   const handleCompanyFilter = (e: ChangeEvent<HTMLSelectElement>) => {
     const filterChoice = e.target.value;
     const query = window.location.search;
     const params = new URLSearchParams(query);
+    setCompanyReset(filterChoice.length > 0);
 
     params.set("company", filterChoice);
     const updatedQuery = `?${params.toString()}`;
@@ -80,6 +82,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       params.set("keyword", "");
     } else {
       params.set(filter, "");
+      filter === "company" && setCompanyReset(false);
     }
 
     if (filter === "keyword") {
@@ -173,9 +176,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
         <div>
           <S.FilterContent>
             <div>Company</div>
-            <button className="reset" onClick={() => handleReset("company")}>
-              reset
-            </button>
+            {companyReset && (
+              <button className="reset" onClick={() => handleReset("company")}>
+                reset
+              </button>
+            )}
           </S.FilterContent>
           <S.Select
             name="companySelect"

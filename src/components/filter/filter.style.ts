@@ -62,12 +62,13 @@ export const FilterContent = styled.div`
     background: #1439e6;
 
     &.reset {
-      background: #ddd;
-      color: #999;
+      text-decoration: underline;
+      background: transparent;
+      color: #000;
+      padding: 0;
 
       &:hover {
         cursor: pointer;
-        color: #000;
       }
     }
 
