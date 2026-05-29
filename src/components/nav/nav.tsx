@@ -23,7 +23,7 @@ const Nav = () => {
       <div className="section">
         <button onClick={handleFeedback}>Feedback</button>
         <div className="linksWrapper">
-          <div>Sign In / Logged In</div>
+          <Link href="/sign-in">Sign In</Link>
         </div>
       </div>
     </header>
