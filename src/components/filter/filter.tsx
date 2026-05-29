@@ -208,6 +208,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
             name="companySelect"
             onChange={(e: any) => handleFilter(e, "company")}
             multiple
+            className="multi"
             value={companyArr}
           >
             {companies.map((item: string, index: number) => (
@@ -242,6 +243,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
             name="industrySelect"
             onChange={(e: any) => handleFilter(e, "industry")}
             multiple
+            className="multi"
             value={industryArr}
           >
             {industries.map((item: string, index: number) => (

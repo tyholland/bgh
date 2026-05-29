@@ -15,7 +15,6 @@ export const CardWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
-  justify-content: center;
 
   &.list {
     gap: 0;
@@ -45,4 +44,8 @@ export const ListSection = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+`;
+
+export const JobResultsWrapper = styled.div`
+  width: 100%;
 `;

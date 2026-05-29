@@ -45,6 +45,10 @@ export const Select = styled.select`
   color: #000;
   padding: 5px 10px;
   width: 100%;
+
+  &.multi {
+    height: 120px;
+  }
 `;
 
 export const Input = styled.input`

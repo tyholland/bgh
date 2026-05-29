@@ -41,7 +41,7 @@ const Home = ({ csvData }: HomeProps) => {
           scrapDates={jobData.scrapDates}
           industries={jobData.industries}
         />
-        <div>
+        <S.JobResultsWrapper>
           <S.Section>
             <div>Results: {jobData.total} jobs</div>
             <S.ListSection>
@@ -59,7 +59,7 @@ const Home = ({ csvData }: HomeProps) => {
             {isListView ? <List /> : <Card />}
           </S.CardWrapper>
           <Pagination totalPages={jobData.totalPages} />
-        </div>
+        </S.JobResultsWrapper>
       </S.ResultsWrapper>
     </S.Wrapper>
   );
