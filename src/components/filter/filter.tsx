@@ -189,8 +189,10 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
         </S.Disclaimer>
         {keywordBubble && (
           <S.KeywordBubble>
-            {keywordBubble.split(",").map((item: string) => (
-              <div className="bubble">{item}</div>
+            {keywordBubble.split(",").map((item: string, index: number) => (
+              <div className="bubble" key={index}>
+                {item}
+              </div>
             ))}
           </S.KeywordBubble>
         )}

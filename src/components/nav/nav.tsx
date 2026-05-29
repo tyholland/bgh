@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { trackEvent } from "@/functions/mixpanel";
 import { useRouter } from "next/navigation";
+import { useAtomValue } from "jotai";
+import { jobAtom } from "@/caches/JobsAtom";
 
 const Nav = () => {
   const navigate = useRouter();
+  const jobData = useAtomValue(jobAtom);
 
   const handleFeedback = () => {
     navigate.push("/contact");
@@ -17,7 +20,7 @@ const Nav = () => {
 
   return (
     <header>
-      <Link href="/">
+      <Link href={!!jobData ? "/home" : "/"}>
         <img src="/bgh-logo.png" width="200" />
       </Link>
       <div className="section">

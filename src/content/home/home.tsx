@@ -13,7 +13,7 @@ import List from "@/components/list/list";
 import ToggleButton from "react-toggle-button";
 
 interface HomeProps {
-  csvData: AllSearchData;
+  csvData?: AllSearchData;
 }
 
 const Home = ({ csvData }: HomeProps) => {
@@ -21,7 +21,7 @@ const Home = ({ csvData }: HomeProps) => {
   const [isListView, setIsListView] = useState<boolean>(false);
 
   const getAllJobInfo = () => {
-    setJobData(csvData);
+    csvData && setJobData(csvData);
   };
 
   useEffect(() => {

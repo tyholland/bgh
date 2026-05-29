@@ -1,23 +1,18 @@
 import mixpanel from "mixpanel-browser";
 
-mixpanel.init(process.env.REACT_APP_MIXPANEL_TOKEN || "", {
+mixpanel.init(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || "", {
   debug: true,
   track_pageview: false,
   persistence: "localStorage",
   autocapture: false,
 });
 
-export const trackIdentity = (
-  sub_id: number,
-  auth_id?: string,
-  email?: string,
-) => {
+export const trackIdentity = (auth_id: string, email: string | null) => {
   if (process.env.NODE_ENV === "development") {
     console.warn("trackIdentity", {
       identify: auth_id,
       people: {
         $email: email,
-        subscription: sub_id,
       },
     });
 
@@ -28,7 +23,6 @@ export const trackIdentity = (
 
   mixpanel.people.set({
     $email: email,
-    subscription: sub_id,
   });
 };
 

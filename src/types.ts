@@ -29,3 +29,12 @@ export interface AllSearchData {
 export interface PaginationClick {
   selected: number;
 }
+
+export interface User {
+  email: string | null;
+  providerId: string;
+  uid: string;
+  phoneNumber: string | null;
+  photoURL: string | null;
+  displayName: string | null;
+}
