@@ -5,6 +5,7 @@ import { initFirebase } from "@/functions/firebase";
 import { trackError, trackIdentity } from "@/functions/mixpanel";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useSetAtom } from "jotai";
+import Link from "next/link";
 
 const SignUp = () => {
   initFirebase();
@@ -50,6 +51,7 @@ const SignUp = () => {
       <div>Email</div>
       <div>Password</div>
       <button onClick={handleCreate}>Create Account</button>
+      Already have an account. <Link href="/sign-in">Sign In</Link>
     </div>
   );
 };
