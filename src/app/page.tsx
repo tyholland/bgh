@@ -8,7 +8,7 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   const page = pageNum || 1;
 
   const res = await fetch(
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTCojX6uxGRp22IEXXnqLI4gHc9F26jyAwqhHlyaFh1_YbhQnWE-Dp6p-33liZXUjf4Ze4P5KbTwL3Y/pub?gid=1171311859&single=true&output=csv",
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vTWtRcbb_EAVdtXttu1a9auwcoh67J9kY92xsDf-zttSXKSrIq6olsZq5GI6gNgJ85119sgnpiVGNFy/pub?output=csv",
     {
       cache: "no-store",
     },
