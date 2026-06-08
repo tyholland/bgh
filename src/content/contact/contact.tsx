@@ -91,14 +91,14 @@ const Contact = () => {
         />
       </div>
       <div>
-        <textarea
+        <S.Textarea
           name="feedback"
           onChange={handleFeedback}
           placeholder="Enter your feedback"
           required
         />
       </div>
-      <button onClick={handleSubmit}>Submit Feedback</button>
+      <S.Button onClick={handleSubmit}>Submit Feedback</S.Button>
     </S.Wrapper>
   );
 };

@@ -82,6 +82,12 @@ header {
       padding: 6px 12px;
       cursor: pointer;
       width: fit-content;
+
+      &.text {
+        background: transparent;
+        color: #000;
+        border: none;
+      }
     }
   }
 

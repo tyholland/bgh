@@ -7,13 +7,11 @@ import { trackError, trackIdentity } from "@/functions/mixpanel";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useAtom, useAtomValue } from "jotai";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 import * as S from "./sign-in.style";
 
 const SignIn = () => {
   initFirebase();
-  const navigate = useRouter();
   const auth = getAuth();
   const [user, setUser] = useAtom(userAtom);
   const jobData = useAtomValue(jobAtom);
@@ -34,10 +32,6 @@ const SignIn = () => {
       const { user } = userCredential;
 
       trackIdentity(user.uid, user.email);
-      setUser({
-        ...user.providerData[0],
-        uid: user.uid,
-      });
       window.localStorage.setItem(
         "bgh.user",
         JSON.stringify({
@@ -45,7 +39,10 @@ const SignIn = () => {
           uid: user.uid,
         }),
       );
-      window.location.href = "/";
+      setUser({
+        ...user.providerData[0],
+        uid: user.uid,
+      });
     } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -78,7 +75,7 @@ const SignIn = () => {
   };
 
   if (!!user) {
-    navigate.push(!!jobData ? "/home" : "/");
+    window.location.href = "/";
   }
 
   return (
@@ -101,8 +98,10 @@ const SignIn = () => {
           required
         />
       </div>
-      <button onClick={handleSignIn}>Sign In</button>
-      Don't have an account. <Link href="/sign-up">Sign Up</Link>
+      <S.Button onClick={handleSignIn}>Sign In</S.Button>
+      <S.SignUp>
+        Don't have an account. <Link href="/sign-up">Sign Up</Link>
+      </S.SignUp>
     </S.Wrapper>
   );
 };

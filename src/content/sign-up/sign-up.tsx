@@ -11,13 +11,11 @@ import {
 } from "firebase/auth";
 import { useAtom, useAtomValue } from "jotai";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 import * as S from "./sign-up.style";
 
 const SignUp = () => {
   initFirebase();
-  const navigate = useRouter();
   const auth = getAuth();
   const [user, setUser] = useAtom(userAtom);
   const jobData = useAtomValue(jobAtom);
@@ -56,11 +54,6 @@ const SignUp = () => {
       }
 
       trackIdentity(user.uid, user.email);
-      setUser({
-        ...user.providerData[0],
-        uid: user.uid,
-        displayName: `${firstName} ${lastName}`,
-      });
       window.localStorage.setItem(
         "bgh.user",
         JSON.stringify({
@@ -69,7 +62,11 @@ const SignUp = () => {
           displayName: `${firstName} ${lastName}`,
         }),
       );
-      navigate.push("/");
+      setUser({
+        ...user.providerData[0],
+        uid: user.uid,
+        displayName: `${firstName} ${lastName}`,
+      });
     } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;
@@ -108,13 +105,11 @@ const SignUp = () => {
   };
 
   if (!!user) {
-    navigate.push(!!jobData ? "/home" : "/");
+    window.location.href = "/";
   }
 
   return (
     <S.Wrapper>
-      Please provide us with any feedback. Your feedback will help make our
-      product stronger.
       <div>
         <S.Input
           type="text"
@@ -151,8 +146,10 @@ const SignUp = () => {
           required
         />
       </div>
-      <button onClick={handleCreate}>Create Account</button>
-      Already have an account. <Link href="/sign-in">Sign In</Link>
+      <S.Button onClick={handleCreate}>Create Account</S.Button>
+      <S.SignIn>
+        Already have an account. <Link href="/sign-in">Sign In</Link>
+      </S.SignIn>
     </S.Wrapper>
   );
 };

@@ -33,7 +33,7 @@ const Nav = () => {
           <button onClick={handleFeedback}>Feedback</button>
           <div className="linksWrapper">
             {!!user ? (
-              <button onClick={() => setOpenModal(true)}>
+              <button className="text" onClick={() => setOpenModal(true)}>
                 Welcome
                 {user.displayName ? ` ${user.displayName.split(" ")[0]}` : ""}
               </button>
