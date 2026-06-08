@@ -12,6 +12,7 @@
     "dayjs": "^1.11.20",
     "firebase": "^12.14.0",
     "jotai": "^2.20.0",
+    "mailto-link": "^2.0.0",
     "mixpanel-browser": "^2.79.0",
     "next": "16.2.6",
     "papaparse": "^5.5.3",

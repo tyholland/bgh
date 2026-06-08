@@ -8,14 +8,16 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
 
 const SignUp = () => {
   initFirebase();
+  const navigate = useRouter();
   const auth = getAuth();
-  const setUser = useSetAtom(userAtom);
+  const [user, setUser] = useAtom(userAtom);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
@@ -68,7 +70,10 @@ const SignUp = () => {
     }
   };
 
-  const handleName = (e: ChangeEvent<HTMLInputElement>, type: string) => {
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    type: string,
+  ) => {
     const val = e.target.value;
 
     switch (type) {
@@ -90,6 +95,10 @@ const SignUp = () => {
     }
   };
 
+  if (!!user) {
+    navigate.push("/home");
+  }
+
   return (
     <div>
       Please provide us with any feedback. Your feedback will help make our
@@ -98,23 +107,25 @@ const SignUp = () => {
         <input
           type="text"
           name="firstName"
-          onChange={(e) => handleName(e, "firstName")}
+          onChange={(e) => handleInputChange(e, "firstName")}
           placeholder="Enter your first name"
+          required
         />
       </div>
       <div>
         <input
           type="text"
           name="lastName"
-          onChange={(e) => handleName(e, "lastName")}
+          onChange={(e) => handleInputChange(e, "lastName")}
           placeholder="Enter your last name"
+          required
         />
       </div>
       <div>
         <input
           type="email"
           name="email"
-          onChange={(e) => handleName(e, "email")}
+          onChange={(e) => handleInputChange(e, "email")}
           placeholder="Enter your email"
           required
         />
@@ -123,7 +134,7 @@ const SignUp = () => {
         <input
           type="password"
           name="password"
-          onChange={(e) => handleName(e, "password")}
+          onChange={(e) => handleInputChange(e, "password")}
           placeholder="Enter your password"
           required
         />
