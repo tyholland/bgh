@@ -7,10 +7,15 @@ import { jobAtom } from "@/caches/JobsAtom";
 import { trackEvent } from "@/functions/mixpanel";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import SignInModal from "../signIn-modal/signIn-modal";
+import { useState } from "react";
+import { userAtom } from "@/caches/UserAtom";
 
 const List = () => {
+  const user = useAtomValue(userAtom);
   const jobData = useAtomValue(jobAtom);
   dayjs.extend(relativeTime);
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   return (
     <>
@@ -35,6 +40,11 @@ const List = () => {
       </S.Wrapper>
       {jobData?.data.map((item: CsvData, index: number) => {
         const openNewTab = () => {
+          if (!user) {
+            setOpenModal(true);
+            return;
+          }
+
           window.open(item.Link);
 
           trackEvent("See Role", {
@@ -58,6 +68,7 @@ const List = () => {
           </S.Wrapper>
         );
       })}
+      <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
     </>
   );
 };

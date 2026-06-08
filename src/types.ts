@@ -38,3 +38,5 @@ export interface User {
   photoURL: string | null;
   displayName: string | null;
 }
+
+export type ElementSize = "small" | "medium" | "large";
