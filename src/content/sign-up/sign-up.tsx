@@ -13,6 +13,7 @@ import { useAtom, useAtomValue } from "jotai";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
+import * as S from "./sign-up.style";
 
 const SignUp = () => {
   initFirebase();
@@ -111,11 +112,11 @@ const SignUp = () => {
   }
 
   return (
-    <div>
+    <S.Wrapper>
       Please provide us with any feedback. Your feedback will help make our
       product stronger.
       <div>
-        <input
+        <S.Input
           type="text"
           name="firstName"
           onChange={(e) => handleInputChange(e, "firstName")}
@@ -124,7 +125,7 @@ const SignUp = () => {
         />
       </div>
       <div>
-        <input
+        <S.Input
           type="text"
           name="lastName"
           onChange={(e) => handleInputChange(e, "lastName")}
@@ -133,7 +134,7 @@ const SignUp = () => {
         />
       </div>
       <div>
-        <input
+        <S.Input
           type="email"
           name="email"
           onChange={(e) => handleInputChange(e, "email")}
@@ -142,7 +143,7 @@ const SignUp = () => {
         />
       </div>
       <div>
-        <input
+        <S.Input
           type="password"
           name="password"
           onChange={(e) => handleInputChange(e, "password")}
@@ -152,7 +153,7 @@ const SignUp = () => {
       </div>
       <button onClick={handleCreate}>Create Account</button>
       Already have an account. <Link href="/sign-in">Sign In</Link>
-    </div>
+    </S.Wrapper>
   );
 };
 

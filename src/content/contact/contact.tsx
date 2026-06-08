@@ -5,6 +5,7 @@ import { getUserCreds } from "@/functions/userState";
 import { useAtom } from "jotai";
 import mailtoLink from "mailto-link";
 import { ChangeEvent, useEffect, useState } from "react";
+import * as S from "./contact.style";
 
 const Contact = () => {
   const [user, setUser] = useAtom(userAtom);
@@ -54,11 +55,11 @@ const Contact = () => {
   }, []);
 
   return (
-    <div>
+    <S.Wrapper>
       Please provide us with any feedback. Your feedback will help make our
       product stronger.
       <div>
-        <input
+        <S.Input
           type="text"
           name="firstName"
           onChange={(e) => handleInputChange(e, "firstName")}
@@ -69,7 +70,7 @@ const Contact = () => {
         />
       </div>
       <div>
-        <input
+        <S.Input
           type="text"
           name="lastName"
           onChange={(e) => handleInputChange(e, "lastName")}
@@ -80,7 +81,7 @@ const Contact = () => {
         />
       </div>
       <div>
-        <input
+        <S.Input
           type="email"
           name="email"
           onChange={(e) => handleInputChange(e, "email")}
@@ -98,7 +99,7 @@ const Contact = () => {
         />
       </div>
       <button onClick={handleSubmit}>Submit Feedback</button>
-    </div>
+    </S.Wrapper>
   );
 };
 
