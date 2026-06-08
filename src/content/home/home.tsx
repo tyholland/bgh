@@ -35,7 +35,11 @@ const Home = ({ csvData }: HomeProps) => {
     getUserCreds(user, setUser);
   }, []);
 
-  if (!jobData && window.location.pathname === "/home") {
+  if (
+    !jobData &&
+    typeof window !== "undefined" &&
+    window.location.pathname === "/home"
+  ) {
     window.location.href = "/";
   }
 
