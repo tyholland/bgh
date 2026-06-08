@@ -35,6 +35,14 @@ const SignIn = () => {
         ...user.providerData[0],
         uid: user.uid,
       });
+      window.localStorage.setItem(
+        "bgh.user",
+        JSON.stringify({
+          ...user.providerData[0],
+          uid: user.uid,
+        }),
+      );
+      window.location.href = "/";
     } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;

@@ -11,12 +11,15 @@ import { jobAtom } from "@/caches/JobsAtom";
 import { useEffect, useState } from "react";
 import List from "@/components/list/list";
 import ToggleButton from "react-toggle-button";
+import { userAtom } from "@/caches/UserAtom";
+import { getUserCreds } from "@/functions/userState";
 
 interface HomeProps {
   csvData?: AllSearchData;
 }
 
 const Home = ({ csvData }: HomeProps) => {
+  const [user, setUser] = useAtom(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
   const [isListView, setIsListView] = useState<boolean>(false);
 
@@ -27,6 +30,10 @@ const Home = ({ csvData }: HomeProps) => {
   useEffect(() => {
     !jobData && getAllJobInfo();
   }, [jobData]);
+
+  useEffect(() => {
+    getUserCreds(user, setUser);
+  }, []);
 
   if (!jobData) {
     return <div>Loading...</div>;

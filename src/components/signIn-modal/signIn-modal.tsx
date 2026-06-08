@@ -25,6 +25,13 @@ const SignInModal = ({ openModal, setOpenModal }: SignInModalProps) => {
           >
             Sign In
           </button>
+          <button
+            onClick={() => {
+              setOpenModal(false);
+            }}
+          >
+            Close
+          </button>
         </S.ModalBtn>
       </S.ModalWrapper>
     </ModalComponent>

@@ -10,9 +10,13 @@ import { userAtom } from "@/caches/UserAtom";
 import SignInModal from "../signIn-modal/signIn-modal";
 
 const Search = () => {
+  const query = window.location.search;
+  const defaultParams = new URLSearchParams(query);
   const user = useAtomValue(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
-  const [searchWord, setSearchWord] = useState<string>("");
+  const [searchWord, setSearchWord] = useState<string>(
+    defaultParams?.get("search") || "",
+  );
   const [openModal, setOpenModal] = useState<boolean>(false);
 
   const handledSearchedWord = (e: ChangeEvent<HTMLInputElement>) => {

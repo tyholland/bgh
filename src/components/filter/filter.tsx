@@ -16,15 +16,36 @@ interface FilterProps {
 }
 
 const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
+  const query = window.location.search;
+  const defaultParams = new URLSearchParams(query);
+  const defaultCompany = defaultParams?.get("company");
+  const defaultIndustry = defaultParams?.get("indursty");
+  const defaultKeyword = defaultParams?.get("keyword");
   const user = useAtomValue(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
-  const [keyword, setKeyword] = useState<string>("");
-  const [companyReset, setCompanyReset] = useState<boolean>(false);
-  const [industryReset, setIndustryReset] = useState<boolean>(false);
-  const [keywordBubble, setKeywordBubble] = useState<string>("");
-  const [companyArr, setCompanyArr] = useState<string[]>([]);
-  const [industryArr, setIndustryArr] = useState<string[]>([]);
+  const [keyword, setKeyword] = useState<string>(defaultKeyword || "");
+  const [keywordBubble, setKeywordBubble] = useState<string[]>(
+    defaultKeyword && defaultKeyword.length > 0
+      ? defaultKeyword.split(",")
+      : [],
+  );
+  const [companyArr, setCompanyArr] = useState<string[]>(
+    defaultCompany && defaultCompany.length > 0
+      ? defaultCompany.split(",")
+      : [],
+  );
+  const [industryArr, setIndustryArr] = useState<string[]>(
+    defaultIndustry && defaultIndustry.length > 0
+      ? defaultIndustry.split(",")
+      : [],
+  );
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [companyReset, setCompanyReset] = useState<boolean>(
+    companyArr.length > 0 || false,
+  );
+  const [industryReset, setIndustryReset] = useState<boolean>(
+    industryArr.length > 0 || false,
+  );
   const disabledAll =
     keywordBubble.length === 0 && !companyReset && !industryReset;
 
@@ -113,7 +134,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       setIndustryArr([]);
       params.set("keyword", "");
       setKeyword("");
-      setKeywordBubble("");
+      setKeywordBubble([]);
     } else {
       params.set(filter, "");
 
@@ -129,7 +150,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
 
       if (filter === "keyword") {
         setKeyword("");
-        setKeywordBubble("");
+        setKeywordBubble([]);
       }
     }
 
@@ -152,7 +173,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       const query = window.location.search;
       const params = new URLSearchParams(query);
       params.set("keyword", "");
-      setKeywordBubble("");
+      setKeywordBubble([]);
 
       const updatedQuery = `?${params.toString()}`;
       window.history.pushState({}, "", updatedQuery);
@@ -169,7 +190,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
 
     const query = window.location.search;
     const params = new URLSearchParams(query);
-    setKeywordBubble(keyword);
+    setKeywordBubble(keyword.split(","));
 
     params.set("keyword", keyword);
     const updatedQuery = `?${params.toString()}`;
@@ -210,9 +231,9 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
             <br />
             Ex: service, care, sales
           </S.Disclaimer>
-          {keywordBubble && (
+          {keywordBubble.length > 0 && (
             <S.KeywordBubble>
-              {keywordBubble.split(",").map((item: string, index: number) => (
+              {keywordBubble.map((item: string, index: number) => (
                 <div className="bubble" key={index}>
                   {item}
                 </div>

@@ -58,6 +58,15 @@ const SignUp = () => {
         uid: user.uid,
         displayName: `${firstName} ${lastName}`,
       });
+      window.localStorage.setItem(
+        "bgh.user",
+        JSON.stringify({
+          ...user.providerData[0],
+          uid: user.uid,
+          displayName: `${firstName} ${lastName}`,
+        }),
+      );
+      navigate.push("/");
     } catch (error: any) {
       const errorCode = error.code;
       const errorMessage = error.message;
