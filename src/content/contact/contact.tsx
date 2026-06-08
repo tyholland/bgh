@@ -1,12 +1,13 @@
 "use client";
 
 import { userAtom } from "@/caches/UserAtom";
-import { useAtomValue } from "jotai";
+import { getUserCreds } from "@/functions/userState";
+import { useAtom } from "jotai";
 import mailtoLink from "mailto-link";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 const Contact = () => {
-  const user = useAtomValue(userAtom);
+  const [user, setUser] = useAtom(userAtom);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
@@ -47,6 +48,10 @@ const Contact = () => {
 
     setFeedback(val);
   };
+
+  useEffect(() => {
+    getUserCreds(user, setUser);
+  }, []);
 
   return (
     <div>

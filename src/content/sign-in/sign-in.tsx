@@ -1,10 +1,11 @@
 "use client";
 
+import { jobAtom } from "@/caches/JobsAtom";
 import { userAtom } from "@/caches/UserAtom";
 import { initFirebase } from "@/functions/firebase";
 import { trackError, trackIdentity } from "@/functions/mixpanel";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useState } from "react";
@@ -14,6 +15,7 @@ const SignIn = () => {
   const navigate = useRouter();
   const auth = getAuth();
   const [user, setUser] = useAtom(userAtom);
+  const jobData = useAtomValue(jobAtom);
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
 
@@ -75,7 +77,7 @@ const SignIn = () => {
   };
 
   if (!!user) {
-    navigate.push("/home");
+    navigate.push(!!jobData ? "/home" : "/");
   }
 
   return (
