@@ -4,7 +4,7 @@ import * as S from "./signOut-modal.style";
 import ModalComponent from "../modal/modal";
 import { useRouter } from "next/navigation";
 import { getAuth, signOut } from "firebase/auth";
-import { trackError } from "@/functions/mixpanel";
+import { trackError, trackEvent } from "@/functions/mixpanel";
 import { initFirebase } from "@/functions/firebase";
 import { useAtomValue, useSetAtom } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
@@ -29,6 +29,10 @@ const SignOutModal = ({ openModal, setOpenModal }: SignOutModalProps) => {
       setOpenModal(false);
       window.localStorage.removeItem("bgh.user");
       setUser(null);
+      trackEvent("Sign Out", {
+        type: "button",
+        email: auth.currentUser?.email,
+      });
       navigate.push(!!jobData ? "/home" : "/");
     } catch (error: any) {
       const errorCode = error.code;
