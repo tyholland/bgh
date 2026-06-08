@@ -3,7 +3,6 @@
 import { userAtom } from "@/caches/UserAtom";
 import { getUserCreds } from "@/functions/userState";
 import { useAtom } from "jotai";
-import mailtoLink from "mailto-link";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./contact.style";
 
