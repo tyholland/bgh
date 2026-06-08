@@ -104,7 +104,7 @@ const SignUp = () => {
     }
   };
 
-  if (!!user) {
+  if (!!user && typeof window !== "undefined") {
     window.location.href = "/";
   }
 

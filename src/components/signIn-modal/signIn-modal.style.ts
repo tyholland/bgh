@@ -12,9 +12,29 @@ export const ModalBtn = styled.div`
   align-items: center;
   margin-top: 20px;
 
-  &.referral button {
-    height: auto;
-    flex-direction: column;
-    font-size: 24px;
+  button {
+    width: fit-content;
+    padding: 10px;
+    border-radius: 20px;
+    border: none;
+    background: #1439e6;
+
+    @media only screen and (max-width: 950px) {
+      width: 90%;
+    }
+
+    &:hover {
+      cursor: pointer;
+    }
+
+    &.submit {
+      background: #ddd;
+      color: #000;
+
+      &:hover {
+        background: #1439e6;
+        color: #fff;
+      }
+    }
   }
 `;

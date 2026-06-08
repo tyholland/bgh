@@ -29,6 +29,7 @@ const SignInModal = ({ openModal, setOpenModal }: SignInModalProps) => {
             onClick={() => {
               setOpenModal(false);
             }}
+            className="submit"
           >
             Close
           </button>

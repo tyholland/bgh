@@ -64,9 +64,7 @@ const Contact = () => {
           name="firstName"
           onChange={(e) => handleInputChange(e, "firstName")}
           placeholder="Enter your first name"
-          value={
-            user ? user.displayName?.split(" ")[0] || undefined : undefined
-          }
+          value={user ? user.displayName?.split(" ")[0] || "" : firstName}
         />
       </div>
       <div>
@@ -75,9 +73,7 @@ const Contact = () => {
           name="lastName"
           onChange={(e) => handleInputChange(e, "lastName")}
           placeholder="Enter your last name"
-          value={
-            user ? user.displayName?.split(" ")[1] || undefined : undefined
-          }
+          value={user ? user.displayName?.split(" ")[1] || "" : lastName}
         />
       </div>
       <div>
@@ -86,7 +82,7 @@ const Contact = () => {
           name="email"
           onChange={(e) => handleInputChange(e, "email")}
           placeholder="Enter your email"
-          value={user ? user.email || undefined : undefined}
+          value={user ? user.email || "" : userEmail}
           required
         />
       </div>

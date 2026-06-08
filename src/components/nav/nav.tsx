@@ -8,6 +8,7 @@ import { jobAtom } from "@/caches/JobsAtom";
 import { userAtom } from "@/caches/UserAtom";
 import SignOutModal from "../signOut-modal/signOut-modal";
 import { useState } from "react";
+import UserIcon from "@/svg/UserIcon";
 
 const Nav = () => {
   const navigate = useRouter();
@@ -35,7 +36,10 @@ const Nav = () => {
             {!!user ? (
               <button className="text" onClick={() => setOpenModal(true)}>
                 Welcome
-                {user.displayName ? ` ${user.displayName.split(" ")[0]}` : ""}
+                {user.displayName
+                  ? ` ${user.displayName.split(" ")[0]}`
+                  : ""}{" "}
+                <UserIcon />
               </button>
             ) : (
               <Link href="/sign-in">Sign In</Link>
