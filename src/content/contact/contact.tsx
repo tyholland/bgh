@@ -13,6 +13,9 @@ const Contact = () => {
   const [userEmail, setUserEmail] = useState<string>("");
   const [feedback, setFeedback] = useState<string>("");
   const [hasFeedback, setHasFeedback] = useState<boolean>(false);
+  const [isDisabled, setIsDisabled] = useState<boolean>(
+    !firstName || !lastName || !userEmail || !feedback,
+  );
 
   const handleSubmit = () => {
     // to: "ty@heiprodigital.com",
@@ -98,7 +101,9 @@ const Contact = () => {
               required
             />
           </div>
-          <S.Button onClick={handleSubmit}>Submit Feedback</S.Button>
+          <S.Button onClick={handleSubmit} disabled={isDisabled}>
+            Submit Feedback
+          </S.Button>
         </>
       )}
     </S.Wrapper>

@@ -20,4 +20,9 @@ export const LoginErrors = [
     error: "auth/invalid-credential",
     value: "Your email and/or password is incorrect. Please try again.",
   },
+  {
+    error: "auth/email-already-in-use",
+    value:
+      "The email you entered already exists on BGH Scout. Please try again.",
+  },
 ];

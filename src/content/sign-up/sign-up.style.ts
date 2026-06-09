@@ -11,7 +11,7 @@ export const Input = styled.input`
   background: #fff;
   height: 30px;
   width: 200px;
-  border: none;
+  border: 1px solid #000;
   padding-left: 5px;
   color: #000;
   color: #000;
@@ -35,6 +35,12 @@ export const Button = styled.button`
 
   &:hover {
     cursor: pointer;
+  }
+
+  &:disabled {
+    background: #ddd;
+    color: #000;
+    cursor: no-drop;
   }
 `;
 

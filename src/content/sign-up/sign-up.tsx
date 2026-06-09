@@ -1,6 +1,5 @@
 "use client";
 
-import { jobAtom } from "@/caches/JobsAtom";
 import { userAtom } from "@/caches/UserAtom";
 import { initFirebase } from "@/functions/firebase";
 import { trackError, trackIdentity } from "@/functions/mixpanel";
@@ -9,24 +8,29 @@ import {
   createUserWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import Link from "next/link";
 import { ChangeEvent, useState } from "react";
 import * as S from "./sign-up.style";
+import ErrorBlock from "@/components/errorBlock/errorBlock";
 
 const SignUp = () => {
   initFirebase();
   const auth = getAuth();
   const [user, setUser] = useAtom(userAtom);
-  const jobData = useAtomValue(jobAtom);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isDisabled, setIsDisabled] = useState<boolean>(
+    !userEmail || !userPassword || !firstName || !lastName,
+  );
 
   const handleCreate = async () => {
     const email = userEmail;
     const password = userPassword;
+    setIsDisabled(true);
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -67,7 +71,9 @@ const SignUp = () => {
         uid: user.uid,
         displayName: `${firstName} ${lastName}`,
       });
+      window.location.href = "/";
     } catch (error: any) {
+      setIsDisabled(false);
       const errorCode = error.code;
       const errorMessage = error.message;
 
@@ -76,6 +82,8 @@ const SignUp = () => {
         message: errorMessage,
         email,
       });
+
+      setErrorMsg(errorCode);
     }
   };
 
@@ -83,6 +91,7 @@ const SignUp = () => {
     e: ChangeEvent<HTMLInputElement>,
     type: string,
   ) => {
+    setErrorMsg(null);
     const val = e.target.value;
 
     switch (type) {
@@ -146,7 +155,10 @@ const SignUp = () => {
           required
         />
       </div>
-      <S.Button onClick={handleCreate}>Create Account</S.Button>
+      {errorMsg && <ErrorBlock error={errorMsg} />}
+      <S.Button onClick={handleCreate} disabled={isDisabled}>
+        Create Account
+      </S.Button>
       <S.SignIn>
         Already have an account. <Link href="/sign-in">Sign In</Link>
       </S.SignIn>

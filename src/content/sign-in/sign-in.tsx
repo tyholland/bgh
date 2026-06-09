@@ -1,11 +1,10 @@
 "use client";
 
-import { jobAtom } from "@/caches/JobsAtom";
 import { userAtom } from "@/caches/UserAtom";
 import { initFirebase } from "@/functions/firebase";
 import { trackError, trackIdentity } from "@/functions/mixpanel";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom } from "jotai";
 import Link from "next/link";
 import { ChangeEvent, useState } from "react";
 import * as S from "./sign-in.style";
@@ -18,11 +17,12 @@ const SignIn = () => {
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const isDisabled = !userEmail || !userPassword;
+  const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
   const handleSignIn = async () => {
     const email = userEmail;
     const password = userPassword;
+    setIsDisabled(true);
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -45,7 +45,9 @@ const SignIn = () => {
         ...user.providerData[0],
         uid: user.uid,
       });
+      window.location.href = "/";
     } catch (error: any) {
+      setIsDisabled(false);
       const errorCode = error.code;
       const errorMessage = error.message;
 
@@ -77,6 +79,8 @@ const SignIn = () => {
         setUserEmail(val);
         break;
     }
+
+    setIsDisabled(!userEmail || !userPassword);
   };
 
   if (!!user && typeof window !== "undefined") {

@@ -30,6 +30,10 @@ export const Textarea = styled.textarea`
   color: #000;
   resize: none;
   border-radius: 10px;
+
+  @media only screen and (max-width: 950px) {
+    width: 90%;
+  }
 `;
 
 export const Button = styled.button`
@@ -45,5 +49,11 @@ export const Button = styled.button`
 
   &:hover {
     cursor: pointer;
+  }
+
+  &:disabled {
+    background: #ddd;
+    color: #000;
+    cursor: no-drop;
   }
 `;
