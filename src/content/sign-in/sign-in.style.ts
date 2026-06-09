@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
   padding: 5%;
 `;
 
@@ -11,9 +11,14 @@ export const Input = styled.input`
   background: #fff;
   height: 30px;
   width: 200px;
-  border: none;
+  border: 1px solid #000;
   padding-left: 5px;
   color: #000;
+  border-radius: 10px;
+
+  @media only screen and (max-width: 950px) {
+    width: 90%;
+  }
 `;
 
 export const Button = styled.button`
