@@ -13,6 +13,7 @@ import List from "@/components/list/list";
 import ToggleButton from "react-toggle-button";
 import { userAtom } from "@/caches/UserAtom";
 import { getUserCreds } from "@/functions/userState";
+import Loader from "@/components/loader/loader";
 
 interface HomeProps {
   csvData?: AllSearchData;
@@ -44,7 +45,7 @@ const Home = ({ csvData }: HomeProps) => {
   }
 
   if (!jobData) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   return (

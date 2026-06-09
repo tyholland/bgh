@@ -38,7 +38,7 @@ export const Textarea = styled.textarea`
 
 export const Button = styled.button`
   width: fit-content;
-  padding: 10px;
+  padding: 10px 15px;
   border-radius: 20px;
   border: none;
   background: #1439e6;

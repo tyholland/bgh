@@ -1,3 +1,12 @@
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 :root {
   --background: #f8f8ff;
   --foreground: #171717;
@@ -45,6 +54,20 @@ main {
   height: auto;
   position: relative;
   padding-bottom: 100px;
+
+  .loadingWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 70px;
+    align-items: center;
+    font-weight: 700;
+    margin-top: 40px;
+
+    img {
+      animation: spin 8s linear infinite;
+      border-radius: 20px;
+    }
+  }
 }
 
 footer {

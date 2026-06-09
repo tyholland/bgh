@@ -5,6 +5,7 @@ import { getUserCreds } from "@/functions/userState";
 import { useAtom } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./contact.style";
+import Loader from "@/components/loader/loader";
 
 const Contact = () => {
   const [user, setUser] = useAtom(userAtom);
