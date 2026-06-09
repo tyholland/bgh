@@ -32,7 +32,7 @@ export const ModalBtn = styled.div`
       color: #000;
 
       &:hover {
-        background: #1439e6;
+        background: #6faeff;
         color: #fff;
       }
     }
