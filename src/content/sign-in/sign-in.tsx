@@ -9,14 +9,16 @@ import { useAtom, useAtomValue } from "jotai";
 import Link from "next/link";
 import { ChangeEvent, useState } from "react";
 import * as S from "./sign-in.style";
+import ErrorBlock from "@/components/errorBlock/errorBlock";
 
 const SignIn = () => {
   initFirebase();
   const auth = getAuth();
   const [user, setUser] = useAtom(userAtom);
-  const jobData = useAtomValue(jobAtom);
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const isDisabled = !userEmail || !userPassword;
 
   const handleSignIn = async () => {
     const email = userEmail;
@@ -52,6 +54,8 @@ const SignIn = () => {
         message: errorMessage,
         email,
       });
+
+      setErrorMsg(errorCode);
     }
   };
 
@@ -59,6 +63,7 @@ const SignIn = () => {
     e: ChangeEvent<HTMLInputElement>,
     type: string,
   ) => {
+    setErrorMsg(null);
     const val = e.target.value;
 
     switch (type) {
@@ -98,7 +103,10 @@ const SignIn = () => {
           required
         />
       </div>
-      <S.Button onClick={handleSignIn}>Sign In</S.Button>
+      {errorMsg && <ErrorBlock error={errorMsg} />}
+      <S.Button onClick={handleSignIn} disabled={isDisabled}>
+        Sign In
+      </S.Button>
       <S.SignUp>
         Don't have an account. <Link href="/sign-up">Sign Up</Link>
       </S.SignUp>

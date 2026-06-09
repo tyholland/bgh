@@ -22,7 +22,7 @@ export const Input = styled.input`
 `;
 
 export const Button = styled.button`
-  width: fit-content;
+  width: 100px;
   padding: 10px;
   border-radius: 20px;
   border: none;
@@ -34,6 +34,12 @@ export const Button = styled.button`
 
   &:hover {
     cursor: pointer;
+  }
+
+  &:disabled {
+    background: #ddd;
+    color: #000;
+    cursor: no-drop;
   }
 `;
 

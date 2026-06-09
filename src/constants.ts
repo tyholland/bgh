@@ -14,3 +14,10 @@ export const MediumModalStyle = {
   ...defaultModalStyle,
   width: 500,
 };
+
+export const LoginErrors = [
+  {
+    error: "auth/invalid-credential",
+    value: "Your email and/or password is incorrect. Please try again.",
+  },
+];
