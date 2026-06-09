@@ -23,9 +23,7 @@ const SignUp = () => {
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isDisabled, setIsDisabled] = useState<boolean>(
-    !userEmail || !userPassword || !firstName || !lastName,
-  );
+  const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
   const handleCreate = async () => {
     const email = userEmail;
@@ -111,6 +109,8 @@ const SignUp = () => {
         setFirstName(val);
         break;
     }
+
+    setIsDisabled(!userEmail || !userPassword || !firstName || !lastName);
   };
 
   if (!!user && typeof window !== "undefined") {

@@ -5,18 +5,19 @@ import { getUserCreds } from "@/functions/userState";
 import { useAtom } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./contact.style";
-import Loader from "@/components/loader/loader";
 
 const Contact = () => {
   const [user, setUser] = useAtom(userAtom);
-  const [firstName, setFirstName] = useState<string>("");
-  const [lastName, setLastName] = useState<string>("");
-  const [userEmail, setUserEmail] = useState<string>("");
+  const [firstName, setFirstName] = useState<string>(
+    user?.displayName?.split(" ")[0] || "",
+  );
+  const [lastName, setLastName] = useState<string>(
+    user?.displayName?.split(" ")[1] || "",
+  );
+  const [userEmail, setUserEmail] = useState<string>(user?.email || "");
   const [feedback, setFeedback] = useState<string>("");
   const [hasFeedback, setHasFeedback] = useState<boolean>(false);
-  const [isDisabled, setIsDisabled] = useState<boolean>(
-    !firstName || !lastName || !userEmail || !feedback,
-  );
+  const [isDisabled, setIsDisabled] = useState<boolean>(true);
 
   const handleSubmit = () => {
     // to: "ty@heiprodigital.com",
@@ -46,12 +47,15 @@ const Contact = () => {
         setFirstName(val);
         break;
     }
+
+    setIsDisabled(!firstName || !lastName || !userEmail || !feedback);
   };
 
   const handleFeedback = (e: ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
 
     setFeedback(val);
+    setIsDisabled(!firstName || !lastName || !userEmail || !val);
   };
 
   useEffect(() => {
@@ -72,7 +76,7 @@ const Contact = () => {
               name="firstName"
               onChange={(e) => handleInputChange(e, "firstName")}
               placeholder="Enter your first name"
-              value={user ? user.displayName?.split(" ")[0] || "" : firstName}
+              value={firstName}
             />
           </div>
           <div>
@@ -81,7 +85,7 @@ const Contact = () => {
               name="lastName"
               onChange={(e) => handleInputChange(e, "lastName")}
               placeholder="Enter your last name"
-              value={user ? user.displayName?.split(" ")[1] || "" : lastName}
+              value={lastName}
             />
           </div>
           <div>
@@ -90,7 +94,7 @@ const Contact = () => {
               name="email"
               onChange={(e) => handleInputChange(e, "email")}
               placeholder="Enter your email"
-              value={user ? user.email || "" : userEmail}
+              value={userEmail}
               required
             />
           </div>
