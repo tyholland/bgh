@@ -5,6 +5,9 @@ import { getUserCreds } from "@/functions/userState";
 import { useAtom } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./contact.style";
+import { sendEmail } from "@/requests/email";
+import { trackError } from "@/functions/mixpanel";
+import ErrorBlock from "@/components/errorBlock/errorBlock";
 
 const Contact = () => {
   const [user, setUser] = useAtom(userAtom);
@@ -18,13 +21,33 @@ const Contact = () => {
   const [feedback, setFeedback] = useState<string>("");
   const [hasFeedback, setHasFeedback] = useState<boolean>(false);
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    // to: "ty@heiprodigital.com",
-    // subject: "BGH Feedback",
-    // body: `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${userEmail}\nMessage: ${feedback}\n`,
+  const handleSubmit = async () => {
+    try {
+      setIsDisabled(true);
 
-    setHasFeedback(true);
+      await sendEmail(
+        "ty@heiprodigital.com, cpbeganski@gmail.com, ben@greenefamily.us",
+        "BGH Feedback",
+        `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${userEmail}\nMessage: ${feedback}\n`,
+      );
+
+      setHasFeedback(true);
+    } catch (error: any) {
+      console.log(error);
+      setIsDisabled(false);
+      setHasFeedback(false);
+      const errorCode = error.code;
+      const errorMessage = error.message;
+
+      trackError("Send Feedback", {
+        code: errorCode,
+        message: errorMessage,
+      });
+
+      setErrorMsg(errorCode);
+    }
   };
 
   const handleInputChange = (
@@ -58,9 +81,16 @@ const Contact = () => {
     setIsDisabled(!firstName || !lastName || !userEmail || !val);
   };
 
+  const loadDefaultUserVal = () => {
+    setFirstName(user?.displayName?.split(" ")[0] || "");
+    setLastName(user?.displayName?.split(" ")[1] || "");
+    setUserEmail(user?.email || "");
+  };
+
   useEffect(() => {
     getUserCreds(user, setUser);
-  }, []);
+    !!user && loadDefaultUserVal();
+  }, [user]);
 
   return (
     <S.Wrapper>
@@ -106,6 +136,7 @@ const Contact = () => {
               required
             />
           </div>
+          {errorMsg && <ErrorBlock error={errorMsg} />}
           <S.Button onClick={handleSubmit} disabled={isDisabled}>
             Submit Feedback
           </S.Button>
