@@ -9,6 +9,7 @@ import Link from "next/link";
 import { ChangeEvent, useState } from "react";
 import * as S from "./sign-in.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
+import CronJob from "@/components/cronJob/cronJob";
 
 const SignIn = () => {
   initFirebase();
@@ -88,33 +89,36 @@ const SignIn = () => {
   }
 
   return (
-    <S.Wrapper>
-      <div>
-        <S.Input
-          type="email"
-          name="email"
-          onChange={(e) => handleInputChange(e, "email")}
-          placeholder="Enter your email"
-          required
-        />
-      </div>
-      <div>
-        <S.Input
-          type="password"
-          name="password"
-          onChange={(e) => handleInputChange(e, "password")}
-          placeholder="Enter your password"
-          required
-        />
-      </div>
-      {errorMsg && <ErrorBlock error={errorMsg} />}
-      <S.Button onClick={handleSignIn} disabled={isDisabled}>
-        Sign In
-      </S.Button>
-      <S.SignUp>
-        Don't have an account. <Link href="/sign-up">Sign Up</Link>
-      </S.SignUp>
-    </S.Wrapper>
+    <>
+      <CronJob />
+      <S.Wrapper>
+        <div>
+          <S.Input
+            type="email"
+            name="email"
+            onChange={(e) => handleInputChange(e, "email")}
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        <div>
+          <S.Input
+            type="password"
+            name="password"
+            onChange={(e) => handleInputChange(e, "password")}
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        {errorMsg && <ErrorBlock error={errorMsg} />}
+        <S.Button onClick={handleSignIn} disabled={isDisabled}>
+          Sign In
+        </S.Button>
+        <S.SignUp>
+          Don't have an account. <Link href="/sign-up">Sign Up</Link>
+        </S.SignUp>
+      </S.Wrapper>
+    </>
   );
 };
 

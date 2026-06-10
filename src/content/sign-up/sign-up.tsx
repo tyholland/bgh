@@ -13,6 +13,7 @@ import Link from "next/link";
 import { ChangeEvent, useState } from "react";
 import * as S from "./sign-up.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
+import CronJob from "@/components/cronJob/cronJob";
 
 const SignUp = () => {
   initFirebase();
@@ -118,51 +119,54 @@ const SignUp = () => {
   }
 
   return (
-    <S.Wrapper>
-      <div>
-        <S.Input
-          type="text"
-          name="firstName"
-          onChange={(e) => handleInputChange(e, "firstName")}
-          placeholder="Enter your first name"
-          required
-        />
-      </div>
-      <div>
-        <S.Input
-          type="text"
-          name="lastName"
-          onChange={(e) => handleInputChange(e, "lastName")}
-          placeholder="Enter your last name"
-          required
-        />
-      </div>
-      <div>
-        <S.Input
-          type="email"
-          name="email"
-          onChange={(e) => handleInputChange(e, "email")}
-          placeholder="Enter your email"
-          required
-        />
-      </div>
-      <div>
-        <S.Input
-          type="password"
-          name="password"
-          onChange={(e) => handleInputChange(e, "password")}
-          placeholder="Enter your password"
-          required
-        />
-      </div>
-      {errorMsg && <ErrorBlock error={errorMsg} />}
-      <S.Button onClick={handleCreate} disabled={isDisabled}>
-        Create Account
-      </S.Button>
-      <S.SignIn>
-        Already have an account. <Link href="/sign-in">Sign In</Link>
-      </S.SignIn>
-    </S.Wrapper>
+    <>
+      <CronJob />
+      <S.Wrapper>
+        <div>
+          <S.Input
+            type="text"
+            name="firstName"
+            onChange={(e) => handleInputChange(e, "firstName")}
+            placeholder="Enter your first name"
+            required
+          />
+        </div>
+        <div>
+          <S.Input
+            type="text"
+            name="lastName"
+            onChange={(e) => handleInputChange(e, "lastName")}
+            placeholder="Enter your last name"
+            required
+          />
+        </div>
+        <div>
+          <S.Input
+            type="email"
+            name="email"
+            onChange={(e) => handleInputChange(e, "email")}
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        <div>
+          <S.Input
+            type="password"
+            name="password"
+            onChange={(e) => handleInputChange(e, "password")}
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+        {errorMsg && <ErrorBlock error={errorMsg} />}
+        <S.Button onClick={handleCreate} disabled={isDisabled}>
+          Create Account
+        </S.Button>
+        <S.SignIn>
+          Already have an account. <Link href="/sign-in">Sign In</Link>
+        </S.SignIn>
+      </S.Wrapper>
+    </>
   );
 };
 

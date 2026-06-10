@@ -8,6 +8,7 @@ import * as S from "./contact.style";
 import { sendEmail } from "@/requests/email";
 import { trackError } from "@/functions/mixpanel";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
+import CronJob from "@/components/cronJob/cronJob";
 
 const Contact = () => {
   const [user, setUser] = useAtom(userAtom);
@@ -93,56 +94,59 @@ const Contact = () => {
   }, [user]);
 
   return (
-    <S.Wrapper>
-      {hasFeedback ? (
-        <div>Thanks you for your feedback</div>
-      ) : (
-        <>
-          Please provide us with any feedback. Your feedback will help make our
-          product stronger.
-          <div>
-            <S.Input
-              type="text"
-              name="firstName"
-              onChange={(e) => handleInputChange(e, "firstName")}
-              placeholder="Enter your first name"
-              value={firstName}
-            />
-          </div>
-          <div>
-            <S.Input
-              type="text"
-              name="lastName"
-              onChange={(e) => handleInputChange(e, "lastName")}
-              placeholder="Enter your last name"
-              value={lastName}
-            />
-          </div>
-          <div>
-            <S.Input
-              type="email"
-              name="email"
-              onChange={(e) => handleInputChange(e, "email")}
-              placeholder="Enter your email"
-              value={userEmail}
-              required
-            />
-          </div>
-          <div>
-            <S.Textarea
-              name="feedback"
-              onChange={handleFeedback}
-              placeholder="Enter your feedback"
-              required
-            />
-          </div>
-          {errorMsg && <ErrorBlock error={errorMsg} />}
-          <S.Button onClick={handleSubmit} disabled={isDisabled}>
-            Submit Feedback
-          </S.Button>
-        </>
-      )}
-    </S.Wrapper>
+    <>
+      <CronJob />
+      <S.Wrapper>
+        {hasFeedback ? (
+          <div>Thanks you for your feedback</div>
+        ) : (
+          <>
+            Please provide us with any feedback. Your feedback will help make
+            our product stronger.
+            <div>
+              <S.Input
+                type="text"
+                name="firstName"
+                onChange={(e) => handleInputChange(e, "firstName")}
+                placeholder="Enter your first name"
+                value={firstName}
+              />
+            </div>
+            <div>
+              <S.Input
+                type="text"
+                name="lastName"
+                onChange={(e) => handleInputChange(e, "lastName")}
+                placeholder="Enter your last name"
+                value={lastName}
+              />
+            </div>
+            <div>
+              <S.Input
+                type="email"
+                name="email"
+                onChange={(e) => handleInputChange(e, "email")}
+                placeholder="Enter your email"
+                value={userEmail}
+                required
+              />
+            </div>
+            <div>
+              <S.Textarea
+                name="feedback"
+                onChange={handleFeedback}
+                placeholder="Enter your feedback"
+                required
+              />
+            </div>
+            {errorMsg && <ErrorBlock error={errorMsg} />}
+            <S.Button onClick={handleSubmit} disabled={isDisabled}>
+              Submit Feedback
+            </S.Button>
+          </>
+        )}
+      </S.Wrapper>
+    </>
   );
 };
 
