@@ -76,24 +76,41 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   const end = start + limit;
 
   const companies: string[] = [
-    ...new Set(filteredData.map((item: CsvData) => item.Company)),
+    ...new Set(filteredData.map((item: CsvData) => item.Company.toLowerCase())),
   ];
   const scrapDates: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Scrape_DateTime)),
   ];
   const industries: string[] = [
-    ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
+    ...new Set(
+      filteredData.map((item: CsvData) =>
+        item["Primary Industry"].toLowerCase(),
+      ),
+    ),
   ];
 
   return {
     data: filteredData.slice(start, end),
     allData: parsedData.data as CsvData[],
     total: filteredData.length,
-    page,
     totalPages: Math.ceil(filteredData.length / limit),
-    companies: companies.sort(),
+    companies: companies.sort().map((str) =>
+      str
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" "),
+    ),
     scrapDates: scrapDates.sort(),
-    industries: industries.sort(),
+    industries: industries.sort().map((str) =>
+      str
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" "),
+    ),
   };
 };
 

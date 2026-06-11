@@ -19,7 +19,6 @@ export interface AllSearchData {
   data: CsvData[];
   allData: CsvData[];
   total: number;
-  page: number;
   totalPages: number;
   companies: string[];
   scrapDates: string[];

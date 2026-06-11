@@ -9,7 +9,7 @@ export const handleSearchParams = (
   setData: (val: AllSearchData) => void,
 ) => {
   const search = params.get("search");
-  const page = params.get("page");
+  const page = params.get("page") || 1;
   const company = params.get("company");
   const date = params.get("date");
   const industry = params.get("industry");
@@ -64,27 +64,44 @@ export const handleSearchParams = (
     );
   }
 
-  const start = (searchData.page - 1) * limit;
+  const start = (Number(page) - 1) * limit;
   const end = start + limit;
 
   const companies: string[] = [
-    ...new Set(filteredData.map((item: CsvData) => item.Company)),
+    ...new Set(filteredData.map((item: CsvData) => item.Company.toLowerCase())),
   ];
   const scrapDates: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Scrape_DateTime)),
   ];
   const industries: string[] = [
-    ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
+    ...new Set(
+      filteredData.map((item: CsvData) =>
+        item["Primary Industry"].toLowerCase(),
+      ),
+    ),
   ];
 
   setData({
     data: filteredData.slice(start, end),
     allData: searchData.allData,
     total: filteredData.length,
-    page: page ? Number(page) : 1,
     totalPages: Math.ceil(filteredData.length / limit),
-    companies: companies.sort(),
+    companies: companies.sort().map((str) =>
+      str
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" "),
+    ),
     scrapDates: scrapDates.sort(),
-    industries: industries.sort(),
+    industries: industries.sort().map((str) =>
+      str
+        .split(" ")
+        .map(
+          (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase(),
+        )
+        .join(" "),
+    ),
   });
 };

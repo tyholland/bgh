@@ -37,7 +37,7 @@ const Pagination = ({ totalPages }: PaginationProps) => {
         pageCount={totalPages}
         previousLabel="<"
         renderOnZeroPageCount={null}
-        initialPage={params.get("page") ? Number(params.get("page")) : 1}
+        forcePage={params.get("page") ? Number(params.get("page")) - 1 : 0}
       />
     </S.Wrapper>
   );

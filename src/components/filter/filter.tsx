@@ -137,10 +137,10 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       params.set("keyword", "");
       setKeyword("");
       setKeywordBubble([]);
-      params.set("page", "1");
+      params.set("page", "");
     } else {
       params.set(filter, "");
-      params.set("page", "1");
+      params.set("page", "");
 
       if (filter === "company") {
         setCompanyReset(false);
@@ -161,7 +161,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
-    jobData && handleSearchParams({ ...jobData, page: 1 }, params, setJobData);
+    jobData && handleSearchParams(jobData, params, setJobData);
 
     trackEvent("Filter", {
       type: "reset",
