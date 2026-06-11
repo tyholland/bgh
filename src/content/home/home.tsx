@@ -57,6 +57,7 @@ const Home = ({ csvData }: HomeProps) => {
         <S.ResultsWrapper>
           <Filter
             companies={jobData.companies}
+            scrapDates={jobData.scrapDates}
             industries={jobData.industries}
           />
           <S.JobResultsWrapper>

@@ -2,6 +2,7 @@ export interface CsvData {
   "Role Name": string;
   "Primary Industry": string;
   Scrape_DateTime: string;
+  Scrape_Date: string;
   Company: string;
   Link: string;
 }
@@ -11,6 +12,7 @@ export interface UrlParams {
   search: string;
   company: string;
   date: string;
+  exact: string;
   keyword: string;
   industry: string;
 }
@@ -20,6 +22,7 @@ export interface AllSearchData {
   allData: CsvData[];
   total: number;
   totalPages: number;
+  scrapDates: string[];
   companies: string[];
   industries: string[];
 }

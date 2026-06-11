@@ -4,7 +4,15 @@ import { CsvData, UrlParams } from "@/types";
 import dayjs from "dayjs";
 
 const getCSVData = async (params: UrlParams, limit = 18) => {
-  const { page: pageNum, search, company, date, keyword, industry } = params;
+  const {
+    page: pageNum,
+    search,
+    company,
+    date,
+    exact,
+    keyword,
+    industry,
+  } = params;
   const page = pageNum || 1;
 
   const res = await fetch(
@@ -78,11 +86,24 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
     });
   }
 
+  if (exact) {
+    const exactDate = new Date(exact);
+
+    filteredData = filteredData.filter((item: CsvData) => {
+      const itemDate = new Date(item.Scrape_Date);
+
+      return itemDate.toDateString() === exactDate.toDateString();
+    });
+  }
+
   const start = (page - 1) * limit;
   const end = start + limit;
 
   const companies: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Company.toLowerCase())),
+  ];
+  const scrapDates: string[] = [
+    ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
   ];
   const industries: string[] = [
     ...new Set(
@@ -105,6 +126,7 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
         )
         .join(" "),
     ),
+    scrapDates: scrapDates.sort((a, b) => b.localeCompare(a)),
     industries: industries.sort().map((str) =>
       str
         .split(" ")

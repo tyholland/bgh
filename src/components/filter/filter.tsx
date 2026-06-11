@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./filter.style";
 import { handleSearchParams } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
@@ -12,18 +12,23 @@ import dayjs from "dayjs";
 
 interface FilterProps {
   companies: string[];
+  scrapDates: string[];
   industries: string[];
 }
 
-const Filter = ({ companies, industries }: FilterProps) => {
+const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const query = window.location.search;
   const defaultParams = new URLSearchParams(query);
   const defaultCompany = defaultParams?.get("company");
   const defaultIndustry = defaultParams?.get("indursty");
   const defaultKeyword = defaultParams?.get("keyword");
   const defaultDate = defaultParams?.get("date");
+  const defaultExactDate = defaultParams?.get("exact");
   const user = useAtomValue(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
+  const [showExactDate, setShowExactDate] = useState<boolean>(
+    (defaultExactDate && defaultExactDate.length > 0) || false,
+  );
   const [keyword, setKeyword] = useState<string>(defaultKeyword || "");
   const [keywordBubble, setKeywordBubble] = useState<string[]>(
     defaultKeyword && defaultKeyword.length > 0
@@ -43,6 +48,9 @@ const Filter = ({ companies, industries }: FilterProps) => {
   const [postedDate, setPostedDate] = useState<string>(
     defaultDate && defaultDate.length > 0 ? defaultDate : "",
   );
+  const [exactDate, setExactDate] = useState<string>(
+    defaultExactDate && defaultExactDate.length > 0 ? defaultExactDate : "",
+  );
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [companyReset, setCompanyReset] = useState<boolean>(
     companyArr.length > 0 || false,
@@ -54,7 +62,8 @@ const Filter = ({ companies, industries }: FilterProps) => {
     keywordBubble.length === 0 &&
     !companyReset &&
     !industryReset &&
-    postedDate.length === 0;
+    postedDate.length === 0 &&
+    exactDate.length === 0;
 
   const handleFilter = (e: ChangeEvent<HTMLSelectElement>, type: string) => {
     const filterChoice = Array.from(
@@ -119,12 +128,19 @@ const Filter = ({ companies, industries }: FilterProps) => {
     }
 
     const filterChoice = e.target.value;
+
+    if (filterChoice === "open") {
+      setShowExactDate(true);
+      return;
+    }
+
     const searchDate = dayjs().subtract(Number(filterChoice), "day");
     setPostedDate(searchDate.format("YYYYMMDD"));
     const query = window.location.search;
     const params = new URLSearchParams(query);
 
     params.set("date", searchDate.format("MM-DD-YYYY"));
+    params.set("page", "1");
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
@@ -137,22 +153,58 @@ const Filter = ({ companies, industries }: FilterProps) => {
     });
   };
 
+  const handleExactDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
+    if (!user) {
+      setOpenModal(true);
+      return;
+    }
+
+    const filterChoice = e.target.value;
+    setExactDate(filterChoice);
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+
+    params.set("exact", filterChoice);
+    params.set("page", "1");
+    const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
+
+    jobData && handleSearchParams(jobData, params, setJobData);
+
+    trackEvent("Filter", {
+      type: "exact date",
+      value: filterChoice,
+    });
+  };
+
   const handleReset = (filter: string) => {
     const query = window.location.search;
     const params = new URLSearchParams(query);
 
     if (filter === "all") {
+      // Company
       params.set("company", "");
       setCompanyReset(false);
       setCompanyArr([]);
+
+      // Dates
       params.set("date", "");
       setPostedDate("");
+      params.set("exact", "");
+      setExactDate("");
+      setShowExactDate(false);
+
+      // Industry
       params.set("industry", "");
       setIndustryReset(false);
       setIndustryArr([]);
+
+      // Keyword
       params.set("keyword", "");
       setKeyword("");
       setKeywordBubble([]);
+
+      // Pagination
       params.set("page", "");
     } else {
       params.set(filter, "");
@@ -174,7 +226,10 @@ const Filter = ({ companies, industries }: FilterProps) => {
       }
 
       if (filter === "date") {
+        params.set("exact", "");
         setPostedDate("");
+        setExactDate("");
+        setShowExactDate(false);
       }
     }
 
@@ -348,17 +403,34 @@ const Filter = ({ companies, industries }: FilterProps) => {
               reset
             </button>
           </S.FilterContent>
-          <S.Select
-            name="dateSelect"
-            onChange={handleDateFilter}
-            value={dayjs().diff(postedDate, "day")}
-          >
-            <option value="">Select Posted Date</option>
-            <option value="1">24 Hours</option>
-            <option value="3">3 Days</option>
-            <option value="7">1 Week</option>
-            <option value="30">Last Month</option>
-          </S.Select>
+          {!showExactDate && (
+            <S.Select
+              name="dateSelect"
+              onChange={handleDateFilter}
+              value={postedDate ? dayjs().diff(postedDate, "day") : ""}
+            >
+              <option value="">Select Posted Date</option>
+              <option value="1">24 Hours</option>
+              <option value="3">3 Days</option>
+              <option value="7">1 Week</option>
+              <option value="30">1 Month</option>
+              <option value="open">Specific Date</option>
+            </S.Select>
+          )}
+          {showExactDate && (
+            <S.Select
+              name="dateSelect"
+              onChange={handleExactDateFilter}
+              value={dayjs(exactDate).format("MM-DD-YYYY") || ""}
+            >
+              <option value="">Select Specific Date</option>
+              {scrapDates.map((item: string, index: number) => (
+                <option value={dayjs(item).format("MM-DD-YYYY")} key={index}>
+                  {dayjs(item).format("MM-DD-YYYY")}
+                </option>
+              ))}
+            </S.Select>
+          )}
         </div>
         <button
           className="resetAll"

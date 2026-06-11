@@ -12,6 +12,7 @@ export const handleSearchParams = (
   const page = params.get("page") || 1;
   const company = params.get("company");
   const date = params.get("date");
+  const exact = params.get("exact");
   const industry = params.get("industry");
   const keyword = params.get("keyword");
 
@@ -70,11 +71,24 @@ export const handleSearchParams = (
     });
   }
 
+  if (exact) {
+    const exactDate = new Date(exact);
+
+    filteredData = filteredData.filter((item: CsvData) => {
+      const itemDate = new Date(item.Scrape_Date);
+
+      return itemDate.toDateString() === exactDate.toDateString();
+    });
+  }
+
   const start = (Number(page) - 1) * limit;
   const end = start + limit;
 
   const companies: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Company.toLowerCase())),
+  ];
+  const scrapDates: string[] = [
+    ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
   ];
   const industries: string[] = [
     ...new Set(
@@ -97,6 +111,7 @@ export const handleSearchParams = (
         )
         .join(" "),
     ),
+    scrapDates: scrapDates.sort((a, b) => b.localeCompare(a)),
     industries: industries.sort().map((str) =>
       str
         .split(" ")

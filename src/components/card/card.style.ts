@@ -76,6 +76,14 @@ export const Section = styled.div`
   flex-direction: column;
   gap: 15px;
 
+  button {
+    color: #fff;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
   &.first {
     width: 100%;
     min-height: 160px;
