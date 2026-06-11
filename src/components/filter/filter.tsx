@@ -41,9 +41,7 @@ const Filter = ({ companies, industries }: FilterProps) => {
       : [],
   );
   const [postedDate, setPostedDate] = useState<string>(
-    defaultDate && defaultDate.length > 0
-      ? defaultDate
-      : dayjs().format("YYYYMMDD"),
+    defaultDate && defaultDate.length > 0 ? defaultDate : "",
   );
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [companyReset, setCompanyReset] = useState<boolean>(
