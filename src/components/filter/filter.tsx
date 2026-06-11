@@ -56,7 +56,7 @@ const Filter = ({ companies, industries }: FilterProps) => {
     keywordBubble.length === 0 &&
     !companyReset &&
     !industryReset &&
-    !postedDate;
+    postedDate.length === 0;
 
   const handleFilter = (e: ChangeEvent<HTMLSelectElement>, type: string) => {
     const filterChoice = Array.from(
