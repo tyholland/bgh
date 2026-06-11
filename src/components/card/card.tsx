@@ -29,12 +29,12 @@ const Card = () => {
           window.open(item.Link);
 
           trackEvent("See Role", {
-            type: "list",
+            type: "card",
             item,
           });
         };
 
-        const currentDate = dayjs(item.Scrape_Date).format("YYYYMMDD");
+        const currentDate = dayjs(item.Scrape_DateTime);
         const postedTime = dayjs(currentDate).fromNow();
 
         return (

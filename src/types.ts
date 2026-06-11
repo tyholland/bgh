@@ -1,7 +1,7 @@
 export interface CsvData {
   "Role Name": string;
   "Primary Industry": string;
-  Scrape_Date: string;
+  Scrape_DateTime: string;
   Company: string;
   Link: string;
 }

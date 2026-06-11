@@ -22,9 +22,9 @@ export const handleSearchParams = (
   );
 
   let filteredData: CsvData[] = allData.sort((a: CsvData, b: CsvData) => {
-    const dateA = a.Scrape_Date ? dayjs(a.Scrape_Date).unix() : 0;
+    const dateA = a.Scrape_DateTime ? dayjs(a.Scrape_DateTime).unix() : 0;
 
-    const dateB = b.Scrape_Date ? dayjs(b.Scrape_Date).unix() : 0;
+    const dateB = b.Scrape_DateTime ? dayjs(b.Scrape_DateTime).unix() : 0;
 
     return dateB - dateA;
   });
@@ -59,7 +59,8 @@ export const handleSearchParams = (
 
   if (date) {
     filteredData = filteredData.filter(
-      (item: CsvData) => item.Scrape_Date?.toLowerCase() === date.toLowerCase(),
+      (item: CsvData) =>
+        item.Scrape_DateTime?.toLowerCase() === date.toLowerCase(),
     );
   }
 
@@ -70,7 +71,7 @@ export const handleSearchParams = (
     ...new Set(filteredData.map((item: CsvData) => item.Company)),
   ];
   const scrapDates: string[] = [
-    ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
+    ...new Set(filteredData.map((item: CsvData) => item.Scrape_DateTime)),
   ];
   const industries: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),

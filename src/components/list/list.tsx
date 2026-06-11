@@ -48,13 +48,13 @@ const List = () => {
           window.open(item.Link);
 
           trackEvent("See Role", {
-            type: "card",
+            type: "list",
             item,
           });
         };
 
-        const currentDate = dayjs(item.Scrape_Date).format("YYYYMMDD");
-        const postedTime = dayjs(currentDate, "YYYYMMDD").fromNow();
+        const currentDate = dayjs(item.Scrape_DateTime);
+        const postedTime = dayjs(currentDate).fromNow();
 
         return (
           <S.Wrapper key={index}>
