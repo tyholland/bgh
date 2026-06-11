@@ -8,19 +8,20 @@ import { useAtom, useAtomValue } from "jotai";
 import { trackEvent } from "@/functions/mixpanel";
 import SignInModal from "../signIn-modal/signIn-modal";
 import { userAtom } from "@/caches/UserAtom";
+import dayjs from "dayjs";
 
 interface FilterProps {
   companies: string[];
-  scrapDates: string[];
   industries: string[];
 }
 
-const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
+const Filter = ({ companies, industries }: FilterProps) => {
   const query = window.location.search;
   const defaultParams = new URLSearchParams(query);
   const defaultCompany = defaultParams?.get("company");
   const defaultIndustry = defaultParams?.get("indursty");
   const defaultKeyword = defaultParams?.get("keyword");
+  const defaultDate = defaultParams?.get("date");
   const user = useAtomValue(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
   const [keyword, setKeyword] = useState<string>(defaultKeyword || "");
@@ -39,6 +40,11 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       ? defaultIndustry.split(",")
       : [],
   );
+  const [postedDate, setPostedDate] = useState<string>(
+    defaultDate && defaultDate.length > 0
+      ? defaultDate
+      : dayjs().format("YYYYMMDD"),
+  );
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [companyReset, setCompanyReset] = useState<boolean>(
     companyArr.length > 0 || false,
@@ -47,7 +53,10 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
     industryArr.length > 0 || false,
   );
   const disabledAll =
-    keywordBubble.length === 0 && !companyReset && !industryReset;
+    keywordBubble.length === 0 &&
+    !companyReset &&
+    !industryReset &&
+    !postedDate;
 
   const handleFilter = (e: ChangeEvent<HTMLSelectElement>, type: string) => {
     const filterChoice = Array.from(
@@ -106,11 +115,18 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
   };
 
   const handleDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
+    if (!user) {
+      setOpenModal(true);
+      return;
+    }
+
     const filterChoice = e.target.value;
+    const searchDate = dayjs().subtract(Number(filterChoice), "day");
+    setPostedDate(searchDate.format("YYYYMMDD"));
     const query = window.location.search;
     const params = new URLSearchParams(query);
 
-    params.set("date", filterChoice);
+    params.set("date", searchDate.format("MM-DD-YYYY"));
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
@@ -118,7 +134,8 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
 
     trackEvent("Filter", {
       type: "date",
-      value: filterChoice,
+      value: searchDate.format("MM-DD-YYYY"),
+      amountOfDays: filterChoice,
     });
   };
 
@@ -131,6 +148,7 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       setCompanyReset(false);
       setCompanyArr([]);
       params.set("date", "");
+      setPostedDate("");
       params.set("industry", "");
       setIndustryReset(false);
       setIndustryArr([]);
@@ -155,6 +173,10 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
       if (filter === "keyword") {
         setKeyword("");
         setKeywordBubble([]);
+      }
+
+      if (filter === "date") {
+        setPostedDate("");
       }
     }
 
@@ -321,24 +343,25 @@ const Filter = ({ companies, scrapDates, industries }: FilterProps) => {
             </S.FilterContent>
           </div>
         )}
-        {!!scrapDates && scrapDates.length > 0 && (
-          <div>
-            <S.FilterContent>
-              <div>Posted Date</div>
-              <button className="reset" onClick={() => handleReset("date")}>
-                reset
-              </button>
-            </S.FilterContent>
-            <S.Select name="dateSelect" onChange={handleDateFilter}>
-              <option value="">Select Posted Date</option>
-              {scrapDates.map((item: string, index: number) => (
-                <option value={item} key={index}>
-                  {item}
-                </option>
-              ))}
-            </S.Select>
-          </div>
-        )}
+        <div>
+          <S.FilterContent>
+            <div>Posted Date</div>
+            <button className="reset" onClick={() => handleReset("date")}>
+              reset
+            </button>
+          </S.FilterContent>
+          <S.Select
+            name="dateSelect"
+            onChange={handleDateFilter}
+            value={dayjs().diff(postedDate, "day")}
+          >
+            <option value="">Select Posted Date</option>
+            <option value="1">24 Hours</option>
+            <option value="3">3 Days</option>
+            <option value="7">1 Week</option>
+            <option value="30">Last Month</option>
+          </S.Select>
+        </div>
         <button
           className="resetAll"
           onClick={() => handleReset("all")}

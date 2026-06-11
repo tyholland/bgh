@@ -58,10 +58,16 @@ export const handleSearchParams = (
   }
 
   if (date) {
-    filteredData = filteredData.filter(
-      (item: CsvData) =>
-        item.Scrape_DateTime?.toLowerCase() === date.toLowerCase(),
-    );
+    const today = new Date();
+    const startDate = new Date(date);
+
+    filteredData = filteredData.filter((item: CsvData) => {
+      const itemDate = new Date(item.Scrape_DateTime);
+
+      return itemDate === today
+        ? item
+        : itemDate <= today && itemDate >= startDate;
+    });
   }
 
   const start = (Number(page) - 1) * limit;
@@ -69,9 +75,6 @@ export const handleSearchParams = (
 
   const companies: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item.Company.toLowerCase())),
-  ];
-  const scrapDates: string[] = [
-    ...new Set(filteredData.map((item: CsvData) => item.Scrape_DateTime)),
   ];
   const industries: string[] = [
     ...new Set(
@@ -94,7 +97,6 @@ export const handleSearchParams = (
         )
         .join(" "),
     ),
-    scrapDates: scrapDates.sort(),
     industries: industries.sort().map((str) =>
       str
         .split(" ")

@@ -21,7 +21,6 @@ export interface AllSearchData {
   total: number;
   totalPages: number;
   companies: string[];
-  scrapDates: string[];
   industries: string[];
 }
 
