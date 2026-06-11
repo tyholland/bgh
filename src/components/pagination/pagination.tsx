@@ -13,6 +13,8 @@ interface PaginationProps {
 
 const Pagination = ({ totalPages }: PaginationProps) => {
   const [jobData, setJobData] = useAtom(jobAtom);
+  const query = window.location.search;
+  const params = new URLSearchParams(query);
 
   const goToNewPage = (pageNum: PaginationClick) => {
     const query = window.location.search;
@@ -35,6 +37,7 @@ const Pagination = ({ totalPages }: PaginationProps) => {
         pageCount={totalPages}
         previousLabel="<"
         renderOnZeroPageCount={null}
+        initialPage={params.get("page") ? Number(params.get("page")) : 1}
       />
     </S.Wrapper>
   );

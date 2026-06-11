@@ -4,14 +4,14 @@ import { userAtom } from "@/caches/UserAtom";
 import { getUserCreds } from "@/functions/userState";
 import { useAtom } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
-import * as S from "./contact.style";
+import * as S from "./request.style";
 import { sendEmail } from "@/requests/email";
 import { trackError } from "@/functions/mixpanel";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import CronJob from "@/components/cronJob/cronJob";
 import { useRouter } from "next/navigation";
 
-const Contact = () => {
+const Request = () => {
   const navigate = useRouter();
   const [user, setUser] = useAtom(userAtom);
   const [firstName, setFirstName] = useState<string>(
@@ -21,8 +21,8 @@ const Contact = () => {
     user?.displayName?.split(" ")[1] || "",
   );
   const [userEmail, setUserEmail] = useState<string>(user?.email || "");
-  const [feedback, setFeedback] = useState<string>("");
-  const [hasFeedback, setHasFeedback] = useState<boolean>(false);
+  const [request, setRequest] = useState<string>("");
+  const [hasRequest, setHasRequest] = useState<boolean>(false);
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -32,14 +32,14 @@ const Contact = () => {
 
       await sendEmail(
         "ty@heiprodigital.com, cpbeganski@gmail.com, ben@greenefamily.us",
-        "BGH Feedback",
-        `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${userEmail}\nMessage: ${feedback}\n`,
+        "BGH Request Company",
+        `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${userEmail}\nRequest: ${request}\n`,
       );
 
-      setHasFeedback(true);
+      setHasRequest(true);
     } catch (error: any) {
       setIsDisabled(false);
-      setHasFeedback(false);
+      setHasRequest(false);
       const errorCode = error.code;
       const errorMessage = error.message;
 
@@ -68,19 +68,15 @@ const Contact = () => {
       case "email":
         setUserEmail(val);
         break;
+      case "request":
+        setRequest(val);
+        break;
       default:
         setFirstName(val);
         break;
     }
 
-    setIsDisabled(!firstName || !lastName || !userEmail || !feedback);
-  };
-
-  const handleFeedback = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value;
-
-    setFeedback(val);
-    setIsDisabled(!firstName || !lastName || !userEmail || !val);
+    setIsDisabled(!firstName || !lastName || !userEmail || !request);
   };
 
   const loadDefaultUserVal = () => {
@@ -98,12 +94,11 @@ const Contact = () => {
     <>
       <CronJob />
       <S.Wrapper>
-        {hasFeedback ? (
-          <div>Thank you for your feedback</div>
+        {hasRequest ? (
+          <div>Thank you for your request</div>
         ) : (
           <>
-            Please provide us with any feedback. Your feedback will help make
-            our product stronger.
+            Request a new company to add to our list
             <div>
               <S.Input
                 type="text"
@@ -133,20 +128,22 @@ const Contact = () => {
               />
             </div>
             <div>
-              <S.Textarea
-                name="feedback"
-                onChange={handleFeedback}
-                placeholder="Enter your feedback"
+              <S.Input
+                type="text"
+                name="request"
+                onChange={(e) => handleInputChange(e, "request")}
+                placeholder="Enter company name"
+                value={request}
                 required
               />
             </div>
             {errorMsg && <ErrorBlock error={errorMsg} />}
             <S.BtnWrapper>
               <S.Button onClick={handleSubmit} disabled={isDisabled}>
-                Submit Feedback
+                Submit Request
               </S.Button>
-              <S.Button onClick={() => navigate.push("/request")}>
-                Request a Company
+              <S.Button onClick={() => navigate.push("/contact")}>
+                Provide Feedback
               </S.Button>
             </S.BtnWrapper>
           </>
@@ -156,4 +153,4 @@ const Contact = () => {
   );
 };
 
-export default Contact;
+export default Request;

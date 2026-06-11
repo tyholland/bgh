@@ -21,19 +21,10 @@ export const Input = styled.input`
   }
 `;
 
-export const Textarea = styled.textarea`
-  background: #fff;
-  height: 100px;
-  width: 500px;
-  border: 1px solid #000;
-  padding: 10px;
-  color: #000;
-  resize: none;
-  border-radius: 10px;
-
-  @media only screen and (max-width: 950px) {
-    width: 90%;
-  }
+export const BtnWrapper = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
 `;
 
 export const Button = styled.button`
@@ -56,10 +47,4 @@ export const Button = styled.button`
     color: #000;
     cursor: no-drop;
   }
-`;
-
-export const BtnWrapper = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
 `;
