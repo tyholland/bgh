@@ -11,6 +11,7 @@ export const Wrapper = styled.div`
     font-size: 12px;
     border-radius: 10px;
     background: #1439e6;
+    color: #fff;
 
     &.reset {
       text-decoration: underline;
@@ -21,6 +22,7 @@ export const Wrapper = styled.div`
 
     &:hover {
       cursor: pointer;
+      color: #fff;
     }
 
     &:disabled {

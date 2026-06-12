@@ -30,9 +30,11 @@ export const Wrapper = styled.div`
     border-radius: 20px;
     border: none;
     background: #1439e6;
+    color: #fff;
 
     &:hover {
       cursor: pointer;
+      color: #fff;
     }
   }
 

@@ -28,6 +28,7 @@ export const Button = styled.button`
   border-radius: 20px;
   border: none;
   background: #1439e6;
+  color: #fff;
 
   @media only screen and (max-width: 950px) {
     width: 90%;
@@ -35,6 +36,7 @@ export const Button = styled.button`
 
   &:hover {
     cursor: pointer;
+    color: #fff;
   }
 
   &:disabled {

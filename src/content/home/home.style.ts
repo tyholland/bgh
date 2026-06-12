@@ -44,6 +44,12 @@ export const ListSection = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
+
+  strong {
+    @media only screen and (max-width: 950px) {
+      display: none;
+    }
+  }
 `;
 
 export const JobResultsWrapper = styled.div`
