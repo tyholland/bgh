@@ -2,7 +2,7 @@
 
 import { userAtom } from "@/caches/UserAtom";
 import { initFirebase } from "@/functions/firebase";
-import { trackError, trackIdentity } from "@/functions/mixpanel";
+import { trackError, trackEvent, trackIdentity } from "@/functions/mixpanel";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useAtom } from "jotai";
 import Link from "next/link";
@@ -45,6 +45,10 @@ const SignIn = () => {
       setUser({
         ...user.providerData[0],
         uid: user.uid,
+      });
+      trackEvent("Sign In", {
+        type: "sign in",
+        email,
       });
       window.location.href = "/";
     } catch (error: any) {
