@@ -6,7 +6,7 @@ import { useAtom } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./request.style";
 import { sendEmail } from "@/requests/email";
-import { trackError } from "@/functions/mixpanel";
+import { trackError, trackEvent } from "@/functions/mixpanel";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import CronJob from "@/components/cronJob/cronJob";
 import { useRouter } from "next/navigation";
@@ -37,6 +37,11 @@ const Request = () => {
       );
 
       setHasRequest(true);
+
+      trackEvent("Request", {
+        type: "submit",
+        email: userEmail,
+      });
     } catch (error: any) {
       setIsDisabled(false);
       setHasRequest(false);
