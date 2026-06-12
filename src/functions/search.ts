@@ -59,11 +59,11 @@ export const handleSearchParams = (
   }
 
   if (date) {
-    const today = new Date();
-    const startDate = new Date(date);
+    const today = new Date().toDateString();
+    const startDate = new Date(date).toDateString();
 
     filteredData = filteredData.filter((item: CsvData) => {
-      const itemDate = new Date(item.Scrape_DateTime);
+      const itemDate = new Date(item.Scrape_Date).toDateString();
 
       return itemDate === today
         ? item
@@ -72,12 +72,12 @@ export const handleSearchParams = (
   }
 
   if (exact) {
-    const exactDate = new Date(exact);
+    const exactDate = exact.replaceAll("-", "/");
 
     filteredData = filteredData.filter((item: CsvData) => {
-      const itemDate = new Date(item.Scrape_Date);
+      const itemDate = item.Scrape_Date;
 
-      return itemDate.toDateString() === exactDate.toDateString();
+      return itemDate === exactDate;
     });
   }
 
