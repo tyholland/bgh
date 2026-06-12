@@ -2,7 +2,7 @@
 
 import { userAtom } from "@/caches/UserAtom";
 import { initFirebase } from "@/functions/firebase";
-import { trackError, trackIdentity } from "@/functions/mixpanel";
+import { trackError, trackEvent, trackIdentity } from "@/functions/mixpanel";
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -69,6 +69,11 @@ const SignUp = () => {
         ...user.providerData[0],
         uid: user.uid,
         displayName: `${firstName} ${lastName}`,
+      });
+      trackEvent("Account Creation", {
+        type: "new account",
+        email,
+        name: `${firstName} ${lastName}`,
       });
       window.location.href = "/";
     } catch (error: any) {
