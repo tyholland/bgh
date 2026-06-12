@@ -15,6 +15,7 @@ import { userAtom } from "@/caches/UserAtom";
 import { getUserCreds } from "@/functions/userState";
 import Loader from "@/components/loader/loader";
 import CronJob from "@/components/cronJob/cronJob";
+import dayjs from "dayjs";
 
 interface HomeProps {
   csvData?: AllSearchData;
@@ -61,17 +62,27 @@ const Home = ({ csvData }: HomeProps) => {
             industries={jobData.industries}
           />
           <S.JobResultsWrapper>
-            <S.Section>
-              <div>Results: {jobData.total} jobs</div>
-              <S.ListSection>
-                <strong>List View</strong>
-                <ToggleButton
-                  value={isListView}
-                  onToggle={(value: boolean) => {
-                    setIsListView(!value);
-                  }}
-                />
-              </S.ListSection>
+            <S.Section className="wrapper">
+              <S.Section>
+                <div>
+                  <strong>Results:</strong> {jobData.total} jobs
+                </div>
+                <S.ListSection>
+                  <strong>List View</strong>
+                  <ToggleButton
+                    value={isListView}
+                    onToggle={(value: boolean) => {
+                      setIsListView(!value);
+                    }}
+                  />
+                </S.ListSection>
+              </S.Section>
+              <div>
+                <strong>Opportunity Refresh:</strong>{" "}
+                {dayjs(jobData?.allData[0].Scrape_DateTime).format(
+                  "MM-DD-YYYY hh:mmA",
+                )}
+              </div>
             </S.Section>
             <Pagination totalPages={jobData.totalPages} />
             <S.CardWrapper className={isListView ? "list" : ""}>

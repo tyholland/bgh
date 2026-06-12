@@ -9,6 +9,7 @@ import { trackEvent } from "@/functions/mixpanel";
 import SignInModal from "../signIn-modal/signIn-modal";
 import { userAtom } from "@/caches/UserAtom";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
 interface FilterProps {
   companies: string[];
@@ -17,6 +18,7 @@ interface FilterProps {
 }
 
 const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
+  dayjs.extend(customParseFormat);
   const query = window.location.search;
   const defaultParams = new URLSearchParams(query);
   const defaultCompany = defaultParams?.get("company");
@@ -442,7 +444,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
           Reset All Filters
         </button>
       </S.Wrapper>
-
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
     </>
   );

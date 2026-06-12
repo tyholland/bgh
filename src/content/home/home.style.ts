@@ -38,6 +38,10 @@ export const Section = styled.div`
   display: flex;
   align-items: center;
   gap: 15px;
+
+  &.wrapper {
+    justify-content: space-between;
+  }
 `;
 
 export const ListSection = styled.div`
