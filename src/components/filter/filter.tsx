@@ -140,6 +140,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     const params = new URLSearchParams(query);
 
     params.set("date", searchDate.format("MM-DD-YYYY"));
+    params.set("exact", "");
     params.set("page", "1");
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
@@ -165,6 +166,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     const params = new URLSearchParams(query);
 
     params.set("exact", filterChoice);
+    params.set("date", "");
     params.set("page", "1");
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
