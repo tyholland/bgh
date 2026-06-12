@@ -49,10 +49,8 @@ export const ListSection = styled.div`
   align-items: center;
   gap: 8px;
 
-  strong {
-    @media only screen and (max-width: 950px) {
-      display: none;
-    }
+  @media only screen and (max-width: 950px) {
+    display: none;
   }
 `;
 

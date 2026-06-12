@@ -164,6 +164,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     const filterChoice = e.target.value;
     setExactDate(filterChoice);
+    setPostedDate("");
     const query = window.location.search;
     const params = new URLSearchParams(query);
 
