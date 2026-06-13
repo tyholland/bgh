@@ -57,6 +57,11 @@ const SignUp = () => {
       }
 
       trackIdentity(user.uid, user.email);
+      trackEvent("Account Creation", {
+        type: "new account",
+        email,
+        name: `${firstName} ${lastName}`,
+      });
       window.localStorage.setItem(
         "bgh.user",
         JSON.stringify({
@@ -69,11 +74,6 @@ const SignUp = () => {
         ...user.providerData[0],
         uid: user.uid,
         displayName: `${firstName} ${lastName}`,
-      });
-      trackEvent("Account Creation", {
-        type: "new account",
-        email,
-        name: `${firstName} ${lastName}`,
       });
       window.location.href = "/";
     } catch (error: any) {
