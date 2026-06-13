@@ -35,6 +35,10 @@ const SignIn = () => {
       const { user } = userCredential;
 
       trackIdentity(user.uid, user.email);
+      trackEvent("Sign In", {
+        type: "sign in",
+        email,
+      });
       window.localStorage.setItem(
         "bgh.user",
         JSON.stringify({
@@ -45,10 +49,6 @@ const SignIn = () => {
       setUser({
         ...user.providerData[0],
         uid: user.uid,
-      });
-      trackEvent("Sign In", {
-        type: "sign in",
-        email,
       });
       window.location.href = "/";
     } catch (error: any) {
