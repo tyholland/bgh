@@ -1,13 +1,13 @@
 import { Metadata } from "next";
-import DisclaimerPage from "../../content/disclaimer/disclaimer";
+import AboutPage from "../../content/about/about";
 import { defaultMetaData, metaTitle, metaUrl } from "@/constants";
 
 export const metadata: Metadata = defaultMetaData(
-  `Disclaimer | ${metaTitle}`,
+  `About | ${metaTitle}`,
   undefined,
-  `${metaUrl}/disclaimer`,
+  `${metaUrl}/about`,
 );
 
-const Disclaimer = () => <DisclaimerPage />;
+const About = () => <AboutPage />;
 
-export default Disclaimer;
+export default About;

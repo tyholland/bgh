@@ -12,6 +12,7 @@ const RoadMap = () => {
 
     trackEvent("Feedback", {
       type: "button",
+      location: "road map",
     });
   };
 

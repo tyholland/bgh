@@ -26,4 +26,8 @@ export const Wrapper = styled.div`
       margin-left: 20px;
     }
   }
+
+  a {
+    text-decoration: underline;
+  }
 `;

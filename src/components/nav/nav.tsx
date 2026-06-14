@@ -21,6 +21,7 @@ const Nav = () => {
 
     trackEvent("Feedback", {
       type: "button",
+      location: "nav",
     });
   };
 
