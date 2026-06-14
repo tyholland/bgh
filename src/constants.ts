@@ -1,3 +1,5 @@
+import { Metadata } from "next";
+
 export const defaultModalStyle = {
   position: "absolute",
   top: "50%",
@@ -26,3 +28,48 @@ export const LoginErrors = [
       "The email you entered already exists on BGH Scout. Please try again.",
   },
 ];
+
+export const metaTitle = "BGH Scout";
+export const metaUrl = "https://www.bghscout.com";
+const metaDescription =
+  "BGH Scout is designed to help job seekers discover career opportunities more quickly by aggregating job openings from employer career pages and other publicly available sources.";
+const metaLogo = "https://www.bghscout.com/bgh-logo.png";
+const metaIcon = "https://www.bghscout.com/favicon.ico";
+const metaSite = "BGH Scout";
+
+export const defaultMetaData = (
+  title: string | undefined = metaTitle,
+  descript: string | undefined = metaDescription,
+  url: string | undefined = metaUrl,
+) => {
+  const data: Metadata = {
+    title: title,
+    description: descript,
+    openGraph: {
+      title: title,
+      description: descript,
+      url: url,
+      siteName: metaSite,
+      images: [
+        {
+          url: metaLogo,
+          width: 909,
+          height: 606,
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description: descript,
+      images: [metaLogo],
+    },
+    icons: {
+      icon: metaIcon,
+      apple: metaIcon,
+    },
+  };
+
+  return data;
+};
