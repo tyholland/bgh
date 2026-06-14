@@ -97,6 +97,11 @@ footer {
       text-align: center;
     }
   }
+
+  .copy {
+    display: flex;
+    align-items: center;
+  }
 }
 
 header {

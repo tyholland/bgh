@@ -17,9 +17,9 @@ const Footer = () => {
         <span>|</span>
         <Link href="/disclaimer">Disclaimer</Link>
         <span>|</span>
-        <Link href="/about">Road Map</Link>
+        <Link href="/road-map">Road Map</Link>
       </div>
-      <div>
+      <div className="copy">
         <div>&copy; {year} BGH Scout.</div>
         <div>
           Site by{" "}
