@@ -41,7 +41,7 @@ const SignIn = () => {
 
       trackIdentity(user.uid, user.email);
 
-      setInterval(() => {
+      setTimeout(() => {
         trackEvent("Sign In", {
           type: "sign in",
           email,
@@ -60,7 +60,7 @@ const SignIn = () => {
         uid: user.uid,
       });
 
-      setInterval(() => {
+      setTimeout(() => {
         window.location.href = "/";
       }, 7000);
     } catch (error: any) {

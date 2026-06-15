@@ -63,7 +63,7 @@ const SignUp = () => {
 
       trackIdentity(user.uid, user.email);
 
-      setInterval(() => {
+      setTimeout(() => {
         trackEvent("Account Creation", {
           type: "new account",
           email,
@@ -85,7 +85,7 @@ const SignUp = () => {
         displayName: `${firstName} ${lastName}`,
       });
 
-      setInterval(() => {
+      setTimeout(() => {
         window.location.href = "/";
       }, 7000);
     } catch (error: any) {
