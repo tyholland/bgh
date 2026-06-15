@@ -83,7 +83,7 @@ const SignUp = () => {
 
       setInterval(() => {
         window.location.href = "/";
-      }, 5000);
+      }, 7000);
     } catch (error: any) {
       setIsDisabled(false);
       const errorCode = error.code;
