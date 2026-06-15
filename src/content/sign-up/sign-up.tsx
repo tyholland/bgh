@@ -75,7 +75,10 @@ const SignUp = () => {
         uid: user.uid,
         displayName: `${firstName} ${lastName}`,
       });
-      window.location.href = "/";
+
+      setInterval(() => {
+        window.location.href = "/";
+      }, 5000);
     } catch (error: any) {
       setIsDisabled(false);
       const errorCode = error.code;

@@ -50,7 +50,10 @@ const SignIn = () => {
         ...user.providerData[0],
         uid: user.uid,
       });
-      window.location.href = "/";
+
+      setInterval(() => {
+        window.location.href = "/";
+      }, 5000);
     } catch (error: any) {
       setIsDisabled(false);
       const errorCode = error.code;
