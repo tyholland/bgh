@@ -62,11 +62,15 @@ const SignUp = () => {
       }
 
       trackIdentity(user.uid, user.email);
-      trackEvent("Account Creation", {
-        type: "new account",
-        email,
-        name: `${firstName} ${lastName}`,
-      });
+
+      setInterval(() => {
+        trackEvent("Account Creation", {
+          type: "new account",
+          email,
+          name: `${firstName} ${lastName}`,
+        });
+      }, 3000);
+
       window.localStorage.setItem(
         "bgh.user",
         JSON.stringify({

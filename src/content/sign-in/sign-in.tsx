@@ -40,10 +40,14 @@ const SignIn = () => {
       const { user } = userCredential;
 
       trackIdentity(user.uid, user.email);
-      trackEvent("Sign In", {
-        type: "sign in",
-        email,
-      });
+
+      setInterval(() => {
+        trackEvent("Sign In", {
+          type: "sign in",
+          email,
+        });
+      }, 3000);
+
       window.localStorage.setItem(
         "bgh.user",
         JSON.stringify({
