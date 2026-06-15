@@ -2,11 +2,16 @@
 
 import { userAtom } from "@/caches/UserAtom";
 import { initFirebase } from "@/functions/firebase";
-import { trackError, trackEvent, trackIdentity } from "@/functions/mixpanel";
+import {
+  trackError,
+  trackEvent,
+  trackIdentity,
+  trackPage,
+} from "@/functions/mixpanel";
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { useAtom } from "jotai";
 import Link from "next/link";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./sign-in.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import CronJob from "@/components/cronJob/cronJob";
@@ -90,6 +95,10 @@ const SignIn = () => {
 
     setIsDisabled(!userEmail || !userPassword);
   };
+
+  useEffect(() => {
+    trackPage("Sign In", window.location.href);
+  }, []);
 
   if (!!user && typeof window !== "undefined") {
     window.location.href = "/";

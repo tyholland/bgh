@@ -39,19 +39,18 @@ export const trackEvent = (eventName: string, eventProperties?: Object) => {
   mixpanel.track(eventName, eventProperties);
 };
 
-// export const trackPage = (path: string) => {
+export const trackPage = (pageTitle: string, url: string) => {
+  if (process.env.NODE_ENV === "development") {
+    console.warn("trackPage", {
+      eventName: "Page View",
+      eventProperties: { page: pageTitle, url: url },
+    });
 
-//   if (process.env.NODE_ENV === "development") {
-//     console.warn("trackPage", {
-//       eventName: "Page View",
-//       eventProperties: { title: pageTitle },
-//     });
+    return null;
+  }
 
-//     return null;
-//   }
-
-//   mixpanel.track("Page View", { title: pageTitle });
-// };
+  mixpanel.track_pageview({ page: pageTitle, url: url });
+};
 
 export const trackError = (eventName: string, eventProperties?: Object) => {
   const name = `Error: ${eventName}`;

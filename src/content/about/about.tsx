@@ -2,19 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import * as S from "./about.style";
-import { trackEvent } from "@/functions/mixpanel";
+import { trackEvent, trackPage } from "@/functions/mixpanel";
 import Link from "next/link";
+import { useEffect } from "react";
 
 const About = () => {
   const navigate = useRouter();
 
-  const handleFeedback = () => {
-    navigate.push("/contact");
-
-    trackEvent("Feedback", {
-      type: "button",
-    });
-  };
+  useEffect(() => {
+    trackPage("About", window.location.href);
+  }, []);
 
   return (
     <S.Wrapper>

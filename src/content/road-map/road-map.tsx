@@ -2,7 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import * as S from "./road-map.style";
-import { trackEvent } from "@/functions/mixpanel";
+import { trackEvent, trackPage } from "@/functions/mixpanel";
+import { useEffect } from "react";
 
 const RoadMap = () => {
   const navigate = useRouter();
@@ -15,6 +16,10 @@ const RoadMap = () => {
       location: "road map",
     });
   };
+
+  useEffect(() => {
+    trackPage("Road Map", window.location.href);
+  }, []);
 
   return (
     <S.Wrapper>

@@ -16,6 +16,7 @@ import { getUserCreds } from "@/functions/userState";
 import Loader from "@/components/loader/loader";
 import CronJob from "@/components/cronJob/cronJob";
 import dayjs from "dayjs";
+import { trackPage } from "@/functions/mixpanel";
 
 interface HomeProps {
   csvData?: AllSearchData;
@@ -45,6 +46,10 @@ const Home = ({ csvData }: HomeProps) => {
   ) {
     window.location.href = "/";
   }
+
+  useEffect(() => {
+    trackPage("Home", window.location.href);
+  }, []);
 
   if (!jobData) {
     return <Loader />;

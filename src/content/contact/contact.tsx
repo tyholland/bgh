@@ -6,7 +6,7 @@ import { useAtom } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./contact.style";
 import { sendEmail } from "@/requests/email";
-import { trackError, trackEvent } from "@/functions/mixpanel";
+import { trackError, trackEvent, trackPage } from "@/functions/mixpanel";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import CronJob from "@/components/cronJob/cronJob";
 import { useRouter } from "next/navigation";
@@ -98,6 +98,10 @@ const Contact = () => {
     getUserCreds(user, setUser);
     !!user && loadDefaultUserVal();
   }, [user]);
+
+  useEffect(() => {
+    trackPage("Contact", window.location.href);
+  }, []);
 
   return (
     <>

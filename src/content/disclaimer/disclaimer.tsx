@@ -1,8 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
 import * as S from "./disclaimer.style";
+import { trackPage } from "@/functions/mixpanel";
 
 const Disclaimer = () => {
+  useEffect(() => {
+    trackPage("Disclaimer", window.location.href);
+  }, []);
+
   return (
     <S.Wrapper>
       <h1>BGH Scout Disclaimer</h1>
