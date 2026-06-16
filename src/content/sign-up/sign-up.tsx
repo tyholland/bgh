@@ -56,34 +56,35 @@ const SignUp = () => {
         trackError("Update Account", {
           code: errorCode,
           message: errorMessage,
-          email,
+          email: email,
           displayName: `${firstName} ${lastName}`,
         });
       }
 
-      trackIdentity(user.uid, user.email);
+      trackIdentity(user.uid, email, `${firstName} ${lastName}`);
 
       setTimeout(() => {
         trackEvent("Account Creation", {
           type: "new account",
-          email,
+          email: email,
           name: `${firstName} ${lastName}`,
         });
-      }, 3000);
 
-      window.localStorage.setItem(
-        "bgh.user",
-        JSON.stringify({
+        window.localStorage.setItem(
+          "bgh.user",
+          JSON.stringify({
+            ...user.providerData[0],
+            uid: user.uid,
+            displayName: `${firstName} ${lastName}`,
+          }),
+        );
+
+        setUser({
           ...user.providerData[0],
           uid: user.uid,
           displayName: `${firstName} ${lastName}`,
-        }),
-      );
-      setUser({
-        ...user.providerData[0],
-        uid: user.uid,
-        displayName: `${firstName} ${lastName}`,
-      });
+        });
+      }, 2000);
 
       setTimeout(() => {
         window.location.href = "/";

@@ -7,7 +7,7 @@ mixpanel.init(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || "", {
   autocapture: false,
 });
 
-export const trackIdentity = (auth_id: string, email: string | null) => {
+export const trackIdentity = (auth_id: string, email: string, name: string) => {
   if (process.env.NODE_ENV === "development") {
     console.warn("trackIdentity", {
       identify: auth_id,
@@ -23,6 +23,7 @@ export const trackIdentity = (auth_id: string, email: string | null) => {
 
   mixpanel.people.set({
     $email: email,
+    $name: name,
   });
 };
 

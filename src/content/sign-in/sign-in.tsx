@@ -39,26 +39,27 @@ const SignIn = () => {
 
       const { user } = userCredential;
 
-      trackIdentity(user.uid, user.email);
+      trackIdentity(user.uid, email, user.displayName || "");
 
       setTimeout(() => {
         trackEvent("Sign In", {
           type: "sign in",
-          email,
+          email: email,
         });
-      }, 3000);
 
-      window.localStorage.setItem(
-        "bgh.user",
-        JSON.stringify({
+        window.localStorage.setItem(
+          "bgh.user",
+          JSON.stringify({
+            ...user.providerData[0],
+            uid: user.uid,
+          }),
+        );
+
+        setUser({
           ...user.providerData[0],
           uid: user.uid,
-        }),
-      );
-      setUser({
-        ...user.providerData[0],
-        uid: user.uid,
-      });
+        });
+      }, 2000);
 
       setTimeout(() => {
         window.location.href = "/";
@@ -71,7 +72,7 @@ const SignIn = () => {
       trackError("Sign In", {
         code: errorCode,
         message: errorMessage,
-        email,
+        email: email,
       });
 
       setErrorMsg(errorCode);
