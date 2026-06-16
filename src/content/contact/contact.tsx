@@ -8,7 +8,6 @@ import * as S from "./contact.style";
 import { sendEmail } from "@/requests/email";
 import { trackError, trackEvent, trackPage } from "@/functions/mixpanel";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
-import CronJob from "@/components/cronJob/cronJob";
 import { useRouter } from "next/navigation";
 
 const Contact = () => {
@@ -105,7 +104,6 @@ const Contact = () => {
 
   return (
     <>
-      <CronJob />
       <S.Wrapper>
         {hasFeedback ? (
           <div>Thank you for your feedback</div>

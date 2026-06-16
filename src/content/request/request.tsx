@@ -8,7 +8,6 @@ import * as S from "./request.style";
 import { sendEmail } from "@/requests/email";
 import { trackError, trackEvent, trackPage } from "@/functions/mixpanel";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
-import CronJob from "@/components/cronJob/cronJob";
 import { useRouter } from "next/navigation";
 
 const Request = () => {
@@ -101,7 +100,6 @@ const Request = () => {
 
   return (
     <>
-      <CronJob />
       <S.Wrapper>
         {hasRequest ? (
           <div>Thank you for your request</div>

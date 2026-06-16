@@ -14,7 +14,6 @@ import ToggleButton from "react-toggle-button";
 import { userAtom } from "@/caches/UserAtom";
 import { getUserCreds } from "@/functions/userState";
 import Loader from "@/components/loader/loader";
-import CronJob from "@/components/cronJob/cronJob";
 import dayjs from "dayjs";
 import { trackPage } from "@/functions/mixpanel";
 
@@ -57,7 +56,6 @@ const Home = ({ csvData }: HomeProps) => {
 
   return (
     <>
-      <CronJob />
       <S.Wrapper>
         <Search />
         <S.ResultsWrapper>

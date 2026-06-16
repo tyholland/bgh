@@ -14,7 +14,6 @@ import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./sign-in.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
-import CronJob from "@/components/cronJob/cronJob";
 
 const SignIn = () => {
   initFirebase();
@@ -111,7 +110,6 @@ const SignIn = () => {
 
   return (
     <>
-      <CronJob />
       <S.Wrapper>
         <div>
           <S.Input

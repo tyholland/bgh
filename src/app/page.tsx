@@ -18,7 +18,9 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   const res = await fetch(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTWtRcbb_EAVdtXttu1a9auwcoh67J9kY92xsDf-zttSXKSrIq6olsZq5GI6gNgJ85119sgnpiVGNFy/pub?output=csv",
     {
-      cache: "no-store",
+      next: {
+        tags: ["leads"],
+      },
     },
   );
 
