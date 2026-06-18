@@ -6,7 +6,7 @@ import { trackPage } from "@/functions/mixpanel";
 
 const Disclaimer = () => {
   useEffect(() => {
-    trackPage("Disclaimer", window.location.href);
+    trackPage(null, "Disclaimer", window.location.href);
   }, []);
 
   return (

@@ -47,7 +47,7 @@ const Home = ({ csvData }: HomeProps) => {
   }
 
   useEffect(() => {
-    trackPage("Home", window.location.href);
+    trackPage(user, "Home", window.location.href);
   }, []);
 
   if (!jobData) {
