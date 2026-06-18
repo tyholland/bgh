@@ -52,7 +52,7 @@ const SignUp = () => {
         const errorCode = error.code;
         const errorMessage = error.message;
 
-        trackError("Update Account", {
+        trackError(user, "Update Account", {
           code: errorCode,
           message: errorMessage,
           email: email,
@@ -63,7 +63,7 @@ const SignUp = () => {
       trackIdentity(user.uid, email, `${firstName} ${lastName}`);
 
       setTimeout(() => {
-        trackEvent("Account Creation", {
+        trackEvent(user, "Account Creation", {
           type: "new account",
           email: email,
           name: `${firstName} ${lastName}`,
@@ -93,7 +93,7 @@ const SignUp = () => {
       const errorCode = error.code;
       const errorMessage = error.message;
 
-      trackError("Create Account", {
+      trackError(user, "Create Account", {
         code: errorCode,
         message: errorMessage,
         email,
@@ -132,7 +132,7 @@ const SignUp = () => {
   };
 
   useEffect(() => {
-    trackPage("Sign Up", window.location.href);
+    trackPage(user, "Sign Up", window.location.href);
   }, []);
 
   if (!!user && typeof window !== "undefined") {

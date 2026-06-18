@@ -1,3 +1,4 @@
+import { User } from "@/types";
 import mixpanel from "mixpanel-browser";
 
 mixpanel.init(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || "", {
@@ -27,7 +28,11 @@ export const trackIdentity = (auth_id: string, email: string, name: string) => {
   });
 };
 
-export const trackEvent = (eventName: string, eventProperties?: Object) => {
+export const trackEvent = (
+  user: User | null,
+  eventName: string,
+  eventProperties?: Object,
+) => {
   if (process.env.NODE_ENV === "development") {
     console.warn("trackEvent", {
       eventName,
@@ -37,10 +42,18 @@ export const trackEvent = (eventName: string, eventProperties?: Object) => {
     return null;
   }
 
+  if (!!user && mixpanel.get_distinct_id() !== user.uid) {
+    trackIdentity(user.uid, user.email || "", user.displayName || "");
+  }
+
   mixpanel.track(eventName, eventProperties);
 };
 
-export const trackPage = (pageTitle: string, url: string) => {
+export const trackPage = (
+  user: User | null,
+  pageTitle: string,
+  url: string,
+) => {
   if (process.env.NODE_ENV === "development") {
     console.warn("trackPage", {
       eventName: "Page View",
@@ -50,10 +63,18 @@ export const trackPage = (pageTitle: string, url: string) => {
     return null;
   }
 
+  if (!!user && mixpanel.get_distinct_id() !== user.uid) {
+    trackIdentity(user.uid, user.email || "", user.displayName || "");
+  }
+
   mixpanel.track_pageview({ page: pageTitle, url: url });
 };
 
-export const trackError = (eventName: string, eventProperties?: Object) => {
+export const trackError = (
+  user: User | null,
+  eventName: string,
+  eventProperties?: Object,
+) => {
   const name = `Error: ${eventName}`;
 
   if (process.env.NODE_ENV === "development") {
@@ -63,6 +84,10 @@ export const trackError = (eventName: string, eventProperties?: Object) => {
     });
 
     return null;
+  }
+
+  if (!!user && mixpanel.get_distinct_id() !== user.uid) {
+    trackIdentity(user.uid, user.email || "", user.displayName || "");
   }
 
   mixpanel.track(name, eventProperties);

@@ -50,7 +50,7 @@ const Search = () => {
 
     jobData && handleSearchParams(jobData, params, setJobData);
 
-    trackEvent("Search", {
+    trackEvent(user, "Search", {
       type: "input field",
       value: searchWord,
     });
@@ -68,7 +68,7 @@ const Search = () => {
 
     jobData && handleSearchParams(jobData, params, setJobData);
 
-    trackEvent("Search", {
+    trackEvent(user, "Search", {
       type: "clear",
       value: "clear search input",
     });

@@ -94,7 +94,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     jobData && handleSearchParams(jobData, params, setJobData);
 
-    trackEvent("Filter", {
+    trackEvent(user, "Filter", {
       type: "company",
       value: companyArr.join(","),
     });
@@ -117,7 +117,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     jobData && handleSearchParams(jobData, params, setJobData);
 
-    trackEvent("Filter", {
+    trackEvent(user, "Filter", {
       type: "industry",
       value: industryArr,
     });
@@ -149,7 +149,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     jobData && handleSearchParams(jobData, params, setJobData);
 
-    trackEvent("Filter", {
+    trackEvent(user, "Filter", {
       type: "date",
       value: searchDate.format("MM-DD-YYYY"),
       amountOfDays: filterChoice,
@@ -176,7 +176,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     jobData && handleSearchParams(jobData, params, setJobData);
 
-    trackEvent("Filter", {
+    trackEvent(user, "Filter", {
       type: "exact date",
       value: filterChoice,
     });
@@ -243,7 +243,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     jobData && handleSearchParams(jobData, params, setJobData);
 
-    trackEvent("Filter", {
+    trackEvent(user, "Filter", {
       type: "reset",
       value: filter === "all" ? "all filters" : filter,
     });
@@ -282,7 +282,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     jobData && handleSearchParams(jobData, params, setJobData);
 
-    trackEvent("Filter", {
+    trackEvent(user, "Filter", {
       type: "keyword",
       value: keyword,
     });

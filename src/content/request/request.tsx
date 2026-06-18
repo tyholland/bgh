@@ -37,7 +37,7 @@ const Request = () => {
 
       setHasRequest(true);
 
-      trackEvent("Request", {
+      trackEvent(user, "Request", {
         type: "submit",
         email: userEmail,
       });
@@ -47,7 +47,7 @@ const Request = () => {
       const errorCode = error.code;
       const errorMessage = error.message;
 
-      trackError("Send Feedback", {
+      trackError(user, "Send Feedback", {
         code: errorCode,
         message: errorMessage,
       });
@@ -95,7 +95,7 @@ const Request = () => {
   }, [user]);
 
   useEffect(() => {
-    trackPage("Request", window.location.href);
+    trackPage(user, "Request", window.location.href);
   }, []);
 
   return (

@@ -4,21 +4,24 @@ import { useRouter } from "next/navigation";
 import * as S from "./road-map.style";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
 import { useEffect } from "react";
+import { useAtomValue } from "jotai";
+import { userAtom } from "@/caches/UserAtom";
 
 const RoadMap = () => {
   const navigate = useRouter();
+  const user = useAtomValue(userAtom);
 
   const handleFeedback = () => {
     navigate.push("/contact");
 
-    trackEvent("Feedback", {
+    trackEvent(user, "Feedback", {
       type: "button",
       location: "road map",
     });
   };
 
   useEffect(() => {
-    trackPage("Road Map", window.location.href);
+    trackPage(user, "Road Map", window.location.href);
   }, []);
 
   return (

@@ -37,7 +37,7 @@ const Contact = () => {
 
       setHasFeedback(true);
 
-      trackEvent("Feedback", {
+      trackEvent(user, "Feedback", {
         type: "submit",
         email: userEmail,
       });
@@ -47,7 +47,7 @@ const Contact = () => {
       const errorCode = error.code;
       const errorMessage = error.message;
 
-      trackError("Send Feedback", {
+      trackError(user, "Send Feedback", {
         code: errorCode,
         message: errorMessage,
       });
@@ -99,7 +99,7 @@ const Contact = () => {
   }, [user]);
 
   useEffect(() => {
-    trackPage("Contact", window.location.href);
+    trackPage(user, "Contact", window.location.href);
   }, []);
 
   return (

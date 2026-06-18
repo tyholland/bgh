@@ -47,7 +47,7 @@ const List = () => {
 
           window.open(item.Link);
 
-          trackEvent("See Role", {
+          trackEvent(user, "See Role", {
             type: "list",
             item,
           });

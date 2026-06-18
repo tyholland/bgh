@@ -28,7 +28,7 @@ const Card = () => {
 
           window.open(item.Link);
 
-          trackEvent("See Role", {
+          trackEvent(user, "See Role", {
             type: "card",
             item,
           });

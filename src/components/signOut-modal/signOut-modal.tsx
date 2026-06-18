@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { getAuth, signOut } from "firebase/auth";
 import { trackError, trackEvent } from "@/functions/mixpanel";
 import { initFirebase } from "@/functions/firebase";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import { jobAtom } from "@/caches/JobsAtom";
 
@@ -19,7 +19,7 @@ const SignOutModal = ({ openModal, setOpenModal }: SignOutModalProps) => {
   initFirebase();
   const navigate = useRouter();
   const auth = getAuth();
-  const setUser = useSetAtom(userAtom);
+  const [user, setUser] = useAtom(userAtom);
   const jobData = useAtomValue(jobAtom);
 
   const handleSignOut = async () => {
@@ -29,7 +29,7 @@ const SignOutModal = ({ openModal, setOpenModal }: SignOutModalProps) => {
       setOpenModal(false);
       window.localStorage.removeItem("bgh.user");
       setUser(null);
-      trackEvent("Sign Out", {
+      trackEvent(user, "Sign Out", {
         type: "button",
         email: auth.currentUser?.email,
       });
@@ -38,7 +38,7 @@ const SignOutModal = ({ openModal, setOpenModal }: SignOutModalProps) => {
       const errorCode = error.code;
       const errorMessage = error.message;
 
-      trackError("Sign Out", {
+      trackError(user, "Sign Out", {
         code: errorCode,
         message: errorMessage,
         email: auth.currentUser?.email,

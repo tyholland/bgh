@@ -20,7 +20,7 @@ const Nav = () => {
   const handleFeedback = () => {
     navigate.push("/contact");
 
-    trackEvent("Feedback", {
+    trackEvent(user, "Feedback", {
       type: "button",
       location: "nav",
     });

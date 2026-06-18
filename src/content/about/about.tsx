@@ -5,12 +5,15 @@ import * as S from "./about.style";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
 import Link from "next/link";
 import { useEffect } from "react";
+import { useAtomValue } from "jotai";
+import { userAtom } from "@/caches/UserAtom";
 
 const About = () => {
   const navigate = useRouter();
+  const user = useAtomValue(userAtom);
 
   useEffect(() => {
-    trackPage("About", window.location.href);
+    trackPage(user, "About", window.location.href);
   }, []);
 
   return (

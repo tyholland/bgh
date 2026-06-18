@@ -41,7 +41,7 @@ const SignIn = () => {
       trackIdentity(user.uid, email, user.displayName || "");
 
       setTimeout(() => {
-        trackEvent("Sign In", {
+        trackEvent(user, "Sign In", {
           type: "sign in",
           email: email,
         });
@@ -68,7 +68,7 @@ const SignIn = () => {
       const errorCode = error.code;
       const errorMessage = error.message;
 
-      trackError("Sign In", {
+      trackError(user, "Sign In", {
         code: errorCode,
         message: errorMessage,
         email: email,
@@ -101,7 +101,7 @@ const SignIn = () => {
   };
 
   useEffect(() => {
-    trackPage("Sign In", window.location.href);
+    trackPage(user, "Sign In", window.location.href);
   }, []);
 
   if (!!user && typeof window !== "undefined") {
