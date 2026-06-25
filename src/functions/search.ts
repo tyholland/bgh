@@ -113,3 +113,16 @@ export const handleSearchParams = (
     industries: industries.sort(),
   });
 };
+
+export const getCompanyTotalCount = (company: string, allJobs?: CsvData[]) => {
+  let count = 0;
+
+  allJobs &&
+    allJobs.forEach((item: CsvData) => {
+      if (item.Company === company) {
+        count++;
+      }
+    });
+
+  return count;
+};

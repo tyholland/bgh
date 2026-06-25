@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./filter.style";
-import { handleSearchParams } from "@/functions/search";
+import { getCompanyTotalCount, handleSearchParams } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
 import { useAtom, useAtomValue } from "jotai";
 import { trackEvent } from "@/functions/mixpanel";
@@ -67,14 +67,13 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     postedDate.length === 0 &&
     exactDate.length === 0;
 
-  const handleFilter = (e: ChangeEvent<HTMLSelectElement>, type: string) => {
-    const filterChoice = Array.from(
-      e.target.selectedOptions,
-      (option) => option.value,
-    );
+  const handleFilter = (e: ChangeEvent<HTMLInputElement>, type: string) => {
+    const filterChoice = Array.from(e.target.value, (option) => option);
 
-    type === "company" && setCompanyArr(filterChoice);
-    type === "industry" && setIndustryArr(filterChoice);
+    console.log("filter:", filterChoice);
+
+    // type === "company" && setCompanyArr(filterChoice);
+    // type === "industry" && setIndustryArr(filterChoice);
   };
 
   const handleCompanyApply = () => {
@@ -332,19 +331,16 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
                 Company <span className="multi">(multi-select)</span>
               </div>
             </S.FilterContent>
-            <S.Select
-              name="companySelect"
-              onChange={(e: any) => handleFilter(e, "company")}
-              multiple
-              className="multi"
-              value={companyArr}
-            >
-              {companies.map((item: string, index: number) => (
-                <option value={item} key={index}>
-                  {item}
-                </option>
-              ))}
-            </S.Select>
+            {companies.map((item: string, index: number) => (
+              <div key={index}>
+                <input
+                  type="checkbox"
+                  name="companyCheckbox"
+                  onClick={(e: any) => handleFilter(e, "company")}
+                />
+                {item} ({getCompanyTotalCount(item, jobData?.allData)})
+              </div>
+            ))}
             <S.FilterContent className="apply">
               <button
                 onClick={handleCompanyApply}
