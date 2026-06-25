@@ -115,26 +115,38 @@ export const handleSearchParams = (
 };
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 export const getItemTotalCount = (
   job: string,
   type: string,
   allJobs?: CsvData[],
 ) => {
+<<<<<<< HEAD
 =======
 export const getCompanyTotalCount = (company: string, allJobs?: CsvData[]) => {
 >>>>>>> cee206c (testing refactored code)
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
   let count = 0;
 
   allJobs &&
     allJobs.forEach((item: CsvData) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
       if (item["Primary Industry"] === job && type === "industry") {
         count++;
       }
       if (item.Company === job && type === "company") {
+<<<<<<< HEAD
 =======
       if (item.Company === company) {
 >>>>>>> cee206c (testing refactored code)
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
         count++;
       }
     });

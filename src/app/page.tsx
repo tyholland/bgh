@@ -36,7 +36,6 @@ const getAdditionalJobDetails = async (jobs: CsvData[]) => {
     }),
   );
 
-  console.log("jobs:", jobs);
   return jobs;
 };
 
