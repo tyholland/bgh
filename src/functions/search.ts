@@ -23,9 +23,12 @@ export const handleSearchParams = (
   );
 
   let filteredData: CsvData[] = allData.sort((a: CsvData, b: CsvData) => {
-    const dateA = a.Scrape_DateTime ? dayjs(a.Scrape_DateTime).unix() : 0;
+    const dateTime1 = a.Details?.datePosted || a.Scrape_DateTime;
+    const dateTime2 = b.Details?.datePosted || b.Scrape_DateTime;
 
-    const dateB = b.Scrape_DateTime ? dayjs(b.Scrape_DateTime).unix() : 0;
+    const dateA = dateTime1 ? dayjs(dateTime1).unix() : 0;
+
+    const dateB = dateTime2 ? dayjs(dateTime2).unix() : 0;
 
     return dateB - dateA;
   });
@@ -63,7 +66,9 @@ export const handleSearchParams = (
     const startDate = new Date(date).toDateString();
 
     filteredData = filteredData.filter((item: CsvData) => {
-      const itemDate = new Date(item.Scrape_Date).toDateString();
+      const itemDate = new Date(
+        item.Details?.datePosted || item.Scrape_Date,
+      ).toDateString();
 
       return itemDate === today
         ? item
@@ -75,7 +80,7 @@ export const handleSearchParams = (
     const exactDate = exact.replaceAll("-", "/");
 
     filteredData = filteredData.filter((item: CsvData) => {
-      const itemDate = item.Scrape_Date;
+      const itemDate = item.Details?.datePosted || item.Scrape_Date;
 
       return itemDate === exactDate;
     });
@@ -88,7 +93,11 @@ export const handleSearchParams = (
     ...new Set(filteredData.map((item: CsvData) => item.Company)),
   ];
   const scrapDates: string[] = [
-    ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
+    ...new Set(
+      filteredData.map(
+        (item: CsvData) => item.Details?.datePosted || item.Scrape_Date,
+      ),
+    ),
   ];
   const industries: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
