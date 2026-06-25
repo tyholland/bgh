@@ -36,7 +36,6 @@ const getAdditionalJobDetails = async (jobs: CsvData[]) => {
     }),
   );
 
-  console.log("jobs:", jobs);
   return jobs;
 };
 
@@ -68,9 +67,7 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
     skipEmptyLines: true,
   });
 
-  let allData: CsvData[] = await getAdditionalJobDetails(
-    parsedData.data as CsvData[],
-  );
+  let allData: CsvData[] = parsedData.data as CsvData[];
 
   if (search) {
     allData = allData.filter((item: CsvData) =>
@@ -79,8 +76,8 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   }
 
   let filteredData = allData.sort((a: CsvData, b: CsvData) => {
-    const dateTime1 = a.Details?.datePosted || a.Scrape_DateTime;
-    const dateTime2 = b.Details?.datePosted || b.Scrape_DateTime;
+    const dateTime1 = a.Scrape_DateTime;
+    const dateTime2 = b.Scrape_DateTime;
 
     const dateA = dateTime1 ? dayjs(dateTime1).unix() : 0;
 
@@ -122,9 +119,7 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
     const startDate = new Date(date).toDateString();
 
     filteredData = filteredData.filter((item: CsvData) => {
-      const itemDate = new Date(
-        item.Details?.datePosted || item.Scrape_Date,
-      ).toDateString();
+      const itemDate = new Date(item.Scrape_Date).toDateString();
 
       return itemDate === today
         ? item
@@ -136,7 +131,7 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
     const exactDate = exact.replaceAll("-", "/");
 
     filteredData = filteredData.filter((item: CsvData) => {
-      const itemDate = item.Details?.datePosted || item.Scrape_Date;
+      const itemDate = item.Scrape_Date;
 
       return itemDate === exactDate;
     });
@@ -149,19 +144,15 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
     ...new Set(filteredData.map((item: CsvData) => item.Company)),
   ];
   const scrapDates: string[] = [
-    ...new Set(
-      filteredData.map(
-        (item: CsvData) => item.Details?.datePosted || item.Scrape_Date,
-      ),
-    ),
+    ...new Set(filteredData.map((item: CsvData) => item.Scrape_Date)),
   ];
   const industries: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
   ];
 
   return {
-    data: filteredData.slice(start, end),
-    allData: await getAdditionalJobDetails(parsedData.data as CsvData[]),
+    data: await getAdditionalJobDetails(filteredData.slice(start, end)),
+    allData: parsedData.data as CsvData[],
     total: filteredData.length,
     totalPages: Math.ceil(filteredData.length / limit),
     companies: companies.sort(),

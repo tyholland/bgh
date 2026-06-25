@@ -114,12 +114,19 @@ export const handleSearchParams = (
   });
 };
 
-export const getCompanyTotalCount = (company: string, allJobs?: CsvData[]) => {
+export const getItemTotalCount = (
+  job: string,
+  type: string,
+  allJobs?: CsvData[],
+) => {
   let count = 0;
 
   allJobs &&
     allJobs.forEach((item: CsvData) => {
-      if (item.Company === company) {
+      if (item["Primary Industry"] === job && type === "industry") {
+        count++;
+      }
+      if (item.Company === job && type === "company") {
         count++;
       }
     });
