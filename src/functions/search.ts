@@ -116,6 +116,9 @@ export const handleSearchParams = (
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 =======
 >>>>>>> 8f0f40a (add item total and use checkboxes)
 export const getItemTotalCount = (
@@ -124,9 +127,12 @@ export const getItemTotalCount = (
   allJobs?: CsvData[],
 ) => {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 export const getCompanyTotalCount = (company: string, allJobs?: CsvData[]) => {
 >>>>>>> cee206c (testing refactored code)
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 =======
 >>>>>>> 8f0f40a (add item total and use checkboxes)
   let count = 0;
@@ -135,6 +141,9 @@ export const getCompanyTotalCount = (company: string, allJobs?: CsvData[]) => {
     allJobs.forEach((item: CsvData) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 =======
 >>>>>>> 8f0f40a (add item total and use checkboxes)
       if (item["Primary Industry"] === job && type === "industry") {
@@ -142,9 +151,12 @@ export const getCompanyTotalCount = (company: string, allJobs?: CsvData[]) => {
       }
       if (item.Company === job && type === "company") {
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
       if (item.Company === company) {
 >>>>>>> cee206c (testing refactored code)
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 =======
 >>>>>>> 8f0f40a (add item total and use checkboxes)
         count++;

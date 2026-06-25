@@ -4,10 +4,14 @@ import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./filter.style";
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 import { getItemTotalCount, handleSearchParams } from "@/functions/search";
 =======
 import { getCompanyTotalCount, handleSearchParams } from "@/functions/search";
 >>>>>>> cee206c (testing refactored code)
+=======
+import { getItemTotalCount, handleSearchParams } from "@/functions/search";
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 =======
 import { getItemTotalCount, handleSearchParams } from "@/functions/search";
 >>>>>>> 8f0f40a (add item total and use checkboxes)
@@ -78,6 +82,9 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const handleFilter = (e: ChangeEvent<HTMLInputElement>, type: string) => {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 =======
 >>>>>>> 8f0f40a (add item total and use checkboxes)
     if (e.target.checked) {
@@ -94,6 +101,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
           );
     }
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     const filterChoice = Array.from(e.target.value, (option) => option);
 
@@ -102,6 +110,8 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     // type === "company" && setCompanyArr(filterChoice);
     // type === "industry" && setIndustryArr(filterChoice);
 >>>>>>> cee206c (testing refactored code)
+=======
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 =======
 >>>>>>> 8f0f40a (add item total and use checkboxes)
   };
@@ -372,6 +382,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
                   name="companyCheckbox"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
                   checked={companyArr.some((company) => company === item)}
                   onChange={(e: any) => handleFilter(e, "company")}
                   value={item}
@@ -382,6 +393,13 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
                 />
                 {item} ({getCompanyTotalCount(item, jobData?.allData)})
 >>>>>>> cee206c (testing refactored code)
+=======
+                  checked={companyArr.some((company) => company === item)}
+                  onChange={(e: any) => handleFilter(e, "company")}
+                  value={item}
+                />
+                {item} ({getItemTotalCount(item, "company", jobData?.allData)})
+>>>>>>> 8f0f40a (add item total and use checkboxes)
 =======
                   checked={companyArr.some((company) => company === item)}
                   onChange={(e: any) => handleFilter(e, "company")}
