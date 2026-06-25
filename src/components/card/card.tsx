@@ -30,7 +30,7 @@ const Card = () => {
 
           trackEvent(user, "See Role", {
             type: "card",
-            item,
+            ...item,
           });
         };
 
