@@ -122,9 +122,46 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   };
 };
 
+const getAdditionalJobDetails = async (jobs: CsvData[]) => {
+  await Promise.all(
+    jobs.map(async (item) => {
+      try {
+        const res = await fetch(item.Link, {
+          method: "GET",
+          next: {
+            tags: ["leads"],
+          },
+        });
+
+        const html = await res.text();
+
+        const scripts = [
+          ...html.matchAll(
+            /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+          ),
+        ];
+
+        for (const script of scripts) {
+          const json = JSON.parse(script[1]);
+
+          if (json["@type"] === "JobPosting") {
+            item.Details = json;
+            break;
+          }
+        }
+      } catch (err) {
+        console.error(`Failed to crawl ${item.Link}`, err);
+      }
+    }),
+  );
+
+  return jobs;
+};
+
 const Page = async ({ searchParams }: any) => {
   const params = await searchParams;
   const data = await getCSVData(params);
+  data.data = await getAdditionalJobDetails(data.data);
 
   return <Home csvData={data} />;
 };
