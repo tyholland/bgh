@@ -2,7 +2,11 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./filter.style";
+<<<<<<< HEAD
 import { getItemTotalCount, handleSearchParams } from "@/functions/search";
+=======
+import { getCompanyTotalCount, handleSearchParams } from "@/functions/search";
+>>>>>>> cee206c (testing refactored code)
 import { jobAtom } from "@/caches/JobsAtom";
 import { useAtom, useAtomValue } from "jotai";
 import { trackEvent } from "@/functions/mixpanel";
@@ -68,6 +72,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     exactDate.length === 0;
 
   const handleFilter = (e: ChangeEvent<HTMLInputElement>, type: string) => {
+<<<<<<< HEAD
     if (e.target.checked) {
       type === "company"
         ? setCompanyArr((prev) => [...prev, e.target.value])
@@ -81,6 +86,14 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             prev.filter((fruit) => fruit !== e.target.value),
           );
     }
+=======
+    const filterChoice = Array.from(e.target.value, (option) => option);
+
+    console.log("filter:", filterChoice);
+
+    // type === "company" && setCompanyArr(filterChoice);
+    // type === "industry" && setIndustryArr(filterChoice);
+>>>>>>> cee206c (testing refactored code)
   };
 
   const handleCompanyApply = () => {
@@ -347,11 +360,17 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
                 <input
                   type="checkbox"
                   name="companyCheckbox"
+<<<<<<< HEAD
                   checked={companyArr.some((company) => company === item)}
                   onChange={(e: any) => handleFilter(e, "company")}
                   value={item}
                 />
                 {item} ({getItemTotalCount(item, "company", jobData?.allData)})
+=======
+                  onClick={(e: any) => handleFilter(e, "company")}
+                />
+                {item} ({getCompanyTotalCount(item, jobData?.allData)})
+>>>>>>> cee206c (testing refactored code)
               </div>
             ))}
             <S.FilterContent className="apply">
