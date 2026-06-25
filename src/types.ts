@@ -1,3 +1,16 @@
+export interface JobDetails {
+  datePosted: string;
+  description: string;
+  employmentType: string;
+  jobLocation: {
+    address: {
+      addressLocality: string;
+    };
+  };
+  validThrough?: string;
+  jobBenefits?: string;
+}
+
 export interface CsvData {
   "Role Name": string;
   "Primary Industry": string;
@@ -5,6 +18,7 @@ export interface CsvData {
   Scrape_Date: string;
   Company: string;
   Link: string;
+  Details?: JobDetails;
 }
 
 export interface UrlParams {

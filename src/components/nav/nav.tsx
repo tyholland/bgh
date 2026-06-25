@@ -30,7 +30,12 @@ const Nav = () => {
     <>
       <header>
         <Link href={!!jobData ? "/home" : "/"}>
-          <Image src="/bgh-logo.png" alt="BGH Scout Logo" width="200" />
+          <Image
+            src="/bgh-logo.png"
+            alt="BGH Scout Logo"
+            width="200"
+            height="134"
+          />
         </Link>
         <div className="section">
           <button onClick={handleFeedback}>Feedback</button>
