@@ -49,7 +49,7 @@ const List = () => {
 
           trackEvent(user, "See Role", {
             type: "list",
-            item,
+            ...item,
           });
         };
 
