@@ -334,9 +334,13 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
         {!!companies && companies.length > 0 && (
           <div>
             <S.FilterContent>
-              <div>
-                Company <span className="multi">(multi-select)</span>
-              </div>
+              <div>Company</div>
+              <input
+                type="text"
+                placeholder="Search company..."
+                name="companySearch"
+                onChange={() => {}}
+              />
             </S.FilterContent>
             {companies.map((item: string, index: number) => (
               <div key={index}>
@@ -371,9 +375,13 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
         {!!industries && industries.length > 0 && (
           <div>
             <S.FilterContent>
-              <div>
-                Industry <span className="multi">(multi-select)</span>
-              </div>
+              <div>Industry</div>
+              <input
+                type="text"
+                placeholder="Search industry..."
+                name="industrySearch"
+                onChange={() => {}}
+              />
             </S.FilterContent>
             {industries.map((item: string, index: number) => (
               <div key={index}>
