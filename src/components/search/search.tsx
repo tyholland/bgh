@@ -77,15 +77,17 @@ const Search = () => {
   return (
     <>
       <S.Wrapper>
+        <div>Find your next opportunity</div>
+        <div>Discover roles at top companies and grow your career</div>
         <S.Input
           type="text"
           name="mainSearch"
-          placeholder="Enter job role"
+          placeholder="Search jobs, keywords, skills..."
           value={searchWord}
           onChange={handledSearchedWord}
         />
         <button onClick={handleSearchBtn} disabled={searchWord.length === 0}>
-          Search
+          Search Jobs
         </button>
         {searchWord.length !== 0 && (
           <button className="reset" onClick={handleClear}>

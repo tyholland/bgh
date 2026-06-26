@@ -4,6 +4,7 @@ export const Wrapper = styled.div`
   display: flex;
   gap: 10px;
   justify-content: center;
+  background: #0b1144;
 
   button {
     border: none;

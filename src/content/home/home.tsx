@@ -57,7 +57,6 @@ const Home = ({ csvData }: HomeProps) => {
   return (
     <>
       <S.Wrapper>
-        <Search />
         <S.ResultsWrapper>
           <Filter
             companies={jobData.companies}
@@ -65,11 +64,17 @@ const Home = ({ csvData }: HomeProps) => {
             industries={jobData.industries}
           />
           <S.JobResultsWrapper>
+            <Search />
             <S.Section className="wrapper">
               <S.Section>
-                <div>
-                  <strong>Results:</strong> {jobData.total} jobs
-                </div>
+                <div>{jobData.total} jobs found</div>
+                Sort by:
+                <select>
+                  <option value="most">Most Recent</option>
+                  <option value="least">Least Recent</option>
+                  <option value="a">A-Z</option>
+                  <option value="z">Z-A</option>
+                </select>
                 <S.ListSection>
                   <strong>List View</strong>
                   <ToggleButton
@@ -94,6 +99,22 @@ const Home = ({ csvData }: HomeProps) => {
             <Pagination totalPages={jobData.totalPages} />
           </S.JobResultsWrapper>
         </S.ResultsWrapper>
+        <div>
+          <div>
+            <div>icon</div>
+            <div>
+              <div>Trusted Opportunities</div>
+              <div>Curated roles from top companies</div>
+            </div>
+          </div>
+          <div>
+            <div>icon</div>
+            <div>
+              <div>Real-time Updates</div>
+              <div>New jobs posted every day</div>
+            </div>
+          </div>
+        </div>
       </S.Wrapper>
     </>
   );
