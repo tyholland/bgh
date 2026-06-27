@@ -77,23 +77,25 @@ const Search = () => {
   return (
     <>
       <S.Wrapper>
-        <div>Find your next opportunity</div>
+        <div className="header">Find your next opportunity</div>
         <div>Discover roles at top companies and grow your career</div>
-        <S.Input
-          type="text"
-          name="mainSearch"
-          placeholder="Search jobs, keywords, skills..."
-          value={searchWord}
-          onChange={handledSearchedWord}
-        />
-        <button onClick={handleSearchBtn} disabled={searchWord.length === 0}>
-          Search Jobs
-        </button>
-        {searchWord.length !== 0 && (
-          <button className="reset" onClick={handleClear}>
-            Clear
+        <S.Section>
+          <S.Input
+            type="text"
+            name="mainSearch"
+            placeholder="Search jobs, keywords, skills..."
+            value={searchWord}
+            onChange={handledSearchedWord}
+          />
+          <button onClick={handleSearchBtn} disabled={searchWord.length === 0}>
+            Search Jobs
           </button>
-        )}
+          {searchWord.length !== 0 && (
+            <button className="reset" onClick={handleClear}>
+              Clear
+            </button>
+          )}
+        </S.Section>
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
     </>
