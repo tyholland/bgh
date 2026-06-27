@@ -23,7 +23,8 @@ const getAdditionalJobDetails = async (jobs: CsvData[]) => {
         ];
 
         for (const script of scripts) {
-          const json = JSON.parse(script[1]);
+          const jsonString = JSON.stringify(script[1]);
+          const json = JSON.parse(jsonString);
 
           if (json["@type"] === "JobPosting") {
             item.Details = json;
@@ -31,7 +32,7 @@ const getAdditionalJobDetails = async (jobs: CsvData[]) => {
           }
         }
       } catch (err) {
-        console.error(`Failed to crawl ${item.Link}`, err);
+        console.warn(`Failed to crawl ${item.Link}`, err);
       }
     }),
   );
