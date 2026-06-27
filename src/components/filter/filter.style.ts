@@ -78,6 +78,11 @@ export const FilterContent = styled.div`
   margin-bottom: 5px;
   flex-direction: column;
 
+  &.posted {
+    flex-direction: row;
+    align-items: center;
+  }
+
   &.apply {
     margin-top: 5px;
   }
@@ -207,4 +212,6 @@ export const CheckedSection = styled.div`
 export const CheckboxWrapper = styled.div`
   height: 200px;
   overflow-y: scroll;
+  box-shadow: 0px 2px 15px #ddd;
+  padding: 5px;
 `;

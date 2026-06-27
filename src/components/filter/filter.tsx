@@ -493,11 +493,13 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 =======
 >>>>>>> 8e478cb (style filters)
         <div>
-          <S.FilterContent>
+          <S.FilterContent className="posted">
             <div>Posted Date</div>
-            <button className="reset" onClick={() => handleReset("date")}>
-              reset
-            </button>
+            {(postedDate || exactDate) && (
+              <button className="reset" onClick={() => handleReset("date")}>
+                reset
+              </button>
+            )}
           </S.FilterContent>
           {!showExactDate && (
             <S.Select
