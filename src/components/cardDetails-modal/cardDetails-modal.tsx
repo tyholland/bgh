@@ -28,11 +28,20 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
           Date Posted by Company:{" "}
           {dayjs(data?.Details?.datePosted).format("MM-DD-YYYY")}
         </div>
-        <div>Job Description: {data?.Details?.description}</div>
-        <div>Employment Type: {data?.Details?.employmentType}</div>
         <div>
-          Location: {data?.Details?.jobLocation.address.addressLocality}
+          Job Description:{" "}
+          <div
+            dangerouslySetInnerHTML={{
+              __html: data?.Details?.description || "",
+            }}
+          />
         </div>
+        <div>Employment Type: {data?.Details?.employmentType}</div>
+        {data?.Details?.jobLocation.address?.addressLocality && (
+          <div>
+            Location: {data?.Details?.jobLocation.address.addressLocality}
+          </div>
+        )}
         {data?.Details?.jobBenefits && (
           <div>Job Benefits: {data?.Details?.jobBenefits}</div>
         )}

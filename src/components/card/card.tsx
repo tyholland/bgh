@@ -42,16 +42,14 @@ const Card = () => {
         const postedTime = dayjs(currentDate).fromNow();
 
         return (
-          <button onClick={openJobDetails}>
-            <S.Wrapper key={index}>
-              <div className="posted">Posted: {postedTime}</div>
-              <S.Section className="first">
-                <div className="company">{item.Company}</div>
-                <div className="position">{item["Role Name"]}</div>
-                <div className="industry">{item["Primary Industry"]}</div>
-              </S.Section>
-            </S.Wrapper>
-          </button>
+          <S.Wrapper onClick={openJobDetails} key={index}>
+            <div className="posted">Posted: {postedTime}</div>
+            <S.Section className="first">
+              <div className="company">{item.Company}</div>
+              <div className="position">{item["Role Name"]}</div>
+              <div className="industry">{item["Primary Industry"]}</div>
+            </S.Section>
+          </S.Wrapper>
         );
       })}
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />

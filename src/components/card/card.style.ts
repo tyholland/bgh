@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.button`
   display: flex;
   padding: 2%;
   border: 1px solid #000;
@@ -13,29 +13,15 @@ export const Wrapper = styled.div`
   gap: 25px;
   flex-direction: column;
   min-height: 250px;
+  color: #000;
 
   &:hover {
     background: #6ad5b5;
+    cursor: pointer;
   }
 
   @media only screen and (max-width: 950px) {
     width: 100%;
-  }
-
-  button {
-    width: 50%;
-    padding: 10px;
-    border-radius: 20px;
-    border: none;
-    background: #1439e6;
-
-    @media only screen and (max-width: 950px) {
-      width: 90%;
-    }
-
-    &:hover {
-      cursor: pointer;
-    }
   }
 
   .grid {
@@ -55,7 +41,7 @@ export const Wrapper = styled.div`
   }
 
   .industry {
-    background: #6fd8b8;
+    background: #e7ecfb;
     color: #000;
   }
 
