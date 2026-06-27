@@ -40,6 +40,8 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const defaultExactDate = defaultParams?.get("exact");
   const user = useAtomValue(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
+  const [companyList, setCompanyList] = useState<string[]>(companies);
+  const [industryList, setIndustryList] = useState<string[]>(industries);
   const [showExactDate, setShowExactDate] = useState<boolean>(
     (defaultExactDate && defaultExactDate.length > 0) || false,
   );
@@ -327,6 +329,25 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     });
   };
 
+  const handleSearchFields = (
+    e: ChangeEvent<HTMLInputElement>,
+    val: string,
+  ) => {
+    const item = e.target.value;
+
+    val === "company"
+      ? setCompanyList(
+          companies.filter((company: string) =>
+            company.toLowerCase().includes(item),
+          ),
+        )
+      : setIndustryList(
+          industries.filter((industry: string) =>
+            industry.toLowerCase().includes(item),
+          ),
+        );
+  };
+
   return (
     <>
       <S.Wrapper>
@@ -364,6 +385,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.KeywordBubble>
           )}
         </div>
+<<<<<<< HEAD
         {!!companies && companies.length > 0 && (
           <div>
             <S.FilterContent>
@@ -468,6 +490,8 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.FilterContent>
           </div>
         )}
+=======
+>>>>>>> 8e478cb (style filters)
         <div>
           <S.FilterContent>
             <div>Posted Date</div>
@@ -504,6 +528,104 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.Select>
           )}
         </div>
+        {!!companies && companies.length > 0 && (
+          <div>
+            <S.FilterContent>
+              <div>Company</div>
+              <S.Input
+                type="text"
+                placeholder="Search company..."
+                name="companySearch"
+                onChange={(e) => handleSearchFields(e, "company")}
+              />
+            </S.FilterContent>
+            <S.CheckboxWrapper>
+              {companyList.map((item: string, index: number) => (
+                <S.CheckedSection key={index}>
+                  <div>
+                    <input
+                      type="checkbox"
+                      name="companyCheckbox"
+                      checked={companyArr.some((company) => company === item)}
+                      onChange={(e: any) => handleFilter(e, "company")}
+                      value={item}
+                    />
+                    {item}
+                  </div>
+                  <div>
+                    ({getItemTotalCount(item, "company", jobData?.allData)})
+                  </div>
+                </S.CheckedSection>
+              ))}
+            </S.CheckboxWrapper>
+            <S.FilterContent className="apply">
+              <button
+                onClick={handleCompanyApply}
+                disabled={companyArr.length === 0}
+              >
+                Apply
+              </button>
+              {companyReset && (
+                <button
+                  className="reset"
+                  onClick={() => handleReset("company")}
+                >
+                  reset
+                </button>
+              )}
+            </S.FilterContent>
+          </div>
+        )}
+        {!!industries && industries.length > 0 && (
+          <div>
+            <S.FilterContent>
+              <div>Industry</div>
+              <S.Input
+                type="text"
+                placeholder="Search industry..."
+                name="industrySearch"
+                onChange={(e) => handleSearchFields(e, "industry")}
+              />
+            </S.FilterContent>
+            <S.CheckboxWrapper>
+              {industryList.map((item: string, index: number) => (
+                <S.CheckedSection key={index}>
+                  <div>
+                    <input
+                      type="checkbox"
+                      name="industryCheckbox"
+                      checked={industryArr.some(
+                        (industry) => industry === item,
+                      )}
+                      onChange={(e: any) => handleFilter(e, "industry")}
+                      value={item}
+                    />
+                    {item}
+                  </div>
+                  <div>
+                    ({getItemTotalCount(item, "industry", jobData?.allData)})
+                  </div>
+                </S.CheckedSection>
+              ))}
+            </S.CheckboxWrapper>
+            <S.FilterContent className="apply">
+              <button
+                onClick={handleIndustryApply}
+                disabled={industryArr.length === 0}
+              >
+                Apply
+              </button>
+              {industryReset && (
+                <button
+                  className="reset"
+                  onClick={() => handleReset("industry")}
+                >
+                  reset
+                </button>
+              )}
+            </S.FilterContent>
+          </div>
+        )}
         <button
           className="resetAll"
           onClick={() => handleReset("all")}

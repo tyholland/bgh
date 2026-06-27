@@ -68,13 +68,15 @@ export const Input = styled.input`
   border: 1px solid #000;
   border-radius: 10px;
   padding: 5px 10px;
+  width: 100%;
 `;
 
 export const FilterContent = styled.div`
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 5px;
+  flex-direction: column;
 
   &.apply {
     margin-top: 5px;
@@ -180,4 +182,24 @@ export const ModalBtn = styled.div`
     flex-direction: column;
     font-size: 24px;
   }
+`;
+
+export const CheckedSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+
+  input {
+    margin-right: 5px;
+
+    &:checked {
+      accent-color: #6faeff;
+    }
+  }
+`;
+
+export const CheckboxWrapper = styled.div`
+  height: 200px;
+  overflow-y: scroll;
 `;
