@@ -120,27 +120,29 @@ const Home = ({ csvData }: HomeProps) => {
                   )}
                 </div>
               </div>
-              <div className="sorting">
-                Sort by:
-                <S.Select
-                  name="sortSelect"
-                  onChange={handledSort}
-                  value={sortWord}
-                >
-                  <option value="">Select Sort</option>
-                  <option value="a">A-Z</option>
-                  <option value="z">Z-A</option>
-                </S.Select>
+              <div>
+                <div className="sorting">
+                  Sort by:
+                  <S.Select
+                    name="sortSelect"
+                    onChange={handledSort}
+                    value={sortWord}
+                  >
+                    <option value="">Select Sort</option>
+                    <option value="a">A-Z</option>
+                    <option value="z">Z-A</option>
+                  </S.Select>
+                </div>
+                <S.ListSection>
+                  <strong>List View</strong>
+                  <ToggleButton
+                    value={isListView}
+                    onToggle={(value: boolean) => {
+                      setIsListView(!value);
+                    }}
+                  />
+                </S.ListSection>
               </div>
-              <S.ListSection>
-                <strong>List View</strong>
-                <ToggleButton
-                  value={isListView}
-                  onToggle={(value: boolean) => {
-                    setIsListView(!value);
-                  }}
-                />
-              </S.ListSection>
             </S.Section>
             <Pagination totalPages={jobData.totalPages} />
             <S.CardWrapper className={isListView ? "list" : ""}>
