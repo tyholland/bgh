@@ -6,6 +6,7 @@ import { CsvData } from "@/types";
 import { trackEvent } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
+import dayjs from "dayjs";
 
 interface CardDetailsProps {
   openModal: boolean;
@@ -23,7 +24,10 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
         <div>Company: {data?.Company}</div>
         <div>Industry: {data?.["Primary Industry"]}</div>
         <div>Role: {data?.["Role Name"]}</div>
-        <div>Date Posted: {data?.Details?.datePosted}</div>
+        <div>
+          Date Posted by Company:{" "}
+          {dayjs(data?.Details?.datePosted).format("MM-DD-YYYY")}
+        </div>
         <div>Job Description: {data?.Details?.description}</div>
         <div>Employment Type: {data?.Details?.employmentType}</div>
         <div>

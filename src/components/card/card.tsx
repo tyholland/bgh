@@ -38,7 +38,7 @@ const Card = () => {
           setCardModal(true);
         };
 
-        const currentDate = dayjs(item.Details?.datePosted);
+        const currentDate = dayjs(item.Scrape_DateTime);
         const postedTime = dayjs(currentDate).fromNow();
 
         return (

@@ -48,6 +48,7 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
     exact,
     keyword,
     industry,
+    sort,
   } = params;
   const page = pageNum || 1;
 
@@ -149,6 +150,26 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   const industries: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
   ];
+
+  if (sort) {
+    switch (sort) {
+      case "a":
+        filteredData.sort((a: CsvData, b: CsvData) => {
+          return a["Role Name"].localeCompare(b["Role Name"]);
+        });
+        break;
+      case "z":
+        filteredData.sort((a: CsvData, b: CsvData) => {
+          return b["Role Name"].localeCompare(a["Role Name"]);
+        });
+        break;
+      default:
+        filteredData.sort((a: CsvData, b: CsvData) => {
+          return a["Role Name"].localeCompare(b["Role Name"]);
+        });
+        break;
+    }
+  }
 
   return {
     data: await getAdditionalJobDetails(filteredData.slice(start, end)),

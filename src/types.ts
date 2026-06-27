@@ -29,6 +29,7 @@ export interface UrlParams {
   exact: string;
   keyword: string;
   industry: string;
+  sort: string;
 }
 
 export interface AllSearchData {

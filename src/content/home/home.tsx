@@ -8,23 +8,31 @@ import Filter from "@/components/filter/filter";
 import { AllSearchData } from "@/types";
 import { useAtom } from "jotai";
 import { jobAtom } from "@/caches/JobsAtom";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import List from "@/components/list/list";
 import ToggleButton from "react-toggle-button";
 import { userAtom } from "@/caches/UserAtom";
 import { getUserCreds } from "@/functions/userState";
 import Loader from "@/components/loader/loader";
 import dayjs from "dayjs";
-import { trackPage } from "@/functions/mixpanel";
+import { trackEvent, trackPage } from "@/functions/mixpanel";
+import { handleSearchParams } from "@/functions/search";
+import SignInModal from "@/components/signIn-modal/signIn-modal";
 
 interface HomeProps {
   csvData?: AllSearchData;
 }
 
 const Home = ({ csvData }: HomeProps) => {
+  const query = window.location.search;
+  const params = new URLSearchParams(query);
   const [user, setUser] = useAtom(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
   const [isListView, setIsListView] = useState<boolean>(false);
+  const [sortWord, setSortWord] = useState<string>(
+    params.get("sort") || "most",
+  );
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   const getAllJobInfo = () => {
     csvData && setJobData(csvData);
@@ -54,6 +62,43 @@ const Home = ({ csvData }: HomeProps) => {
     return <Loader />;
   }
 
+  const sortMap = (val: string) => {
+    switch (val) {
+      case "a":
+        return "A-Z";
+      case "z":
+        return "Z-A";
+      case "most":
+        return "Most Recent";
+      case "least":
+        return "Least Recent";
+      default:
+        return "Most Recent";
+    }
+  };
+
+  const handledSort = (e: ChangeEvent<HTMLSelectElement>) => {
+    if (!user) {
+      setOpenModal(true);
+      return;
+    }
+
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+    setSortWord(e.target.value);
+
+    params.set("sort", e.target.value);
+    const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
+
+    jobData && handleSearchParams(jobData, params, setJobData);
+
+    trackEvent(user, "Sort", {
+      type: "select",
+      value: sortMap(sortWord),
+    });
+  };
+
   return (
     <>
       <S.Wrapper>
@@ -69,9 +114,12 @@ const Home = ({ csvData }: HomeProps) => {
               <S.Section>
                 <div>{jobData.total} jobs found</div>
                 Sort by:
-                <select>
-                  <option value="most">Most Recent</option>
-                  <option value="least">Least Recent</option>
+                <select
+                  name="sortSelect"
+                  onChange={handledSort}
+                  value={sortWord}
+                >
+                  <option value="">Select Sort</option>
                   <option value="a">A-Z</option>
                   <option value="z">Z-A</option>
                 </select>
@@ -116,6 +164,7 @@ const Home = ({ csvData }: HomeProps) => {
           </div>
         </div>
       </S.Wrapper>
+      <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
     </>
   );
 };
