@@ -17,6 +17,15 @@ export const MediumModalStyle = {
   width: 500,
 };
 
+export const LargeModalStyle = {
+  ...defaultModalStyle,
+  width: "90%",
+  height: "auto",
+  maxHeight: "90%",
+  minHeight: 100,
+  overflowY: "scroll",
+};
+
 export const LoginErrors = [
   {
     error: "auth/invalid-credential",

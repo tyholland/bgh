@@ -18,9 +18,8 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
   const user = useAtomValue(userAtom);
 
   return (
-    <ModalComponent isOpen={openModal} title={`Please Sign In`}>
+    <ModalComponent isOpen={openModal} title={`Job Details`} size="large">
       <S.ModalWrapper>
-        <span>Job Details</span>
         <div>Company: {data?.Company}</div>
         <div>Industry: {data?.["Primary Industry"]}</div>
         <div>Role: {data?.["Role Name"]}</div>
@@ -28,15 +27,15 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
           Date Posted by Company:{" "}
           {dayjs(data?.Details?.datePosted).format("MM-DD-YYYY")}
         </div>
-        <div>
-          Job Description:{" "}
-          <div
-            dangerouslySetInnerHTML={{
-              __html: data?.Details?.description || "",
-            }}
-          />
-        </div>
-        <div>Employment Type: {data?.Details?.employmentType}</div>
+        {data?.Details?.validThrough && (
+          <div>
+            Valid Through:{" "}
+            {dayjs(data?.Details?.validThrough).format("MM-DD-YYYY")}
+          </div>
+        )}
+        {data?.Details?.employmentType && (
+          <div>Employment Type: {data?.Details?.employmentType}</div>
+        )}
         {data?.Details?.jobLocation.address?.addressLocality && (
           <div>
             Location: {data?.Details?.jobLocation.address.addressLocality}
@@ -45,8 +44,15 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
         {data?.Details?.jobBenefits && (
           <div>Job Benefits: {data?.Details?.jobBenefits}</div>
         )}
-        {data?.Details?.validThrough && (
-          <div>Valid Through: {data?.Details?.validThrough}</div>
+        {data?.Details?.description && (
+          <div>
+            Job Description:{" "}
+            <div
+              dangerouslySetInnerHTML={{
+                __html: data?.Details?.description,
+              }}
+            />
+          </div>
         )}
         <S.ModalBtn>
           <button
