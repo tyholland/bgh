@@ -103,7 +103,6 @@ export const FilterContent = styled.div`
 
     &:hover {
       cursor: pointer;
-      color: #fff;
     }
 
     &:disabled {
@@ -190,11 +189,17 @@ export const CheckedSection = styled.div`
   align-items: center;
   padding: 2px 0;
 
-  input {
+  input[type="checkbox"] {
     margin-right: 5px;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #000;
+    border-radius: 3px;
 
     &:checked {
       accent-color: #6faeff;
+      appearance: auto;
     }
   }
 `;

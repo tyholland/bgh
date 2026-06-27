@@ -111,10 +111,18 @@ const Home = ({ csvData }: HomeProps) => {
           <S.JobResultsWrapper>
             <Search />
             <S.Section className="wrapper">
-              <S.Section>
+              <div className="jobs">
                 <div>{jobData.total} jobs found</div>
+                <div>
+                  <strong>Opportunity Refresh:</strong>{" "}
+                  {dayjs(jobData?.allData[0].Scrape_DateTime).format(
+                    "MM-DD-YYYY hh:mmA",
+                  )}
+                </div>
+              </div>
+              <div className="sorting">
                 Sort by:
-                <select
+                <S.Select
                   name="sortSelect"
                   onChange={handledSort}
                   value={sortWord}
@@ -122,23 +130,17 @@ const Home = ({ csvData }: HomeProps) => {
                   <option value="">Select Sort</option>
                   <option value="a">A-Z</option>
                   <option value="z">Z-A</option>
-                </select>
-                <S.ListSection>
-                  <strong>List View</strong>
-                  <ToggleButton
-                    value={isListView}
-                    onToggle={(value: boolean) => {
-                      setIsListView(!value);
-                    }}
-                  />
-                </S.ListSection>
-              </S.Section>
-              <div>
-                <strong>Opportunity Refresh:</strong>{" "}
-                {dayjs(jobData?.allData[0].Scrape_DateTime).format(
-                  "MM-DD-YYYY hh:mmA",
-                )}
+                </S.Select>
               </div>
+              <S.ListSection>
+                <strong>List View</strong>
+                <ToggleButton
+                  value={isListView}
+                  onToggle={(value: boolean) => {
+                    setIsListView(!value);
+                  }}
+                />
+              </S.ListSection>
             </S.Section>
             <Pagination totalPages={jobData.totalPages} />
             <S.CardWrapper className={isListView ? "list" : ""}>

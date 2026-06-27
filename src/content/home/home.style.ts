@@ -41,6 +41,19 @@ export const Section = styled.div`
 
   &.wrapper {
     justify-content: space-between;
+    margin-top: 30px;
+  }
+
+  .jobs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .sorting {
+    display: flex;
+    gap: 10px;
+    align-items: center;
   }
 `;
 
@@ -56,4 +69,13 @@ export const ListSection = styled.div`
 
 export const JobResultsWrapper = styled.div`
   width: 100%;
+`;
+
+export const Select = styled.select`
+  border: 1px solid #000;
+  border-radius: 10px;
+  background: #fff;
+  color: #000;
+  padding: 5px 10px;
+  width: 60%;
 `;
