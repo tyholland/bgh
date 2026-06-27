@@ -315,9 +315,10 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     const query = window.location.search;
     const params = new URLSearchParams(query);
-    setKeywordBubble(keyword.split(","));
+    keywordBubble.push(keyword);
+    setKeywordBubble(keywordBubble);
 
-    params.set("keyword", keyword);
+    params.set("keyword", keywordBubble.join(","));
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
@@ -326,6 +327,30 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     trackEvent(user, "Filter", {
       type: "keyword",
       value: keyword,
+    });
+  };
+
+  const handleRemoveKeyword = (item: string) => {
+    if (!user) {
+      setOpenModal(true);
+      return;
+    }
+
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+    const updated = keywordBubble.filter((key) => key !== item);
+    setKeywordBubble(updated);
+
+    params.set("keyword", updated.join(","));
+    const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
+
+    jobData && handleSearchParams(jobData, params, setJobData);
+
+    trackEvent(user, "Filter", {
+      type: "remove keyword",
+      value: item,
+      keywords: updated.join(","),
     });
   };
 
@@ -360,7 +385,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
               type="text"
               name="keyword"
               placeholder="Enter multiple keywords..."
-              value={keyword}
               onChange={handleKeyword}
             />
             <button
@@ -371,17 +395,16 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
               Search
             </button>
           </S.Section>
-          <S.Disclaimer>
-            Separate keywords with a comma.
-            <br />
-            Ex: service, care, sales
-          </S.Disclaimer>
           {keywordBubble.length > 0 && (
             <S.KeywordBubble>
               {keywordBubble.map((item: string, index: number) => (
-                <div className="bubble" key={index}>
-                  {item}
-                </div>
+                <button
+                  className="bubble"
+                  onClick={() => handleRemoveKeyword(item)}
+                  key={index}
+                >
+                  {item} <span>x</span>
+                </button>
               ))}
             </S.KeywordBubble>
           )}

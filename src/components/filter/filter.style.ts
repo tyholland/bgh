@@ -133,9 +133,19 @@ export const KeywordBubble = styled.div`
   .bubble {
     background: #6faeff;
     border-radius: 10px;
-    padding: 2px 6px;
+    padding: 4px 8px;
     color: #fff;
     width: fit-content;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+
+    span {
+      font-weight: 700;
+    }
   }
 `;
 
