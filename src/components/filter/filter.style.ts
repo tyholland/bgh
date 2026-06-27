@@ -160,6 +160,10 @@ export const Section = styled.div`
       background: #ddd;
       color: #999;
     }
+
+    &.search {
+      width: 100px;
+    }
   }
 `;
 

@@ -359,13 +359,14 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             <S.Input
               type="text"
               name="keyword"
-              placeholder="Enter multiple keywords"
+              placeholder="Enter multiple keywords..."
               value={keyword}
               onChange={handleKeyword}
             />
             <button
               onClick={handleKeywordSearch}
               disabled={keyword.length === 0}
+              className="search"
             >
               Search
             </button>
