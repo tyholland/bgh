@@ -29,6 +29,12 @@ export const ResultsWrapper = styled.div`
     min-width: 300px;
   }
 
+  .filter {
+    @media only screen and (max-width: 950px) {
+      display: none;
+    }
+  }
+
   @media only screen and (max-width: 950px) {
     flex-direction: column;
   }
@@ -44,16 +50,31 @@ export const Section = styled.div`
     margin-top: 30px;
   }
 
+  .options {
+    display: flex;
+    gap: 10px;
+  }
+
   .jobs {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
 
-  .sorting {
-    display: flex;
-    gap: 10px;
-    align-items: center;
+  .btnFilter {
+    display: none;
+
+    @media only screen and (max-width: 950px) {
+      display: block;
+      border: none;
+      padding: 6px 12px;
+      font-size: 16px;
+      border-radius: 10px;
+      background: #1439e6;
+      color: #fff;
+      width: 60%;
+      cursor: pointer;
+    }
   }
 `;
 

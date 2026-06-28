@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
 import { handleSearchParams } from "@/functions/search";
 import SignInModal from "@/components/signIn-modal/signIn-modal";
+import FilterModal from "@/components/filter-modal/filter-modal";
 
 interface HomeProps {
   csvData?: AllSearchData;
@@ -33,6 +34,7 @@ const Home = ({ csvData }: HomeProps) => {
     params?.get("sort") || "most",
   );
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openFilterModal, setOpenFilterModal] = useState<boolean>(false);
 
   const getAllJobInfo = () => {
     csvData && setJobData(csvData);
@@ -103,11 +105,13 @@ const Home = ({ csvData }: HomeProps) => {
     <>
       <S.Wrapper>
         <S.ResultsWrapper>
-          <Filter
-            companies={jobData.companies}
-            scrapDates={jobData.scrapDates}
-            industries={jobData.industries}
-          />
+          <div className="filter">
+            <Filter
+              companies={jobData.companies}
+              scrapDates={jobData.scrapDates}
+              industries={jobData.industries}
+            />
+          </div>
           <S.JobResultsWrapper>
             <Search />
             <S.Section className="wrapper">
@@ -120,19 +124,22 @@ const Home = ({ csvData }: HomeProps) => {
                   )}
                 </div>
               </div>
-              <div>
-                <div className="sorting">
-                  Sort by:
-                  <S.Select
-                    name="sortSelect"
-                    onChange={handledSort}
-                    value={sortWord}
-                  >
-                    <option value="">Select Sort</option>
-                    <option value="a">A-Z</option>
-                    <option value="z">Z-A</option>
-                  </S.Select>
-                </div>
+              <div className="options">
+                <button
+                  className="btnFilter"
+                  onClick={() => setOpenFilterModal(true)}
+                >
+                  Filter Items
+                </button>
+                <S.Select
+                  name="sortSelect"
+                  onChange={handledSort}
+                  value={sortWord}
+                >
+                  <option value="">Sort Items</option>
+                  <option value="a">A-Z</option>
+                  <option value="z">Z-A</option>
+                </S.Select>
                 <S.ListSection>
                   <strong>List View</strong>
                   <ToggleButton
@@ -191,6 +198,13 @@ const Home = ({ csvData }: HomeProps) => {
         </S.Banner>
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
+      <FilterModal
+        openModal={openFilterModal}
+        setOpenModal={setOpenFilterModal}
+        companies={jobData.companies}
+        scrapDates={jobData.scrapDates}
+        industries={jobData.industries}
+      />
     </>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import * as S from "./filter.style";
 import { getItemTotalCount, handleSearchParams } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
