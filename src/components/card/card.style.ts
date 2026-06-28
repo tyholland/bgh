@@ -34,16 +34,18 @@ export const Wrapper = styled.button`
   .company,
   .industry {
     font-size: 14px;
-    background: #514c4c;
+    background: #6faeff;
     border-radius: 10px;
     padding: 6px 10px;
     width: fit-content;
     color: #fff;
+    font-weight: 700;
   }
 
   .industry {
     background: #e7ecfb;
     color: #000;
+    font-weight: 400;
   }
 
   .position {
