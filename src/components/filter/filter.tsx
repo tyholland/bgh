@@ -2,19 +2,7 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./filter.style";
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 import { getItemTotalCount, handleSearchParams } from "@/functions/search";
-=======
-import { getCompanyTotalCount, handleSearchParams } from "@/functions/search";
->>>>>>> cee206c (testing refactored code)
-=======
-import { getItemTotalCount, handleSearchParams } from "@/functions/search";
->>>>>>> 8f0f40a (add item total and use checkboxes)
-=======
-import { getItemTotalCount, handleSearchParams } from "@/functions/search";
->>>>>>> 8f0f40a (add item total and use checkboxes)
 import { jobAtom } from "@/caches/JobsAtom";
 import { useAtom, useAtomValue } from "jotai";
 import { trackEvent } from "@/functions/mixpanel";
@@ -82,13 +70,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     exactDate.length === 0;
 
   const handleFilter = (e: ChangeEvent<HTMLInputElement>, type: string) => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 8f0f40a (add item total and use checkboxes)
-=======
->>>>>>> 8f0f40a (add item total and use checkboxes)
     if (e.target.checked) {
       type === "company"
         ? setCompanyArr((prev) => [...prev, e.target.value])
@@ -102,20 +83,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             prev.filter((fruit) => fruit !== e.target.value),
           );
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-    const filterChoice = Array.from(e.target.value, (option) => option);
-
-    console.log("filter:", filterChoice);
-
-    // type === "company" && setCompanyArr(filterChoice);
-    // type === "industry" && setIndustryArr(filterChoice);
->>>>>>> cee206c (testing refactored code)
-=======
->>>>>>> 8f0f40a (add item total and use checkboxes)
-=======
->>>>>>> 8f0f40a (add item total and use checkboxes)
   };
 
   const handleCompanyApply = () => {
@@ -409,113 +376,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.KeywordBubble>
           )}
         </div>
-<<<<<<< HEAD
-        {!!companies && companies.length > 0 && (
-          <div>
-            <S.FilterContent>
-              <div>Company</div>
-              <input
-                type="text"
-                placeholder="Search company..."
-                name="companySearch"
-                onChange={() => {}}
-              />
-            </S.FilterContent>
-            {companies.map((item: string, index: number) => (
-              <div key={index}>
-                <input
-                  type="checkbox"
-                  name="companyCheckbox"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-                  checked={companyArr.some((company) => company === item)}
-                  onChange={(e: any) => handleFilter(e, "company")}
-                  value={item}
-                />
-                {item} ({getItemTotalCount(item, "company", jobData?.allData)})
-=======
-                  onClick={(e: any) => handleFilter(e, "company")}
-                />
-                {item} ({getCompanyTotalCount(item, jobData?.allData)})
->>>>>>> cee206c (testing refactored code)
-=======
-                  checked={companyArr.some((company) => company === item)}
-                  onChange={(e: any) => handleFilter(e, "company")}
-                  value={item}
-                />
-                {item} ({getItemTotalCount(item, "company", jobData?.allData)})
->>>>>>> 8f0f40a (add item total and use checkboxes)
-=======
-                  checked={companyArr.some((company) => company === item)}
-                  onChange={(e: any) => handleFilter(e, "company")}
-                  value={item}
-                />
-                {item} ({getItemTotalCount(item, "company", jobData?.allData)})
->>>>>>> 8f0f40a (add item total and use checkboxes)
-              </div>
-            ))}
-            <S.FilterContent className="apply">
-              <button
-                onClick={handleCompanyApply}
-                disabled={companyArr.length === 0}
-              >
-                Apply
-              </button>
-              {companyReset && (
-                <button
-                  className="reset"
-                  onClick={() => handleReset("company")}
-                >
-                  reset
-                </button>
-              )}
-            </S.FilterContent>
-          </div>
-        )}
-        {!!industries && industries.length > 0 && (
-          <div>
-            <S.FilterContent>
-              <div>Industry</div>
-              <input
-                type="text"
-                placeholder="Search industry..."
-                name="industrySearch"
-                onChange={() => {}}
-              />
-            </S.FilterContent>
-            {industries.map((item: string, index: number) => (
-              <div key={index}>
-                <input
-                  type="checkbox"
-                  name="industryCheckbox"
-                  checked={industryArr.some((industry) => industry === item)}
-                  onChange={(e: any) => handleFilter(e, "industry")}
-                  value={item}
-                />
-                {item} ({getItemTotalCount(item, "industry", jobData?.allData)})
-              </div>
-            ))}
-            <S.FilterContent className="apply">
-              <button
-                onClick={handleIndustryApply}
-                disabled={industryArr.length === 0}
-              >
-                Apply
-              </button>
-              {industryReset && (
-                <button
-                  className="reset"
-                  onClick={() => handleReset("industry")}
-                >
-                  reset
-                </button>
-              )}
-            </S.FilterContent>
-          </div>
-        )}
-=======
->>>>>>> 8e478cb (style filters)
         <div>
           <S.FilterContent className="posted">
             <div>Posted Date</div>
