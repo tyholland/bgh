@@ -55,7 +55,7 @@ export const Section = styled.div`
     gap: 10px;
 
     @media only screen and (max-width: 950px) {
-      width: 100%;
+      width: 60%;
     }
   }
 
@@ -76,7 +76,7 @@ export const Section = styled.div`
     border-radius: 10px;
     background: #1439e6;
     color: #fff;
-    width: 60%;
+    width: 40%;
     cursor: pointer;
   }
 `;
@@ -117,7 +117,7 @@ export const Select = styled.select`
   background: #fff;
   color: #000;
   padding: 5px 10px;
-  width: 60%;
+  width: 40%;
 `;
 
 export const Banner = styled.div`

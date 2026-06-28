@@ -9,7 +9,6 @@ import { userAtom } from "@/caches/UserAtom";
 import SignOutModal from "../signOut-modal/signOut-modal";
 import { useState } from "react";
 import UserIcon from "@/svg/UserIcon";
-import Image from "next/image";
 
 const Nav = () => {
   const navigate = useRouter();
@@ -30,7 +29,7 @@ const Nav = () => {
     <>
       <header>
         <Link href={!!jobData ? "/home" : "/"}>
-          <Image
+          <img
             src="/bgh-logo.png"
             alt="BGH Scout Logo"
             width="200"

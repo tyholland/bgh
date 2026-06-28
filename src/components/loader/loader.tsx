@@ -1,11 +1,9 @@
 "use client";
 
-import Image from "next/image";
-
 const Loader = () => {
   return (
     <div className="loadingWrapper">
-      <Image
+      <img
         src="/loader-img.png"
         alt="BGH Scout spinning arrow"
         width="200"
