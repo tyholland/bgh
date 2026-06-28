@@ -137,7 +137,7 @@ const Home = ({ csvData }: HomeProps) => {
                     onClick={() => setIsListView(false)}
                     disabled={!isListView}
                   >
-                    <Image
+                    <img
                       src="/grid-view-icon.png"
                       alt="Grid View Icon"
                       width="30"
@@ -148,7 +148,7 @@ const Home = ({ csvData }: HomeProps) => {
                     onClick={() => setIsListView(true)}
                     disabled={isListView}
                   >
-                    <Image
+                    <img
                       src="/list-view-icon.png"
                       alt="List View Icon"
                       width="30"
