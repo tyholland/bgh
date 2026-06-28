@@ -17,7 +17,7 @@ export const Wrapper = styled.button`
 
   &:hover {
     background: #6ad5b5;
-    cursor: pointer;
+    cursor: zoom-in;
   }
 
   @media only screen and (max-width: 950px) {
