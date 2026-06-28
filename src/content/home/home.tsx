@@ -24,13 +24,13 @@ interface HomeProps {
 }
 
 const Home = ({ csvData }: HomeProps) => {
-  const query = window.location.search;
-  const params = new URLSearchParams(query);
+  const query = typeof window !== "undefined" && window.location.search;
+  const params = query ? new URLSearchParams(query) : null;
   const [user, setUser] = useAtom(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
   const [isListView, setIsListView] = useState<boolean>(false);
   const [sortWord, setSortWord] = useState<string>(
-    params.get("sort") || "most",
+    params?.get("sort") || "most",
   );
   const [openModal, setOpenModal] = useState<boolean>(false);
 
