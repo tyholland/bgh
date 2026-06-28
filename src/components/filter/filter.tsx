@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./filter.style";
 import { getItemTotalCount, handleSearchParams } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
@@ -11,13 +11,7 @@ import { userAtom } from "@/caches/UserAtom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
-interface FilterProps {
-  companies: string[];
-  scrapDates: string[];
-  industries: string[];
-}
-
-const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
+const Filter = () => {
   dayjs.extend(customParseFormat);
   const query = window.location.search;
   const defaultParams = new URLSearchParams(query);
@@ -28,8 +22,12 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const defaultExactDate = defaultParams?.get("exact");
   const user = useAtomValue(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
-  const [companyList, setCompanyList] = useState<string[]>(companies);
-  const [industryList, setIndustryList] = useState<string[]>(industries);
+  const [companyList, setCompanyList] = useState<string[]>(
+    jobData?.companies || [],
+  );
+  const [industryList, setIndustryList] = useState<string[]>(
+    jobData?.industries || [],
+  );
   const [showExactDate, setShowExactDate] = useState<boolean>(
     (defaultExactDate && defaultExactDate.length > 0) || false,
   );
@@ -326,19 +324,27 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     val: string,
   ) => {
     const item = e.target.value;
+    if (!jobData) return;
 
     val === "company"
       ? setCompanyList(
-          companies.filter((company: string) =>
+          jobData.companies.filter((company: string) =>
             company.toLowerCase().includes(item),
           ),
         )
       : setIndustryList(
-          industries.filter((industry: string) =>
+          jobData.industries.filter((industry: string) =>
             industry.toLowerCase().includes(item),
           ),
         );
   };
+
+  useEffect(() => {
+    if (jobData) {
+      setCompanyList(jobData.companies);
+      setIndustryList(jobData.industries);
+    }
+  }, [jobData]);
 
   return (
     <>
@@ -406,7 +412,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
               value={dayjs(exactDate).format("MM-DD-YYYY") || ""}
             >
               <option value="">Select Specific Date</option>
-              {scrapDates.map((item: string, index: number) => (
+              {jobData?.scrapDates.map((item: string, index: number) => (
                 <option value={dayjs(item).format("MM-DD-YYYY")} key={index}>
                   {dayjs(item).format("MM-DD-YYYY")}
                 </option>
@@ -414,7 +420,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.Select>
           )}
         </div>
-        {!!companies && companies.length > 0 && (
+        {!!jobData?.companies && jobData?.companies.length > 0 && (
           <div>
             <S.FilterContent>
               <div>Company</div>
@@ -462,7 +468,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.FilterContent>
           </div>
         )}
-        {!!industries && industries.length > 0 && (
+        {!!jobData?.industries && jobData?.industries.length > 0 && (
           <div>
             <S.FilterContent>
               <div>Industry</div>

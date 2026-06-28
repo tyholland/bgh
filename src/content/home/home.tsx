@@ -208,9 +208,6 @@ const Home = ({ csvData }: HomeProps) => {
       <FilterModal
         openModal={openFilterModal}
         setOpenModal={setOpenFilterModal}
-        companies={jobData.companies}
-        scrapDates={jobData.scrapDates}
-        industries={jobData.industries}
       />
     </>
   );

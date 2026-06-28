@@ -7,26 +7,13 @@ import Filter from "../filter/filter";
 interface FilterModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
-  companies: string[];
-  scrapDates: string[];
-  industries: string[];
 }
 
-const FilterModal = ({
-  openModal,
-  setOpenModal,
-  companies,
-  scrapDates,
-  industries,
-}: FilterModalProps) => {
+const FilterModal = ({ openModal, setOpenModal }: FilterModalProps) => {
   return (
     <ModalComponent isOpen={openModal} title={`Filter Jobs`} size="large">
       <S.ModalWrapper>
-        <Filter
-          companies={companies}
-          scrapDates={scrapDates}
-          industries={industries}
-        />
+        <Filter />
         <S.ModalBtn>
           <button
             onClick={() => {
