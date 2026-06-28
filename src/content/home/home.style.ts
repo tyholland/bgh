@@ -64,7 +64,6 @@ export const Section = styled.div`
     display: block;
     border: none;
     padding: 6px 12px;
-    font-size: 16px;
     border-radius: 10px;
     background: #1439e6;
     color: #fff;

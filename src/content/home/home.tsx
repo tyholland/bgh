@@ -108,7 +108,9 @@ const Home = ({ csvData }: HomeProps) => {
             <Search />
             <S.Section className="wrapper">
               <div className="jobs">
-                <div>{jobData.total} jobs found</div>
+                <div>
+                  <strong>{jobData.total}</strong> jobs found
+                </div>
                 <div>
                   <strong>Opportunity Refresh:</strong>{" "}
                   {dayjs(jobData?.allData[0].Scrape_DateTime).format(
