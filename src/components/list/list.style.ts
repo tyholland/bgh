@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.button`
   display: flex;
   padding: 1%;
   border-bottom: 1px solid #000;
@@ -10,6 +10,8 @@ export const Wrapper = styled.div`
   overflow-wrap: break-word;
   align-items: center;
   background: #fff;
+  color: #000;
+  cursor: zoom-in;
 
   &:hover {
     background: #6ad5b5;
@@ -44,20 +46,11 @@ export const Wrapper = styled.div`
     gap: 10px;
   }
 
-  .company {
-    width: 190px;
-  }
-
-  .industry {
-    width: 190px;
-  }
-
-  .position {
-    width: 300px;
-  }
-
+  .company,
+  .industry,
+  .position,
   .posted {
-    width: 120px;
+    width: 25%;
   }
 `;
 
@@ -65,4 +58,5 @@ export const Section = styled.div`
   display: flex;
   gap: 8px;
   align-items: center;
+  width: 100%;
 `;

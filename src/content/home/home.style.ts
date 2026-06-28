@@ -56,7 +56,7 @@ export const Section = styled.div`
     gap: 10px;
 
     @media only screen and (max-width: 950px) {
-      width: 40%;
+      width: 35%;
     }
   }
 
@@ -79,10 +79,6 @@ export const ListSection = styled.div`
   border: 1px solid #000;
   border-radius: 10px;
   background: #fff;
-
-  @media only screen and (max-width: 950px) {
-    display: none;
-  }
 
   button {
     border: none;
