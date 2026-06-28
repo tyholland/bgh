@@ -7,6 +7,7 @@ import { trackEvent } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import dayjs from "dayjs";
+import he from "he";
 
 interface CardDetailsProps {
   openModal: boolean;
@@ -49,7 +50,7 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
             Job Description:{" "}
             <div
               dangerouslySetInnerHTML={{
-                __html: data?.Details?.description,
+                __html: he.decode(data?.Details?.description),
               }}
             />
           </div>

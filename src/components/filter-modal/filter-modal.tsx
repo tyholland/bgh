@@ -20,7 +20,7 @@ const FilterModal = ({
   industries,
 }: FilterModalProps) => {
   return (
-    <ModalComponent isOpen={openModal} title={`Filter Items`} size="large">
+    <ModalComponent isOpen={openModal} title={`Filter Jobs`} size="large">
       <S.ModalWrapper>
         <Filter
           companies={companies}

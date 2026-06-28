@@ -15,6 +15,7 @@ export const CardWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
+  justify-content: center;
 
   &.list {
     gap: 0;
@@ -27,12 +28,6 @@ export const ResultsWrapper = styled.div`
 
   > div:first-child {
     min-width: 300px;
-  }
-
-  .filter {
-    @media only screen and (max-width: 950px) {
-      display: none;
-    }
   }
 
   @media only screen and (max-width: 950px) {
@@ -59,32 +54,52 @@ export const Section = styled.div`
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+    @media only screen and (max-width: 950px) {
+      width: 40%;
+    }
   }
 
   .btnFilter {
-    display: none;
-
-    @media only screen and (max-width: 950px) {
-      display: block;
-      border: none;
-      padding: 6px 12px;
-      font-size: 16px;
-      border-radius: 10px;
-      background: #1439e6;
-      color: #fff;
-      width: 60%;
-      cursor: pointer;
-    }
+    display: block;
+    border: none;
+    padding: 6px 12px;
+    font-size: 16px;
+    border-radius: 10px;
+    background: #1439e6;
+    color: #fff;
+    width: 60%;
+    cursor: pointer;
   }
 `;
 
 export const ListSection = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  border: 1px solid #000;
+  border-radius: 10px;
+  background: #fff;
 
   @media only screen and (max-width: 950px) {
     display: none;
+  }
+
+  button {
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    height: 30px;
+
+    &:disabled {
+      img {
+        cursor: no-drop;
+      }
+    }
+
+    img {
+      border-radius: 10px;
+    }
   }
 `;
 

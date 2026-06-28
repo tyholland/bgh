@@ -10,7 +10,6 @@ import { useAtom } from "jotai";
 import { jobAtom } from "@/caches/JobsAtom";
 import { ChangeEvent, useEffect, useState } from "react";
 import List from "@/components/list/list";
-import ToggleButton from "react-toggle-button";
 import { userAtom } from "@/caches/UserAtom";
 import { getUserCreds } from "@/functions/userState";
 import Loader from "@/components/loader/loader";
@@ -105,13 +104,6 @@ const Home = ({ csvData }: HomeProps) => {
     <>
       <S.Wrapper>
         <S.ResultsWrapper>
-          <div className="filter">
-            <Filter
-              companies={jobData.companies}
-              scrapDates={jobData.scrapDates}
-              industries={jobData.industries}
-            />
-          </div>
           <S.JobResultsWrapper>
             <Search />
             <S.Section className="wrapper">
@@ -129,25 +121,40 @@ const Home = ({ csvData }: HomeProps) => {
                   className="btnFilter"
                   onClick={() => setOpenFilterModal(true)}
                 >
-                  Filter Items
+                  Filter Jobs
                 </button>
                 <S.Select
                   name="sortSelect"
                   onChange={handledSort}
                   value={sortWord}
                 >
-                  <option value="">Sort Items</option>
+                  <option value="">Sort Jobs</option>
                   <option value="a">A-Z</option>
                   <option value="z">Z-A</option>
                 </S.Select>
                 <S.ListSection>
-                  <strong>List View</strong>
-                  <ToggleButton
-                    value={isListView}
-                    onToggle={(value: boolean) => {
-                      setIsListView(!value);
-                    }}
-                  />
+                  <button
+                    onClick={() => setIsListView(false)}
+                    disabled={!isListView}
+                  >
+                    <Image
+                      src="/grid-view-icon.png"
+                      alt="Grid View Icon"
+                      width="30"
+                      height="30"
+                    />
+                  </button>
+                  <button
+                    onClick={() => setIsListView(true)}
+                    disabled={isListView}
+                  >
+                    <Image
+                      src="/list-view-icon.png"
+                      alt="List View Icon"
+                      width="30"
+                      height="30"
+                    />
+                  </button>
                 </S.ListSection>
               </div>
             </S.Section>

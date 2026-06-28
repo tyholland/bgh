@@ -84,6 +84,7 @@ footer {
   width: 100%;
   max-width: 1340px;
   color: #fff;
+  gap: 10px;
 
   @media only screen and (max-width: 950px) {
     height: fit-content;
