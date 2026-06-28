@@ -43,11 +43,20 @@ export const Section = styled.div`
   &.wrapper {
     justify-content: space-between;
     margin-top: 30px;
+
+    @media only screen and (max-width: 950px) {
+      flex-direction: column;
+      gap: 25px;
+    }
   }
 
   .options {
     display: flex;
     gap: 10px;
+
+    @media only screen and (max-width: 950px) {
+      width: 100%;
+    }
   }
 
   .jobs {
@@ -56,7 +65,7 @@ export const Section = styled.div`
     gap: 10px;
 
     @media only screen and (max-width: 950px) {
-      width: 35%;
+      width: 100%;
     }
   }
 
@@ -93,7 +102,7 @@ export const ListSection = styled.div`
     }
 
     img {
-      border-radius: 10px;
+      border-radius: 9px;
     }
   }
 `;
@@ -148,11 +157,11 @@ export const BannerSection = styled.div`
     .title {
       font-weight: bold;
       font-size: 18px;
-      color: #1439e6;
+      color: #0b1144;
     }
   }
 
   img {
-    border-radius: 40px;
+    border-radius: 12px;
   }
 `;

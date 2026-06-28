@@ -140,7 +140,11 @@ const Home = ({ csvData }: HomeProps) => {
                     disabled={!isListView}
                   >
                     <img
-                      src="/grid-view-icon.png"
+                      src={
+                        !isListView
+                          ? "/dark-grid-view-icon.png"
+                          : "/grid-view-icon.png"
+                      }
                       alt="Grid View Icon"
                       width="30"
                       height="30"
@@ -151,7 +155,11 @@ const Home = ({ csvData }: HomeProps) => {
                     disabled={isListView}
                   >
                     <img
-                      src="/list-view-icon.png"
+                      src={
+                        isListView
+                          ? "/dark-list-view-icon.png"
+                          : "/list-view-icon.png"
+                      }
                       alt="List View Icon"
                       width="30"
                       height="30"
@@ -194,7 +202,7 @@ const Home = ({ csvData }: HomeProps) => {
           </S.BannerSection>
           <S.BannerSection>
             <img
-              src="/loader-img.png"
+              src="/compass-icon.png"
               alt="Real-time Updates"
               width="50"
               height="50"
