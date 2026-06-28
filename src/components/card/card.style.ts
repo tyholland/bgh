@@ -14,6 +14,7 @@ export const Wrapper = styled.button`
   flex-direction: column;
   min-height: 250px;
   color: #000;
+  justify-content: space-between;
 
   &:hover {
     background: #6ad5b5;
@@ -54,6 +55,13 @@ export const Wrapper = styled.button`
     font-size: 12px;
     width: 100%;
     text-align: right;
+  }
+
+  .topLayer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
   }
 `;
 

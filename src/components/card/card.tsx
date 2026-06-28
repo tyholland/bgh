@@ -43,12 +43,12 @@ const Card = () => {
 
         return (
           <S.Wrapper onClick={openJobDetails} key={index}>
-            <div className="posted">Posted: {postedTime}</div>
-            <S.Section className="first">
+            <div className="topLayer">
               <div className="company">{item.Company}</div>
-              <div className="position">{item["Role Name"]}</div>
-              <div className="industry">{item["Primary Industry"]}</div>
-            </S.Section>
+              <div className="posted">Posted: {postedTime}</div>
+            </div>
+            <div className="position">{item["Role Name"]}</div>
+            <div className="industry">{item["Primary Industry"]}</div>
           </S.Wrapper>
         );
       })}
