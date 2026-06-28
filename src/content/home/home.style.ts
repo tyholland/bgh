@@ -86,17 +86,42 @@ export const Banner = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
+  padding: 15px 30px;
   border-radius: 10px;
+
+  @media only screen and (max-width: 950px) {
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: center;
+    width: auto;
+  }
 `;
 
 export const BannerSection = styled.div`
   display: flex;
   gap: 20px;
   align-items: center;
+  font-size: 14px;
+
+  @media only screen and (max-width: 950px) {
+    width: 300px;
+    margin: 0 auto;
+  }
 
   .content {
     display: flex;
     flex-direction: column;
+    gap: 5px;
+
+    .title {
+      font-weight: bold;
+      font-size: 18px;
+      color: #1439e6;
+    }
+  }
+
+  img {
+    border-radius: 40px;
   }
 `;

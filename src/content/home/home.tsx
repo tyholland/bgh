@@ -156,24 +156,36 @@ const Home = ({ csvData }: HomeProps) => {
             <img
               src="/trusted-icon.png"
               alt="Trusted Opportunities"
-              width="170"
-              height="104"
+              width="50"
+              height="50"
             />
             <div className="content">
-              <div>Trusted Opportunities</div>
+              <div className="title">Trusted Opportunities</div>
               <div>Curated roles from top companies</div>
             </div>
           </S.BannerSection>
           <S.BannerSection>
             <img
               src="/bolt-icon.png"
-              alt="Trusted Opportunities"
-              width="170"
-              height="104"
+              alt="Real-time Updates"
+              width="50"
+              height="50"
             />
             <div className="content">
-              <div>Real-time Updates</div>
+              <div className="title">Real-time Updates</div>
               <div>New jobs posted every day</div>
+            </div>
+          </S.BannerSection>
+          <S.BannerSection>
+            <img
+              src="/loader-img.png"
+              alt="Real-time Updates"
+              width="50"
+              height="50"
+            />
+            <div className="content">
+              <div className="title">Easy to Explore</div>
+              <div>Search, filter, and discover with ease.</div>
             </div>
           </S.BannerSection>
         </S.Banner>
