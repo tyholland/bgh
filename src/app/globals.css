@@ -73,16 +73,17 @@ main {
 footer {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   flex-direction: column;
   gap: 10px;
-  background: #fff;
+  background: #0b1144;
   padding: 0 20px;
   height: 120px;
   position: absolute;
   bottom: 0;
   width: 100%;
   max-width: 1340px;
+  color: #fff;
 
   @media only screen and (max-width: 950px) {
     height: 140px;
@@ -90,7 +91,7 @@ footer {
 
   .linkWrapper {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     padding: 20px 0;
 
     @media only screen and (max-width: 950px) {
