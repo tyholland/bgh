@@ -79,3 +79,24 @@ export const Select = styled.select`
   padding: 5px 10px;
   width: 60%;
 `;
+
+export const Banner = styled.div`
+  background: #e7ecfb;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-radius: 10px;
+`;
+
+export const BannerSection = styled.div`
+  display: flex;
+  gap: 20px;
+  align-items: center;
+
+  .content {
+    display: flex;
+    flex-direction: column;
+  }
+`;

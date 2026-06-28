@@ -151,22 +151,32 @@ const Home = ({ csvData }: HomeProps) => {
             <Pagination totalPages={jobData.totalPages} />
           </S.JobResultsWrapper>
         </S.ResultsWrapper>
-        <div>
-          <div>
-            <div>icon</div>
-            <div>
+        <S.Banner>
+          <S.BannerSection>
+            <img
+              src="/trusted-icon.png"
+              alt="Trusted Opportunities"
+              width="170"
+              height="104"
+            />
+            <div className="content">
               <div>Trusted Opportunities</div>
               <div>Curated roles from top companies</div>
             </div>
-          </div>
-          <div>
-            <div>icon</div>
-            <div>
+          </S.BannerSection>
+          <S.BannerSection>
+            <img
+              src="/bolt-icon.png"
+              alt="Trusted Opportunities"
+              width="170"
+              height="104"
+            />
+            <div className="content">
               <div>Real-time Updates</div>
               <div>New jobs posted every day</div>
             </div>
-          </div>
-        </div>
+          </S.BannerSection>
+        </S.Banner>
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
     </>
