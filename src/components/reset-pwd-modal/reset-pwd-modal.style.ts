@@ -13,11 +13,13 @@ export const ModalBtn = styled.div`
   margin-top: 20px;
 
   button {
+    min-width: fit-content;
     width: 100px;
     padding: 10px;
     border-radius: 20px;
     border: none;
     background: #1439e6;
+    color: #fff;
 
     @media only screen and (max-width: 950px) {
       width: 90%;
@@ -36,5 +38,19 @@ export const ModalBtn = styled.div`
         color: #fff;
       }
     }
+  }
+`;
+
+export const Input = styled.input`
+  background: #fff;
+  height: 30px;
+  width: 100%;
+  border: 1px solid #000;
+  padding-left: 5px;
+  color: #000;
+  border-radius: 10px;
+
+  @media only screen and (max-width: 950px) {
+    width: 90%;
   }
 `;

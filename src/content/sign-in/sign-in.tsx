@@ -132,10 +132,14 @@ const SignIn = () => {
           />
         </div>
         {errorMsg && <ErrorBlock error={errorMsg} />}
-        <S.Button onClick={handleSignIn} disabled={isDisabled}>
-          Sign In
-        </S.Button>
-        <S.Button onClick={() => setOpenModal(true)}>Forgot Password</S.Button>
+        <S.Section>
+          <S.Button onClick={handleSignIn} disabled={isDisabled}>
+            Sign In
+          </S.Button>
+          <S.Button className="textBtn" onClick={() => setOpenModal(true)}>
+            Forgot Password
+          </S.Button>
+        </S.Section>
         <S.SignUp>
           Don't have an account. <Link href="/sign-up">Sign Up</Link>
         </S.SignUp>

@@ -43,6 +43,15 @@ export const Button = styled.button`
     color: #000;
     cursor: no-drop;
   }
+
+  &.textBtn {
+    padding: 0;
+    background: transparent;
+    color: #000;
+    width: fit-content;
+    border-radius: 0;
+    text-decoration: underline;
+  }
 `;
 
 export const SignUp = styled.div`
@@ -51,4 +60,9 @@ export const SignUp = styled.div`
   a {
     text-decoration: underline;
   }
+`;
+
+export const Section = styled.div`
+  display: flex;
+  gap: 10px;
 `;

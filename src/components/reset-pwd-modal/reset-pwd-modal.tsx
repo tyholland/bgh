@@ -36,10 +36,10 @@ const ResetPwd = ({ openModal, setOpenModal }: ResetPwdProps) => {
     <ModalComponent isOpen={openModal} title={`Forgot Password`}>
       <S.ModalWrapper>
         <span>
-          Type your email and click "Send Email" to get an email to reset your
-          password
+          Enter your email and click "Reset Password" to get an email to reset
+          your password
         </span>
-        <input
+        <S.Input
           type="text"
           value={resetEmail}
           onChange={(e: ChangeEvent<HTMLInputElement>) =>
