@@ -163,7 +163,7 @@ export const handleSearchParams = (
     }
 
     setData({
-      data: await getAdditionalJobDetails(filteredData.slice(start, end)),
+      data: filteredData.slice(start, end),
       allData: searchData.allData,
       total: filteredData.length,
       totalPages: Math.ceil(filteredData.length / limit),

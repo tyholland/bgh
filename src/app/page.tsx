@@ -172,7 +172,7 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   }
 
   return {
-    data: await getAdditionalJobDetails(filteredData.slice(start, end)),
+    data: filteredData.slice(start, end),
     allData: parsedData.data as CsvData[],
     total: filteredData.length,
     totalPages: Math.ceil(filteredData.length / limit),

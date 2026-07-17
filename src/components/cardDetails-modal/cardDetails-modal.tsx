@@ -24,10 +24,12 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
         <div>Company: {data?.Company}</div>
         <div>Industry: {data?.["Primary Industry"]}</div>
         <div>Role: {data?.["Role Name"]}</div>
-        <div>
-          Date Posted by Company:{" "}
-          {dayjs(data?.Details?.datePosted).format("MM-DD-YYYY")}
-        </div>
+        {data?.Details?.datePosted && (
+          <div>
+            Date Posted by Company:{" "}
+            {dayjs(data?.Details?.datePosted).format("MM-DD-YYYY")}
+          </div>
+        )}
         {data?.Details?.validThrough && (
           <div>
             Valid Through:{" "}
