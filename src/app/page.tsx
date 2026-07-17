@@ -3,6 +3,42 @@ import Home from "../content/home/home";
 import { CsvData, UrlParams } from "@/types";
 import dayjs from "dayjs";
 
+const getAdditionalJobDetails = async (jobs: CsvData[]) => {
+  await Promise.all(
+    jobs.map(async (item) => {
+      try {
+        const res = await fetch(item.Link, {
+          method: "GET",
+          next: {
+            tags: ["leads"],
+          },
+        });
+
+        const html = await res.text();
+
+        const scripts = [
+          ...html.matchAll(
+            /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+          ),
+        ];
+
+        for (const script of scripts) {
+          const json = JSON.parse(script[1]);
+
+          if (json["@type"] === "JobPosting") {
+            item.Details = json;
+            break;
+          }
+        }
+      } catch (err) {
+        console.error(`Failed to crawl ${item.Link}`, err);
+      }
+    }),
+  );
+
+  return jobs;
+};
+
 const getCSVData = async (params: UrlParams, limit = 18) => {
   const {
     page: pageNum,
@@ -12,6 +48,7 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
     exact,
     keyword,
     industry,
+    sort,
   } = params;
   const page = pageNum || 1;
 
@@ -40,9 +77,12 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   }
 
   let filteredData = allData.sort((a: CsvData, b: CsvData) => {
-    const dateA = a.Scrape_DateTime ? dayjs(a.Scrape_DateTime).unix() : 0;
+    const dateTime1 = a.Scrape_DateTime;
+    const dateTime2 = b.Scrape_DateTime;
 
-    const dateB = b.Scrape_DateTime ? dayjs(b.Scrape_DateTime).unix() : 0;
+    const dateA = dateTime1 ? dayjs(dateTime1).unix() : 0;
+
+    const dateB = dateTime2 ? dayjs(dateTime2).unix() : 0;
 
     return dateB - dateA;
   });
@@ -110,6 +150,26 @@ const getCSVData = async (params: UrlParams, limit = 18) => {
   const industries: string[] = [
     ...new Set(filteredData.map((item: CsvData) => item["Primary Industry"])),
   ];
+
+  if (sort) {
+    switch (sort) {
+      case "a":
+        filteredData.sort((a: CsvData, b: CsvData) => {
+          return a["Role Name"].localeCompare(b["Role Name"]);
+        });
+        break;
+      case "z":
+        filteredData.sort((a: CsvData, b: CsvData) => {
+          return b["Role Name"].localeCompare(a["Role Name"]);
+        });
+        break;
+      default:
+        filteredData.sort((a: CsvData, b: CsvData) => {
+          return a["Role Name"].localeCompare(b["Role Name"]);
+        });
+        break;
+    }
+  }
 
   return {
     data: filteredData.slice(start, end),

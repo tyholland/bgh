@@ -8,15 +8,12 @@ const Footer = () => {
 
   return (
     <footer>
+      <img src="/dark-logo.png" alt="BGH Scout Logo" width="170" height="104" />
       <div className="linkWrapper">
         <Link href="/about">About</Link>
-        <span>|</span>
         <Link href="/contact">Contact Us</Link>
-        <span>|</span>
         <Link href="/request">Request Company</Link>
-        <span>|</span>
         <Link href="/disclaimer">Disclaimer</Link>
-        <span>|</span>
         <Link href="/road-map">Road Map</Link>
       </div>
       <div className="copy">

@@ -2,7 +2,7 @@
 
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./filter.style";
-import { handleSearchParams } from "@/functions/search";
+import { getItemTotalCount, handleSearchParams } from "@/functions/search";
 import { jobAtom } from "@/caches/JobsAtom";
 import { useAtom, useAtomValue } from "jotai";
 import { trackEvent } from "@/functions/mixpanel";
@@ -11,13 +11,7 @@ import { userAtom } from "@/caches/UserAtom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
-interface FilterProps {
-  companies: string[];
-  scrapDates: string[];
-  industries: string[];
-}
-
-const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
+const Filter = () => {
   dayjs.extend(customParseFormat);
   const query = window.location.search;
   const defaultParams = new URLSearchParams(query);
@@ -28,6 +22,12 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const defaultExactDate = defaultParams?.get("exact");
   const user = useAtomValue(userAtom);
   const [jobData, setJobData] = useAtom(jobAtom);
+  const [companyList, setCompanyList] = useState<string[]>(
+    jobData?.companies || [],
+  );
+  const [industryList, setIndustryList] = useState<string[]>(
+    jobData?.industries || [],
+  );
   const [showExactDate, setShowExactDate] = useState<boolean>(
     (defaultExactDate && defaultExactDate.length > 0) || false,
   );
@@ -67,14 +67,20 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     postedDate.length === 0 &&
     exactDate.length === 0;
 
-  const handleFilter = (e: ChangeEvent<HTMLSelectElement>, type: string) => {
-    const filterChoice = Array.from(
-      e.target.selectedOptions,
-      (option) => option.value,
-    );
-
-    type === "company" && setCompanyArr(filterChoice);
-    type === "industry" && setIndustryArr(filterChoice);
+  const handleFilter = (e: ChangeEvent<HTMLInputElement>, type: string) => {
+    if (e.target.checked) {
+      type === "company"
+        ? setCompanyArr((prev) => [...prev, e.target.value])
+        : setIndustryArr((prev) => [...prev, e.target.value]);
+    } else {
+      type === "company"
+        ? setCompanyArr((prev) =>
+            prev.filter((fruit) => fruit !== e.target.value),
+          )
+        : setIndustryArr((prev) =>
+            prev.filter((fruit) => fruit !== e.target.value),
+          );
+    }
   };
 
   const handleCompanyApply = () => {
@@ -274,9 +280,10 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     const query = window.location.search;
     const params = new URLSearchParams(query);
-    setKeywordBubble(keyword.split(","));
+    keywordBubble.push(keyword);
+    setKeywordBubble(keywordBubble);
 
-    params.set("keyword", keyword);
+    params.set("keyword", keywordBubble.join(","));
     const updatedQuery = `?${params.toString()}`;
     window.history.pushState({}, "", updatedQuery);
 
@@ -287,6 +294,57 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
       value: keyword,
     });
   };
+
+  const handleRemoveKeyword = (item: string) => {
+    if (!user) {
+      setOpenModal(true);
+      return;
+    }
+
+    const query = window.location.search;
+    const params = new URLSearchParams(query);
+    const updated = keywordBubble.filter((key) => key !== item);
+    setKeywordBubble(updated);
+
+    params.set("keyword", updated.join(","));
+    const updatedQuery = `?${params.toString()}`;
+    window.history.pushState({}, "", updatedQuery);
+
+    jobData && handleSearchParams(jobData, params, setJobData);
+
+    trackEvent(user, "Filter", {
+      type: "remove keyword",
+      value: item,
+      keywords: updated.join(","),
+    });
+  };
+
+  const handleSearchFields = (
+    e: ChangeEvent<HTMLInputElement>,
+    val: string,
+  ) => {
+    const item = e.target.value;
+    if (!jobData) return;
+
+    val === "company"
+      ? setCompanyList(
+          jobData.companies.filter((company: string) =>
+            company.toLowerCase().includes(item),
+          ),
+        )
+      : setIndustryList(
+          jobData.industries.filter((industry: string) =>
+            industry.toLowerCase().includes(item),
+          ),
+        );
+  };
+
+  useEffect(() => {
+    if (jobData) {
+      setCompanyList(jobData.companies);
+      setIndustryList(jobData.industries);
+    }
+  }, [jobData]);
 
   return (
     <>
@@ -299,114 +357,39 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             <S.Input
               type="text"
               name="keyword"
-              placeholder="Enter multiple keywords"
-              value={keyword}
+              placeholder="Enter multiple keywords..."
               onChange={handleKeyword}
             />
             <button
               onClick={handleKeywordSearch}
               disabled={keyword.length === 0}
+              className="search"
             >
               Search
             </button>
           </S.Section>
-          <S.Disclaimer>
-            Separate keywords with a comma.
-            <br />
-            Ex: service, care, sales
-          </S.Disclaimer>
           {keywordBubble.length > 0 && (
             <S.KeywordBubble>
               {keywordBubble.map((item: string, index: number) => (
-                <div className="bubble" key={index}>
-                  {item}
-                </div>
+                <button
+                  className="bubble"
+                  onClick={() => handleRemoveKeyword(item)}
+                  key={index}
+                >
+                  {item} <span>x</span>
+                </button>
               ))}
             </S.KeywordBubble>
           )}
         </div>
-        {!!companies && companies.length > 0 && (
-          <div>
-            <S.FilterContent>
-              <div>
-                Company <span className="multi">(multi-select)</span>
-              </div>
-            </S.FilterContent>
-            <S.Select
-              name="companySelect"
-              onChange={(e: any) => handleFilter(e, "company")}
-              multiple
-              className="multi"
-              value={companyArr}
-            >
-              {companies.map((item: string, index: number) => (
-                <option value={item} key={index}>
-                  {item}
-                </option>
-              ))}
-            </S.Select>
-            <S.FilterContent className="apply">
-              <button
-                onClick={handleCompanyApply}
-                disabled={companyArr.length === 0}
-              >
-                Apply
-              </button>
-              {companyReset && (
-                <button
-                  className="reset"
-                  onClick={() => handleReset("company")}
-                >
-                  reset
-                </button>
-              )}
-            </S.FilterContent>
-          </div>
-        )}
-        {!!industries && industries.length > 0 && (
-          <div>
-            <S.FilterContent>
-              <div>
-                Industry <span className="multi">(multi-select)</span>
-              </div>
-            </S.FilterContent>
-            <S.Select
-              name="industrySelect"
-              onChange={(e: any) => handleFilter(e, "industry")}
-              multiple
-              className="multi"
-              value={industryArr}
-            >
-              {industries.map((item: string, index: number) => (
-                <option value={item} key={index}>
-                  {item}
-                </option>
-              ))}
-            </S.Select>
-            <S.FilterContent className="apply">
-              <button
-                onClick={handleIndustryApply}
-                disabled={industryArr.length === 0}
-              >
-                Apply
-              </button>
-              {industryReset && (
-                <button
-                  className="reset"
-                  onClick={() => handleReset("industry")}
-                >
-                  reset
-                </button>
-              )}
-            </S.FilterContent>
-          </div>
-        )}
         <div>
-          <S.FilterContent>
+          <S.FilterContent className="posted">
             <div>Posted Date</div>
-            <button className="reset" onClick={() => handleReset("date")}>
-              reset
-            </button>
+            {(postedDate || exactDate) && (
+              <button className="reset" onClick={() => handleReset("date")}>
+                reset
+              </button>
+            )}
           </S.FilterContent>
           {!showExactDate && (
             <S.Select
@@ -429,7 +412,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
               value={dayjs(exactDate).format("MM-DD-YYYY") || ""}
             >
               <option value="">Select Specific Date</option>
-              {scrapDates.map((item: string, index: number) => (
+              {jobData?.scrapDates.map((item: string, index: number) => (
                 <option value={dayjs(item).format("MM-DD-YYYY")} key={index}>
                   {dayjs(item).format("MM-DD-YYYY")}
                 </option>
@@ -437,6 +420,104 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.Select>
           )}
         </div>
+        {!!jobData?.companies && jobData?.companies.length > 0 && (
+          <div>
+            <S.FilterContent>
+              <div>Company</div>
+              <S.Input
+                type="text"
+                placeholder="Search company..."
+                name="companySearch"
+                onChange={(e) => handleSearchFields(e, "company")}
+              />
+            </S.FilterContent>
+            <S.CheckboxWrapper>
+              {companyList.map((item: string, index: number) => (
+                <S.CheckedSection key={index}>
+                  <div>
+                    <input
+                      type="checkbox"
+                      name="companyCheckbox"
+                      checked={companyArr.some((company) => company === item)}
+                      onChange={(e: any) => handleFilter(e, "company")}
+                      value={item}
+                    />
+                    {item}
+                  </div>
+                  <div>
+                    ({getItemTotalCount(item, "company", jobData?.allData)})
+                  </div>
+                </S.CheckedSection>
+              ))}
+            </S.CheckboxWrapper>
+            <S.FilterContent className="apply">
+              <button
+                onClick={handleCompanyApply}
+                disabled={companyArr.length === 0}
+              >
+                Apply
+              </button>
+              {companyReset && (
+                <button
+                  className="reset"
+                  onClick={() => handleReset("company")}
+                >
+                  reset
+                </button>
+              )}
+            </S.FilterContent>
+          </div>
+        )}
+        {!!jobData?.industries && jobData?.industries.length > 0 && (
+          <div>
+            <S.FilterContent>
+              <div>Industry</div>
+              <S.Input
+                type="text"
+                placeholder="Search industry..."
+                name="industrySearch"
+                onChange={(e) => handleSearchFields(e, "industry")}
+              />
+            </S.FilterContent>
+            <S.CheckboxWrapper>
+              {industryList.map((item: string, index: number) => (
+                <S.CheckedSection key={index}>
+                  <div>
+                    <input
+                      type="checkbox"
+                      name="industryCheckbox"
+                      checked={industryArr.some(
+                        (industry) => industry === item,
+                      )}
+                      onChange={(e: any) => handleFilter(e, "industry")}
+                      value={item}
+                    />
+                    {item}
+                  </div>
+                  <div>
+                    ({getItemTotalCount(item, "industry", jobData?.allData)})
+                  </div>
+                </S.CheckedSection>
+              ))}
+            </S.CheckboxWrapper>
+            <S.FilterContent className="apply">
+              <button
+                onClick={handleIndustryApply}
+                disabled={industryArr.length === 0}
+              >
+                Apply
+              </button>
+              {industryReset && (
+                <button
+                  className="reset"
+                  onClick={() => handleReset("industry")}
+                >
+                  reset
+                </button>
+              )}
+            </S.FilterContent>
+          </div>
+        )}
         <button
           className="resetAll"
           onClick={() => handleReset("all")}

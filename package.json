@@ -13,6 +13,7 @@
     "@mui/material": "^9.0.1",
     "dayjs": "^1.11.20",
     "firebase": "^12.14.0",
+    "he": "^1.2.0",
     "jotai": "^2.20.0",
     "mailto-link": "^2.0.0",
     "mixpanel-browser": "^2.79.0",
@@ -26,6 +27,7 @@
     "styled-components": "^6.4.1"
   },
   "devDependencies": {
+    "@types/he": "^1.2.3",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.0",
     "@types/papaparse": "^5.5.2",

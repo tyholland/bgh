@@ -5,7 +5,11 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import { ElementSize } from "@/types";
-import { defaultModalStyle, MediumModalStyle } from "@/constants";
+import {
+  defaultModalStyle,
+  LargeModalStyle,
+  MediumModalStyle,
+} from "@/constants";
 
 interface ModalComponentProps {
   title: string;
@@ -25,7 +29,9 @@ const ModalComponent = ({
       ? defaultModalStyle
       : size === "medium"
         ? MediumModalStyle
-        : {};
+        : size === "large"
+          ? LargeModalStyle
+          : {};
 
   return (
     <Modal open={isOpen} aria-labelledby="modal-modal-title">

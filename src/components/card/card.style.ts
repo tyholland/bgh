@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const Wrapper = styled.div`
+export const Wrapper = styled.button`
   display: flex;
   padding: 2%;
   border: 1px solid #000;
@@ -13,29 +13,16 @@ export const Wrapper = styled.div`
   gap: 25px;
   flex-direction: column;
   min-height: 250px;
+  color: #000;
+  justify-content: space-between;
 
   &:hover {
     background: #6ad5b5;
+    cursor: zoom-in;
   }
 
   @media only screen and (max-width: 950px) {
     width: 100%;
-  }
-
-  button {
-    width: 50%;
-    padding: 10px;
-    border-radius: 20px;
-    border: none;
-    background: #1439e6;
-
-    @media only screen and (max-width: 950px) {
-      width: 90%;
-    }
-
-    &:hover {
-      cursor: pointer;
-    }
   }
 
   .grid {
@@ -47,16 +34,18 @@ export const Wrapper = styled.div`
   .company,
   .industry {
     font-size: 14px;
-    background: #514c4c;
+    background: #6faeff;
     border-radius: 10px;
     padding: 6px 10px;
     width: fit-content;
     color: #fff;
+    font-weight: 700;
   }
 
   .industry {
-    background: #6fd8b8;
+    background: #e7ecfb;
     color: #000;
+    font-weight: 400;
   }
 
   .position {
@@ -68,6 +57,13 @@ export const Wrapper = styled.div`
     font-size: 12px;
     width: 100%;
     text-align: right;
+  }
+
+  .topLayer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
   }
 `;
 

@@ -2,8 +2,18 @@ import styled from "styled-components";
 
 export const Wrapper = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 15px;
   justify-content: center;
+  background: #020e3f;
+  color: #fff;
+  flex-direction: column;
+  padding: 3%;
+  border-radius: 10px;
+
+  .header {
+    font-weight: 700;
+    font-size: 30px;
+  }
 
   button {
     border: none;
@@ -12,6 +22,7 @@ export const Wrapper = styled.div`
     border-radius: 10px;
     background: #1439e6;
     color: #fff;
+    width: 140px;
 
     &.reset {
       text-decoration: underline;
@@ -22,7 +33,6 @@ export const Wrapper = styled.div`
 
     &:hover {
       cursor: pointer;
-      color: #fff;
     }
 
     &:disabled {
@@ -39,5 +49,14 @@ export const Input = styled.input`
   border: 1px solid #000;
   border-radius: 10px;
   padding: 12px 10px;
-  width: 400px;
+  width: 100%;
+`;
+
+export const Section = styled.div`
+  background: #fff;
+  display: flex;
+  gap: 8px;
+  padding: 1%;
+  border-radius: 10px;
+  justify-content: space-between;
 `;

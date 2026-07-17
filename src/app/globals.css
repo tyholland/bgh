@@ -73,34 +73,44 @@ main {
 footer {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-direction: column;
+  justify-content: space-between;
   gap: 10px;
-  background: #fff;
+  background: #020e3f;
   padding: 0 20px;
   height: 120px;
   position: absolute;
   bottom: 0;
   width: 100%;
   max-width: 1340px;
+  color: #fff;
+  gap: 10px;
 
   @media only screen and (max-width: 950px) {
-    height: 140px;
+    height: fit-content;
+    flex-direction: column;
+    padding: 0 0 20px 0;
+    bottom: -250px;
   }
 
   .linkWrapper {
     display: flex;
-    gap: 10px;
+    gap: 20px;
     padding: 20px 0;
+    flex-wrap: wrap;
+    justify-content: center;
 
     @media only screen and (max-width: 950px) {
       text-align: center;
+      flex-direction: column;
     }
   }
 
   .copy {
     display: flex;
+    gap: 10px;
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 }
 
@@ -143,7 +153,7 @@ header {
     }
   }
 
-  .linksWrapper {
+  .linksWrapper a {
     display: flex;
     align-items: center;
     gap: 10px;

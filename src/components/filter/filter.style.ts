@@ -8,7 +8,6 @@ export const Wrapper = styled.div`
   border-radius: 10px;
   padding: 15px;
   box-shadow: 5px 5px 5px #ddd;
-  height: 100%;
   background: #fff;
 
   @media only screen and (max-width: 950px) {
@@ -68,13 +67,20 @@ export const Input = styled.input`
   border: 1px solid #000;
   border-radius: 10px;
   padding: 5px 10px;
+  width: 100%;
 `;
 
 export const FilterContent = styled.div`
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 5px;
+  flex-direction: column;
+
+  &.posted {
+    flex-direction: row;
+    align-items: center;
+  }
 
   &.apply {
     margin-top: 5px;
@@ -101,7 +107,6 @@ export const FilterContent = styled.div`
 
     &:hover {
       cursor: pointer;
-      color: #fff;
     }
 
     &:disabled {
@@ -127,9 +132,19 @@ export const KeywordBubble = styled.div`
   .bubble {
     background: #6faeff;
     border-radius: 10px;
-    padding: 2px 6px;
+    padding: 4px 8px;
     color: #fff;
     width: fit-content;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+
+    span {
+      font-weight: 700;
+    }
   }
 `;
 
@@ -153,6 +168,10 @@ export const Section = styled.div`
       cursor: no-drop;
       background: #ddd;
       color: #999;
+    }
+
+    &.search {
+      width: 100px;
     }
   }
 `;
@@ -180,4 +199,32 @@ export const ModalBtn = styled.div`
     flex-direction: column;
     font-size: 24px;
   }
+`;
+
+export const CheckedSection = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+
+  input[type="checkbox"] {
+    margin-right: 5px;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #000;
+    border-radius: 3px;
+
+    &:checked {
+      accent-color: #6faeff;
+      appearance: auto;
+    }
+  }
+`;
+
+export const CheckboxWrapper = styled.div`
+  height: 200px;
+  overflow-y: scroll;
+  box-shadow: 0px 2px 15px #ddd;
+  padding: 5px;
 `;
