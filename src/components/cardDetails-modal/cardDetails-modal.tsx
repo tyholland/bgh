@@ -21,35 +21,51 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
   return (
     <ModalComponent isOpen={openModal} title={`Job Details`} size="large">
       <S.ModalWrapper>
-        <div>Company: {data?.Company}</div>
-        <div>Industry: {data?.["Primary Industry"]}</div>
-        <div>Role: {data?.["Role Name"]}</div>
+        <div>
+          <span className="title">Company:</span> {data?.Company}
+        </div>
+        <div>
+          <span className="title">Industry:</span> {data?.["Primary Industry"]}
+        </div>
+        <div>
+          <span className="title">Role:</span> {data?.["Role Name"]}
+        </div>
+        <div>
+          <span className="title">Additional Job Details:</span> Cominng Soon...
+        </div>
         {data?.Details?.datePosted && (
           <div>
-            Date Posted by Company:{" "}
+            <span className="title">Date Posted by Company:</span>{" "}
             {dayjs(data?.Details?.datePosted).format("MM-DD-YYYY")}
           </div>
         )}
         {data?.Details?.validThrough && (
           <div>
-            Valid Through:{" "}
+            <span className="title">Valid Through:</span>{" "}
             {dayjs(data?.Details?.validThrough).format("MM-DD-YYYY")}
           </div>
         )}
         {data?.Details?.employmentType && (
-          <div>Employment Type: {data?.Details?.employmentType}</div>
+          <div>
+            <span className="title">Employment Type:</span>{" "}
+            {data?.Details?.employmentType}
+          </div>
         )}
         {data?.Details?.jobLocation.address?.addressLocality && (
           <div>
-            Location: {data?.Details?.jobLocation.address.addressLocality}
+            <span className="title">Location:</span>{" "}
+            {data?.Details?.jobLocation.address.addressLocality}
           </div>
         )}
         {data?.Details?.jobBenefits && (
-          <div>Job Benefits: {data?.Details?.jobBenefits}</div>
+          <div>
+            <span className="title">Job Benefits:</span>{" "}
+            {data?.Details?.jobBenefits}
+          </div>
         )}
         {data?.Details?.description && (
           <div>
-            Job Description:{" "}
+            <span className="title">Job Description:</span>{" "}
             <div
               dangerouslySetInnerHTML={{
                 __html: he.decode(data?.Details?.description),

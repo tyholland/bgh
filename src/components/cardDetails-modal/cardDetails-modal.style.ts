@@ -4,6 +4,10 @@ export const ModalWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  .title {
+    font-weight: 700;
+  }
 `;
 
 export const ModalBtn = styled.div`
