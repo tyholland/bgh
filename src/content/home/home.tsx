@@ -130,7 +130,7 @@ const Home = ({ csvData }: HomeProps) => {
                   onChange={handledSort}
                   value={sortWord}
                 >
-                  <option value="">Sort Jobs</option>
+                  <option value="">Sort Roles</option>
                   <option value="a">A-Z</option>
                   <option value="z">Z-A</option>
                 </S.Select>
