@@ -14,6 +14,7 @@ import Link from "next/link";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./sign-in.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
+import ResetPwd from "@/components/reset-pwd-modal/reset-pwd-modal";
 
 const SignIn = () => {
   initFirebase();
@@ -23,6 +24,7 @@ const SignIn = () => {
   const [userPassword, setUserPassword] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isDisabled, setIsDisabled] = useState<boolean>(true);
+  const [openModal, setOpenModal] = useState<boolean>(false);
 
   const handleSignIn = async () => {
     const email = userEmail;
@@ -133,10 +135,12 @@ const SignIn = () => {
         <S.Button onClick={handleSignIn} disabled={isDisabled}>
           Sign In
         </S.Button>
+        <S.Button onClick={() => setOpenModal(true)}>Forgot Password</S.Button>
         <S.SignUp>
           Don't have an account. <Link href="/sign-up">Sign Up</Link>
         </S.SignUp>
       </S.Wrapper>
+      <ResetPwd openModal={openModal} setOpenModal={setOpenModal} />
     </>
   );
 };
