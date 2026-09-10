@@ -1,253 +1,188 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useMemo, useState } from "react";
 import * as S from "./filter.style";
-import { getItemTotalCount, handleSearchParams } from "@/functions/search";
-import { jobAtom } from "@/caches/JobsAtom";
-import { useAtom, useAtomValue } from "jotai";
+import { useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/functions/mixpanel";
 import SignInModal from "../signIn-modal/signIn-modal";
+import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
+import { Facet } from "@/types";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 
-const Filter = () => {
-  dayjs.extend(customParseFormat);
-  const query = window.location.search;
-  const defaultParams = new URLSearchParams(query);
-  const defaultCompany = defaultParams?.get("company");
-  const defaultIndustry = defaultParams?.get("indursty");
-  const defaultKeyword = defaultParams?.get("keyword");
-  const defaultDate = defaultParams?.get("date");
-  const defaultExactDate = defaultParams?.get("exact");
+dayjs.extend(customParseFormat);
+
+interface FilterProps {
+  companies: Facet[];
+  industries: Facet[];
+  scrapDates: string[];
+}
+
+const splitParam = (value: string | null) =>
+  value ? value.split(",").filter(Boolean) : [];
+
+const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
-  const [jobData, setJobData] = useAtom(jobAtom);
-  const [companyList, setCompanyList] = useState<string[]>(
-    jobData?.companies || [],
-  );
-  const [industryList, setIndustryList] = useState<string[]>(
-    jobData?.industries || [],
-  );
-  const [showExactDate, setShowExactDate] = useState<boolean>(
-    (defaultExactDate && defaultExactDate.length > 0) || false,
-  );
-  const [keyword, setKeyword] = useState<string>(defaultKeyword || "");
-  const [keywordBubble, setKeywordBubble] = useState<string[]>(
-    defaultKeyword && defaultKeyword.length > 0
-      ? defaultKeyword.split(",")
-      : [],
-  );
-  const [companyArr, setCompanyArr] = useState<string[]>(
-    defaultCompany && defaultCompany.length > 0
-      ? defaultCompany.split(",")
-      : [],
-  );
-  const [industryArr, setIndustryArr] = useState<string[]>(
-    defaultIndustry && defaultIndustry.length > 0
-      ? defaultIndustry.split(",")
-      : [],
-  );
-  const [postedDate, setPostedDate] = useState<string>(
-    defaultDate && defaultDate.length > 0 ? defaultDate : "",
-  );
-  const [exactDate, setExactDate] = useState<string>(
-    defaultExactDate && defaultExactDate.length > 0 ? defaultExactDate : "",
-  );
+
+  const selectedCompanies = splitParam(searchParams.get("company"));
+  const selectedIndustries = splitParam(searchParams.get("industry"));
+  const keywordBubble = splitParam(searchParams.get("keyword"));
+  const postedDate = searchParams.get("date") || "";
+  const exactDate = searchParams.get("exact") || "";
+
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [companyReset, setCompanyReset] = useState<boolean>(
-    companyArr.length > 0 || false,
+  const [keyword, setKeyword] = useState<string>("");
+  const [companyQuery, setCompanyQuery] = useState<string>("");
+  const [industryQuery, setIndustryQuery] = useState<string>("");
+  const [companyArr, setCompanyArr] = useState<string[]>(selectedCompanies);
+  const [industryArr, setIndustryArr] = useState<string[]>(selectedIndustries);
+  const [showExactDate, setShowExactDate] = useState<boolean>(
+    exactDate.length > 0,
   );
-  const [industryReset, setIndustryReset] = useState<boolean>(
-    industryArr.length > 0 || false,
-  );
-  const disabledAll =
-    keywordBubble.length === 0 &&
-    !companyReset &&
-    !industryReset &&
-    postedDate.length === 0 &&
-    exactDate.length === 0;
 
-  const handleFilter = (e: ChangeEvent<HTMLInputElement>, type: string) => {
-    if (e.target.checked) {
-      type === "company"
-        ? setCompanyArr((prev) => [...prev, e.target.value])
-        : setIndustryArr((prev) => [...prev, e.target.value]);
-    } else {
-      type === "company"
-        ? setCompanyArr((prev) =>
-            prev.filter((fruit) => fruit !== e.target.value),
-          )
-        : setIndustryArr((prev) =>
-            prev.filter((fruit) => fruit !== e.target.value),
-          );
-    }
+  // Re-seed the checkbox drafts from the URL whenever the committed selection
+  // changes underneath us (Apply, reset elsewhere, browser back) — the React
+  // "adjust state during render" pattern, no effect needed.
+  const committedKey = `${searchParams.get("company") ?? ""}|${
+    searchParams.get("industry") ?? ""
+  }|${exactDate}`;
+  const [syncedKey, setSyncedKey] = useState<string>(committedKey);
+
+  if (syncedKey !== committedKey) {
+    setSyncedKey(committedKey);
+    setCompanyArr(selectedCompanies);
+    setIndustryArr(selectedIndustries);
+    setShowExactDate(exactDate.length > 0);
+  }
+
+  const companyList = useMemo(
+    () =>
+      companies.filter((item) =>
+        item.value.toLowerCase().includes(companyQuery.toLowerCase()),
+      ),
+    [companies, companyQuery],
+  );
+
+  const industryList = useMemo(
+    () =>
+      industries.filter((item) =>
+        item.value.toLowerCase().includes(industryQuery.toLowerCase()),
+      ),
+    [industries, industryQuery],
+  );
+
+  const hasActiveFilters =
+    keywordBubble.length > 0 ||
+    selectedCompanies.length > 0 ||
+    selectedIndustries.length > 0 ||
+    postedDate.length > 0 ||
+    exactDate.length > 0;
+
+  const requireUser = () => {
+    if (user) return true;
+    setOpenModal(true);
+    return false;
   };
 
-  const handleCompanyApply = () => {
-    if (!user) {
-      setOpenModal(true);
-      return;
-    }
-
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-    setCompanyReset(companyArr.length > 0);
-
-    params.set("company", companyArr.toString());
+  const pushParams = (mutate: (params: URLSearchParams) => void) => {
+    const params = new URLSearchParams(searchParams.toString());
+    mutate(params);
     params.set("page", "1");
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
-    jobData && handleSearchParams(jobData, params, setJobData);
-
-    trackEvent(user, "Filter", {
-      type: "company",
-      value: companyArr.join(","),
-    });
+    router.push(`/?${params.toString()}`, { scroll: false });
   };
 
-  const handleIndustryApply = () => {
-    if (!user) {
-      setOpenModal(true);
-      return;
-    }
+  const toggleCheckbox = (
+    e: ChangeEvent<HTMLInputElement>,
+    type: "company" | "industry",
+  ) => {
+    const { value, checked } = e.target;
+    const setter = type === "company" ? setCompanyArr : setIndustryArr;
 
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-    setIndustryReset(industryArr.length > 0);
+    setter((prev) =>
+      checked ? [...prev, value] : prev.filter((entry) => entry !== value),
+    );
+  };
 
-    params.set("industry", industryArr.toString());
-    params.set("page", "1");
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
+  const applyCheckboxes = (type: "company" | "industry") => {
+    if (!requireUser()) return;
 
-    jobData && handleSearchParams(jobData, params, setJobData);
+    const values = type === "company" ? companyArr : industryArr;
+    pushParams((params) => params.set(type, values.join(",")));
 
-    trackEvent(user, "Filter", {
-      type: "industry",
-      value: industryArr,
-    });
+    trackEvent(user, "Filter", { type, value: values.join(",") });
   };
 
   const handleDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (!user) {
-      setOpenModal(true);
-      return;
-    }
+    if (!requireUser()) return;
 
-    const filterChoice = e.target.value;
+    const choice = e.target.value;
 
-    if (filterChoice === "open") {
+    if (choice === "open") {
       setShowExactDate(true);
       return;
     }
 
-    const searchDate = dayjs().subtract(Number(filterChoice), "day");
-    setPostedDate(searchDate.format("YYYYMMDD"));
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
+    if (!choice) {
+      pushParams((params) => {
+        params.delete("date");
+        params.delete("exact");
+      });
+      return;
+    }
 
-    params.set("date", searchDate.format("MM-DD-YYYY"));
-    params.set("exact", "");
-    params.set("page", "1");
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
-    jobData && handleSearchParams(jobData, params, setJobData);
+    const start = dayjs().subtract(Number(choice), "day");
+    pushParams((params) => {
+      params.set("date", start.format("YYYY-MM-DD"));
+      params.delete("exact");
+    });
 
     trackEvent(user, "Filter", {
       type: "date",
-      value: searchDate.format("MM-DD-YYYY"),
-      amountOfDays: filterChoice,
+      value: start.format("YYYY-MM-DD"),
+      amountOfDays: choice,
     });
   };
 
   const handleExactDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (!user) {
-      setOpenModal(true);
-      return;
-    }
+    if (!requireUser()) return;
 
-    const filterChoice = e.target.value;
-    setExactDate(filterChoice);
-    setPostedDate("");
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-
-    params.set("exact", filterChoice);
-    params.set("date", "");
-    params.set("page", "1");
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
-    jobData && handleSearchParams(jobData, params, setJobData);
-
-    trackEvent(user, "Filter", {
-      type: "exact date",
-      value: filterChoice,
+    const choice = e.target.value;
+    pushParams((params) => {
+      params.delete("date");
+      if (choice) {
+        params.set("exact", choice);
+      } else {
+        params.delete("exact");
+      }
     });
+
+    trackEvent(user, "Filter", { type: "exact date", value: choice });
   };
 
   const handleReset = (filter: string) => {
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-
-    if (filter === "all") {
-      // Company
-      params.set("company", "");
-      setCompanyReset(false);
-      setCompanyArr([]);
-
-      // Dates
-      params.set("date", "");
-      setPostedDate("");
-      params.set("exact", "");
-      setExactDate("");
-      setShowExactDate(false);
-
-      // Industry
-      params.set("industry", "");
-      setIndustryReset(false);
-      setIndustryArr([]);
-
-      // Keyword
-      params.set("keyword", "");
-      setKeyword("");
-      setKeywordBubble([]);
-
-      // Pagination
-      params.set("page", "");
-    } else {
-      params.set(filter, "");
-      params.set("page", "");
-
-      if (filter === "company") {
-        setCompanyReset(false);
+    pushParams((params) => {
+      if (filter === "all") {
+        ["company", "industry", "keyword", "date", "exact"].forEach((key) =>
+          params.delete(key),
+        );
         setCompanyArr([]);
-      }
-
-      if (filter === "industry") {
-        setIndustryReset(false);
         setIndustryArr([]);
-      }
-
-      if (filter === "keyword") {
-        setKeyword("");
-        setKeywordBubble([]);
-      }
-
-      if (filter === "date") {
-        params.set("exact", "");
-        setPostedDate("");
-        setExactDate("");
         setShowExactDate(false);
+        setKeyword("");
+      } else {
+        params.delete(filter);
+        if (filter === "company") setCompanyArr([]);
+        if (filter === "industry") setIndustryArr([]);
+        if (filter === "keyword") setKeyword("");
+        if (filter === "date") {
+          params.delete("exact");
+          setShowExactDate(false);
+        }
       }
-    }
-
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
-    jobData && handleSearchParams(jobData, params, setJobData);
+    });
 
     trackEvent(user, "Filter", {
       type: "reset",
@@ -255,96 +190,32 @@ const Filter = () => {
     });
   };
 
-  const handleKeyword = (e: ChangeEvent<HTMLInputElement>) => {
-    const choosen = e.target.value;
-    setKeyword(choosen);
-
-    if (choosen === "") {
-      const query = window.location.search;
-      const params = new URLSearchParams(query);
-      params.set("keyword", "");
-      setKeywordBubble([]);
-
-      const updatedQuery = `?${params.toString()}`;
-      window.history.pushState({}, "", updatedQuery);
-
-      jobData && handleSearchParams(jobData, params, setJobData);
-    }
-  };
-
   const handleKeywordSearch = () => {
-    if (!user) {
-      setOpenModal(true);
-      return;
-    }
+    if (!requireUser()) return;
 
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-    keywordBubble.push(keyword);
-    setKeywordBubble(keywordBubble);
+    const entry = keyword.trim();
+    if (!entry || keywordBubble.includes(entry)) return;
 
-    params.set("keyword", keywordBubble.join(","));
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
+    pushParams((params) =>
+      params.set("keyword", [...keywordBubble, entry].join(",")),
+    );
+    setKeyword("");
 
-    jobData && handleSearchParams(jobData, params, setJobData);
-
-    trackEvent(user, "Filter", {
-      type: "keyword",
-      value: keyword,
-    });
+    trackEvent(user, "Filter", { type: "keyword", value: entry });
   };
 
-  const handleRemoveKeyword = (item: string) => {
-    if (!user) {
-      setOpenModal(true);
-      return;
-    }
+  const handleRemoveKeyword = (entry: string) => {
+    if (!requireUser()) return;
 
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-    const updated = keywordBubble.filter((key) => key !== item);
-    setKeywordBubble(updated);
-
-    params.set("keyword", updated.join(","));
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
-    jobData && handleSearchParams(jobData, params, setJobData);
+    const updated = keywordBubble.filter((item) => item !== entry);
+    pushParams((params) => params.set("keyword", updated.join(",")));
 
     trackEvent(user, "Filter", {
       type: "remove keyword",
-      value: item,
+      value: entry,
       keywords: updated.join(","),
     });
   };
-
-  const handleSearchFields = (
-    e: ChangeEvent<HTMLInputElement>,
-    val: string,
-  ) => {
-    const item = e.target.value;
-    if (!jobData) return;
-
-    val === "company"
-      ? setCompanyList(
-          jobData.companies.filter((company: string) =>
-            company.toLowerCase().includes(item),
-          ),
-        )
-      : setIndustryList(
-          jobData.industries.filter((industry: string) =>
-            industry.toLowerCase().includes(item),
-          ),
-        );
-  };
-
-  useEffect(() => {
-    if (jobData) {
-      setCompanyList(jobData.companies);
-      setIndustryList(jobData.industries);
-    }
-  }, [jobData]);
 
   return (
     <>
@@ -357,12 +228,14 @@ const Filter = () => {
             <S.Input
               type="text"
               name="keyword"
+              value={keyword}
               placeholder="Enter multiple keywords..."
-              onChange={handleKeyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleKeywordSearch()}
             />
             <button
               onClick={handleKeywordSearch}
-              disabled={keyword.length === 0}
+              disabled={keyword.trim().length === 0}
               className="search"
             >
               Search
@@ -370,11 +243,11 @@ const Filter = () => {
           </S.Section>
           {keywordBubble.length > 0 && (
             <S.KeywordBubble>
-              {keywordBubble.map((item: string, index: number) => (
+              {keywordBubble.map((item: string) => (
                 <button
                   className="bubble"
                   onClick={() => handleRemoveKeyword(item)}
-                  key={index}
+                  key={item}
                 >
                   {item} <span>x</span>
                 </button>
@@ -395,7 +268,9 @@ const Filter = () => {
             <S.Select
               name="dateSelect"
               onChange={handleDateFilter}
-              value={postedDate ? dayjs().diff(postedDate, "day") : ""}
+              value={
+                postedDate ? `${dayjs().diff(dayjs(postedDate), "day")}` : ""
+              }
             >
               <option value="">Select Posted Date</option>
               <option value="1">24 Hours</option>
@@ -407,20 +282,20 @@ const Filter = () => {
           )}
           {showExactDate && (
             <S.Select
-              name="dateSelect"
+              name="exactDateSelect"
               onChange={handleExactDateFilter}
-              value={dayjs(exactDate).format("MM-DD-YYYY") || ""}
+              value={exactDate}
             >
               <option value="">Select Specific Date</option>
-              {jobData?.scrapDates.map((item: string, index: number) => (
-                <option value={dayjs(item).format("MM-DD-YYYY")} key={index}>
+              {scrapDates.map((item: string) => (
+                <option value={item} key={item}>
                   {dayjs(item).format("MM-DD-YYYY")}
                 </option>
               ))}
             </S.Select>
           )}
         </div>
-        {!!jobData?.companies && jobData?.companies.length > 0 && (
+        {companies.length > 0 && (
           <div>
             <S.FilterContent>
               <div>Company</div>
@@ -428,36 +303,35 @@ const Filter = () => {
                 type="text"
                 placeholder="Search company..."
                 name="companySearch"
-                onChange={(e) => handleSearchFields(e, "company")}
+                value={companyQuery}
+                onChange={(e) => setCompanyQuery(e.target.value)}
               />
             </S.FilterContent>
             <S.CheckboxWrapper>
-              {companyList.map((item: string, index: number) => (
-                <S.CheckedSection key={index}>
+              {companyList.map((item: Facet) => (
+                <S.CheckedSection key={item.value}>
                   <div>
                     <input
                       type="checkbox"
                       name="companyCheckbox"
-                      checked={companyArr.some((company) => company === item)}
-                      onChange={(e: any) => handleFilter(e, "company")}
-                      value={item}
+                      checked={companyArr.includes(item.value)}
+                      onChange={(e) => toggleCheckbox(e, "company")}
+                      value={item.value}
                     />
-                    {item}
+                    {item.value}
                   </div>
-                  <div>
-                    ({getItemTotalCount(item, "company", jobData?.allData)})
-                  </div>
+                  <div>({item.count})</div>
                 </S.CheckedSection>
               ))}
             </S.CheckboxWrapper>
             <S.FilterContent className="apply">
               <button
-                onClick={handleCompanyApply}
+                onClick={() => applyCheckboxes("company")}
                 disabled={companyArr.length === 0}
               >
                 Apply
               </button>
-              {companyReset && (
+              {selectedCompanies.length > 0 && (
                 <button
                   className="reset"
                   onClick={() => handleReset("company")}
@@ -468,7 +342,7 @@ const Filter = () => {
             </S.FilterContent>
           </div>
         )}
-        {!!jobData?.industries && jobData?.industries.length > 0 && (
+        {industries.length > 0 && (
           <div>
             <S.FilterContent>
               <div>Industry</div>
@@ -476,38 +350,35 @@ const Filter = () => {
                 type="text"
                 placeholder="Search industry..."
                 name="industrySearch"
-                onChange={(e) => handleSearchFields(e, "industry")}
+                value={industryQuery}
+                onChange={(e) => setIndustryQuery(e.target.value)}
               />
             </S.FilterContent>
             <S.CheckboxWrapper>
-              {industryList.map((item: string, index: number) => (
-                <S.CheckedSection key={index}>
+              {industryList.map((item: Facet) => (
+                <S.CheckedSection key={item.value}>
                   <div>
                     <input
                       type="checkbox"
                       name="industryCheckbox"
-                      checked={industryArr.some(
-                        (industry) => industry === item,
-                      )}
-                      onChange={(e: any) => handleFilter(e, "industry")}
-                      value={item}
+                      checked={industryArr.includes(item.value)}
+                      onChange={(e) => toggleCheckbox(e, "industry")}
+                      value={item.value}
                     />
-                    {item}
+                    {item.value}
                   </div>
-                  <div>
-                    ({getItemTotalCount(item, "industry", jobData?.allData)})
-                  </div>
+                  <div>({item.count})</div>
                 </S.CheckedSection>
               ))}
             </S.CheckboxWrapper>
             <S.FilterContent className="apply">
               <button
-                onClick={handleIndustryApply}
+                onClick={() => applyCheckboxes("industry")}
                 disabled={industryArr.length === 0}
               >
                 Apply
               </button>
-              {industryReset && (
+              {selectedIndustries.length > 0 && (
                 <button
                   className="reset"
                   onClick={() => handleReset("industry")}
@@ -521,7 +392,7 @@ const Filter = () => {
         <button
           className="resetAll"
           onClick={() => handleReset("all")}
-          disabled={disabledAll}
+          disabled={!hasActiveFilters}
         >
           Reset All Filters
         </button>

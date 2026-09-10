@@ -3,12 +3,11 @@
 import * as S from "./signOut-modal.style";
 import ModalComponent from "../modal/modal";
 import { useRouter } from "next/navigation";
-import { getAuth, signOut } from "firebase/auth";
+import { signOut } from "firebase/auth";
 import { trackError, trackEvent } from "@/functions/mixpanel";
-import { initFirebase } from "@/functions/firebase";
-import { useAtom, useAtomValue } from "jotai";
+import { getFirebaseAuth } from "@/functions/firebase";
+import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
-import { jobAtom } from "@/caches/JobsAtom";
 
 interface SignOutModalProps {
   openModal: boolean;
@@ -16,32 +15,25 @@ interface SignOutModalProps {
 }
 
 const SignOutModal = ({ openModal, setOpenModal }: SignOutModalProps) => {
-  initFirebase();
   const navigate = useRouter();
-  const auth = getAuth();
-  const [user, setUser] = useAtom(userAtom);
-  const jobData = useAtomValue(jobAtom);
+  const user = useAtomValue(userAtom);
 
   const handleSignOut = async () => {
+    const auth = getFirebaseAuth();
+    const email = auth.currentUser?.email;
+
     try {
+      // The auth listener in <AuthProvider /> clears the cached session + atom.
       await signOut(auth);
 
       setOpenModal(false);
-      window.localStorage.removeItem("bgh.user");
-      setUser(null);
-      trackEvent(user, "Sign Out", {
-        type: "button",
-        email: auth.currentUser?.email,
-      });
-      navigate.push(!!jobData ? "/home" : "/");
-    } catch (error: any) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-
+      trackEvent(user, "Sign Out", { type: "button", email });
+      navigate.push("/");
+    } catch (error) {
       trackError(user, "Sign Out", {
-        code: errorCode,
-        message: errorMessage,
-        email: auth.currentUser?.email,
+        code: (error as { code?: string }).code ?? "unknown",
+        message: (error as { message?: string }).message ?? "",
+        email,
       });
     }
   };

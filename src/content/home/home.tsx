@@ -4,100 +4,63 @@ import Card from "@/components/card/card";
 import * as S from "./home.style";
 import Pagination from "@/components/pagination/pagination";
 import Search from "@/components/search/search";
-import Filter from "@/components/filter/filter";
 import { AllSearchData } from "@/types";
-import { useAtom } from "jotai";
-import { jobAtom } from "@/caches/JobsAtom";
+import { useAtomValue } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import List from "@/components/list/list";
 import { userAtom } from "@/caches/UserAtom";
-import { getUserCreds } from "@/functions/userState";
-import Loader from "@/components/loader/loader";
 import dayjs from "dayjs";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
-import { handleSearchParams } from "@/functions/search";
 import SignInModal from "@/components/signIn-modal/signIn-modal";
 import FilterModal from "@/components/filter-modal/filter-modal";
 
 interface HomeProps {
-  csvData?: AllSearchData;
+  csvData: AllSearchData;
 }
 
+const sortMap = (value: string) => {
+  switch (value) {
+    case "a":
+      return "A-Z";
+    case "z":
+      return "Z-A";
+    case "least":
+      return "Least Recent";
+    case "most":
+    default:
+      return "Most Recent";
+  }
+};
+
 const Home = ({ csvData }: HomeProps) => {
-  const query = typeof window !== "undefined" && window.location.search;
-  const params = query ? new URLSearchParams(query) : null;
-  const [user, setUser] = useAtom(userAtom);
-  const [jobData, setJobData] = useAtom(jobAtom);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const user = useAtomValue(userAtom);
   const [isListView, setIsListView] = useState<boolean>(false);
-  const [sortWord, setSortWord] = useState<string>(
-    params?.get("sort") || "most",
-  );
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openFilterModal, setOpenFilterModal] = useState<boolean>(false);
 
-  const getAllJobInfo = () => {
-    csvData && setJobData(csvData);
-  };
-
-  useEffect(() => {
-    !jobData && getAllJobInfo();
-  }, [jobData]);
-
-  useEffect(() => {
-    getUserCreds(user, setUser);
-  }, []);
-
-  if (
-    !jobData &&
-    typeof window !== "undefined" &&
-    window.location.pathname === "/home"
-  ) {
-    window.location.href = "/";
-  }
+  const currentSort = searchParams.get("sort") || "most";
 
   useEffect(() => {
     trackPage(user, "Home", window.location.href);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!jobData) {
-    return <Loader />;
-  }
-
-  const sortMap = (val: string) => {
-    switch (val) {
-      case "a":
-        return "A-Z";
-      case "z":
-        return "Z-A";
-      case "most":
-        return "Most Recent";
-      case "least":
-        return "Least Recent";
-      default:
-        return "Most Recent";
-    }
-  };
-
-  const handledSort = (e: ChangeEvent<HTMLSelectElement>) => {
+  const handleSort = (e: ChangeEvent<HTMLSelectElement>) => {
     if (!user) {
       setOpenModal(true);
       return;
     }
 
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-    setSortWord(e.target.value);
+    const value = e.target.value;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("sort", value);
+    params.set("page", "1");
+    router.push(`/?${params.toString()}`, { scroll: false });
 
-    params.set("sort", e.target.value);
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
-    jobData && handleSearchParams(jobData, params, setJobData);
-
-    trackEvent(user, "Sort", {
-      type: "select",
-      value: sortMap(sortWord),
-    });
+    trackEvent(user, "Sort", { type: "select", value: sortMap(value) });
   };
 
   return (
@@ -109,13 +72,13 @@ const Home = ({ csvData }: HomeProps) => {
             <S.Section className="wrapper">
               <div className="jobs">
                 <div>
-                  <strong>{jobData.total}</strong> jobs found
+                  <strong>{csvData.total}</strong> jobs found
                 </div>
                 <div>
                   <strong>Opportunity Refresh:</strong>{" "}
-                  {dayjs(jobData?.allData[0].Scrape_DateTime).format(
-                    "MM-DD-YYYY hh:mmA",
-                  )}
+                  {csvData.refreshedAt
+                    ? dayjs(csvData.refreshedAt).format("MM-DD-YYYY hh:mmA")
+                    : "—"}
                 </div>
               </div>
               <div className="options">
@@ -127,10 +90,11 @@ const Home = ({ csvData }: HomeProps) => {
                 </button>
                 <S.Select
                   name="sortSelect"
-                  onChange={handledSort}
-                  value={sortWord}
+                  onChange={handleSort}
+                  value={currentSort}
                 >
-                  <option value="">Sort Roles</option>
+                  <option value="most">Most Recent</option>
+                  <option value="least">Least Recent</option>
                   <option value="a">A-Z</option>
                   <option value="z">Z-A</option>
                 </S.Select>
@@ -168,11 +132,15 @@ const Home = ({ csvData }: HomeProps) => {
                 </S.ListSection>
               </div>
             </S.Section>
-            <Pagination totalPages={jobData.totalPages} />
+            <Pagination totalPages={csvData.totalPages} page={csvData.page} />
             <S.CardWrapper className={isListView ? "list" : ""}>
-              {isListView ? <List /> : <Card />}
+              {isListView ? (
+                <List jobs={csvData.data} />
+              ) : (
+                <Card jobs={csvData.data} />
+              )}
             </S.CardWrapper>
-            <Pagination totalPages={jobData.totalPages} />
+            <Pagination totalPages={csvData.totalPages} page={csvData.page} />
           </S.JobResultsWrapper>
         </S.ResultsWrapper>
         <S.Banner>
@@ -203,7 +171,7 @@ const Home = ({ csvData }: HomeProps) => {
           <S.BannerSection>
             <img
               src="/compass-icon.png"
-              alt="Real-time Updates"
+              alt="Easy to Explore"
               width="50"
               height="50"
             />
@@ -218,6 +186,7 @@ const Home = ({ csvData }: HomeProps) => {
       <FilterModal
         openModal={openFilterModal}
         setOpenModal={setOpenFilterModal}
+        data={csvData}
       />
     </>
   );

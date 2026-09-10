@@ -2,10 +2,10 @@
 
 import * as S from "./reset-pwd-modal.style";
 import ModalComponent from "../modal/modal";
-import { initFirebase } from "@/functions/firebase";
-import { getAuth, sendPasswordResetEmail } from "firebase/auth";
+import { getFirebaseAuth } from "@/functions/firebase";
+import { sendPasswordResetEmail } from "firebase/auth";
 import { ChangeEvent, useState } from "react";
-import { trackEvent } from "@/functions/mixpanel";
+import { trackError, trackEvent } from "@/functions/mixpanel";
 
 interface ResetPwdProps {
   openModal: boolean;
@@ -13,56 +13,64 @@ interface ResetPwdProps {
 }
 
 const ResetPwd = ({ openModal, setOpenModal }: ResetPwdProps) => {
-  initFirebase();
-  const auth = getAuth();
   const [resetEmail, setResetEmail] = useState<string>("");
+  const [status, setStatus] = useState<"idle" | "sent" | "error">("idle");
 
   const resetPassword = async () => {
     try {
-      await sendPasswordResetEmail(auth, resetEmail);
-
-      trackEvent(null, "Forgot Password", {
-        type: "click",
+      await sendPasswordResetEmail(getFirebaseAuth(), resetEmail);
+      setStatus("sent");
+      trackEvent(null, "Forgot Password", { type: "click", email: resetEmail });
+    } catch (error) {
+      setStatus("error");
+      trackError(null, "Forgot Password", {
+        code: (error as { code?: string }).code ?? "unknown",
+        message: (error as { message?: string }).message ?? "",
         email: resetEmail,
       });
-    } catch (error: any) {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.error("Error resetting password:", errorCode, errorMessage);
     }
+  };
+
+  const close = () => {
+    setOpenModal(false);
+    setStatus("idle");
+    setResetEmail("");
   };
 
   return (
     <ModalComponent isOpen={openModal} title={`Forgot Password`}>
       <S.ModalWrapper>
-        <span>
-          Enter your email and click "Reset Password" to get an email to reset
-          your password
-        </span>
-        <S.Input
-          type="text"
-          value={resetEmail}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
-            setResetEmail(e.target.value)
-          }
-          placeholder="Enter your email..."
-        />
+        {status === "sent" ? (
+          <span>
+            If an account exists for {resetEmail}, a reset link is on its way.
+          </span>
+        ) : (
+          <>
+            <span>
+              Enter your email and click &quot;Reset Password&quot; to get an
+              email to reset your password
+            </span>
+            {status === "error" && (
+              <span>Something went wrong. Check the email and try again.</span>
+            )}
+            <S.Input
+              type="email"
+              value={resetEmail}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                setResetEmail(e.target.value);
+                setStatus("idle");
+              }}
+              placeholder="Enter your email..."
+            />
+          </>
+        )}
         <S.ModalBtn>
-          <button
-            onClick={() => {
-              resetPassword();
-              setOpenModal(false);
-            }}
-            disabled={!resetEmail}
-          >
-            Reset Password
-          </button>
-          <button
-            onClick={() => {
-              setOpenModal(false);
-            }}
-            className="submit"
-          >
+          {status !== "sent" && (
+            <button onClick={resetPassword} disabled={!resetEmail}>
+              Reset Password
+            </button>
+          )}
+          <button onClick={close} className="submit">
             Close
           </button>
         </S.ModalBtn>

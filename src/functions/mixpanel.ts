@@ -2,7 +2,7 @@ import { User } from "@/types";
 import mixpanel from "mixpanel-browser";
 
 mixpanel.init(process.env.NEXT_PUBLIC_MIXPANEL_TOKEN || "", {
-  debug: true,
+  debug: process.env.NODE_ENV === "development",
   track_pageview: false,
   persistence: "localStorage",
   autocapture: false,
@@ -31,7 +31,7 @@ export const trackIdentity = (auth_id: string, email: string, name: string) => {
 export const trackEvent = (
   user: User | null,
   eventName: string,
-  eventProperties?: Object,
+  eventProperties?: Record<string, unknown>,
 ) => {
   if (process.env.NODE_ENV === "development") {
     console.warn("trackEvent", {
@@ -73,7 +73,7 @@ export const trackPage = (
 export const trackError = (
   user: User | null,
   eventName: string,
-  eventProperties?: Object,
+  eventProperties?: Record<string, unknown>,
 ) => {
   const name = `Error: ${eventName}`;
 

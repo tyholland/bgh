@@ -1,13 +1,6 @@
-import { Metadata } from "next";
-import HomePage from "../../content/home/home";
-import { defaultMetaData, metaTitle, metaUrl } from "@/constants";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = defaultMetaData(
-  `Home | ${metaTitle}`,
-  undefined,
-  `${metaUrl}/home`,
-);
-
-const Home = () => <HomePage />;
+// The job board now lives at "/". Keep this path working for old links.
+const Home = () => redirect("/");
 
 export default Home;

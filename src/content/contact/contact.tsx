@@ -1,106 +1,66 @@
 "use client";
 
 import { userAtom } from "@/caches/UserAtom";
-import { getUserCreds } from "@/functions/userState";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./contact.style";
-import { sendEmail } from "@/requests/email";
+import { sendContactMessage } from "@/requests/email";
 import { trackError, trackEvent, trackPage } from "@/functions/mixpanel";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import { useRouter } from "next/navigation";
 
 const Contact = () => {
   const navigate = useRouter();
-  const [user, setUser] = useAtom(userAtom);
-  const [firstName, setFirstName] = useState<string>(
-    user?.displayName?.split(" ")[0] || "",
-  );
-  const [lastName, setLastName] = useState<string>(
-    user?.displayName?.split(" ")[1] || "",
-  );
-  const [userEmail, setUserEmail] = useState<string>(user?.email || "");
+  const user = useAtomValue(userAtom);
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [userEmail, setUserEmail] = useState<string>("");
   const [feedback, setFeedback] = useState<string>("");
   const [hasFeedback, setHasFeedback] = useState<boolean>(false);
-  const [isDisabled, setIsDisabled] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [prefilledFor, setPrefilledFor] = useState<string | null>(null);
 
-  const handleSubmit = async () => {
-    try {
-      setIsDisabled(true);
-
-      await sendEmail(
-        "ty@heiprodigital.com, cpbeganski@gmail.com, ben@greenefamily.us",
-        "BGH Feedback",
-        `First Name: ${firstName}\nLast Name: ${lastName}\nEmail: ${userEmail}\nMessage: ${feedback}\n`,
-      );
-
-      setHasFeedback(true);
-
-      trackEvent(user, "Feedback", {
-        type: "submit",
-        email: userEmail,
-      });
-    } catch (error: any) {
-      setIsDisabled(false);
-      setHasFeedback(false);
-      const errorCode = error.code;
-      const errorMessage = error.message;
-
-      trackError(user, "Send Feedback", {
-        code: errorCode,
-        message: errorMessage,
-      });
-
-      setErrorMsg(errorCode);
-    }
-  };
-
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    type: string,
-  ) => {
-    const val = e.target.value;
-
-    switch (type) {
-      case "firstName":
-        setFirstName(val);
-        break;
-      case "lastName":
-        setLastName(val);
-        break;
-      case "email":
-        setUserEmail(val);
-        break;
-      default:
-        setFirstName(val);
-        break;
-    }
-
-    setIsDisabled(!firstName || !lastName || !userEmail || !feedback);
-  };
-
-  const handleFeedback = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    const val = e.target.value;
-
-    setFeedback(val);
-    setIsDisabled(!firstName || !lastName || !userEmail || !val);
-  };
-
-  const loadDefaultUserVal = () => {
-    setFirstName(user?.displayName?.split(" ")[0] || "");
-    setLastName(user?.displayName?.split(" ")[1] || "");
-    setUserEmail(user?.email || "");
-  };
-
-  useEffect(() => {
-    getUserCreds(user, setUser);
-    !!user && loadDefaultUserVal();
-  }, [user]);
+  // Prefill from the signed-in user once it resolves (adjust-state-in-render).
+  if (user && user.uid !== prefilledFor) {
+    setPrefilledFor(user.uid);
+    setFirstName(user.displayName?.split(" ")[0] ?? "");
+    setLastName(user.displayName?.split(" ")[1] ?? "");
+    setUserEmail(user.email ?? "");
+  }
 
   useEffect(() => {
     trackPage(user, "Contact", window.location.href);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    setErrorMsg(null);
+
+    try {
+      await sendContactMessage({
+        kind: "feedback",
+        firstName,
+        lastName,
+        email: userEmail,
+        message: feedback,
+      });
+
+      setHasFeedback(true);
+      trackEvent(user, "Feedback", { type: "submit", email: userEmail });
+    } catch (error) {
+      setIsSubmitting(false);
+      trackError(user, "Send Feedback", {
+        code: (error as { code?: string }).code ?? "unknown",
+        message: (error as { message?: string }).message ?? "",
+      });
+      setErrorMsg("unknown");
+    }
+  };
+
+  const isDisabled =
+    isSubmitting || !firstName || !lastName || !userEmail || !feedback;
 
   return (
     <>
@@ -115,7 +75,9 @@ const Contact = () => {
               <S.Input
                 type="text"
                 name="firstName"
-                onChange={(e) => handleInputChange(e, "firstName")}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setFirstName(e.target.value)
+                }
                 placeholder="Enter your first name"
                 value={firstName}
               />
@@ -124,7 +86,9 @@ const Contact = () => {
               <S.Input
                 type="text"
                 name="lastName"
-                onChange={(e) => handleInputChange(e, "lastName")}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setLastName(e.target.value)
+                }
                 placeholder="Enter your last name"
                 value={lastName}
               />
@@ -133,7 +97,9 @@ const Contact = () => {
               <S.Input
                 type="email"
                 name="email"
-                onChange={(e) => handleInputChange(e, "email")}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setUserEmail(e.target.value)
+                }
                 placeholder="Enter your email"
                 value={userEmail}
                 required
@@ -142,7 +108,9 @@ const Contact = () => {
             <div>
               <S.Textarea
                 name="feedback"
-                onChange={handleFeedback}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                  setFeedback(e.target.value)
+                }
                 placeholder="Enter your feedback"
                 required
               />
