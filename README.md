@@ -48,7 +48,8 @@ NEXT_PUBLIC_MIXPANEL_TOKEN=
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
+npm run dev        # http://localhost:3000
+npm test           # vitest — unit tests in tests/
 npm run lint
 npx tsc --noEmit
 ```
