@@ -308,6 +308,55 @@ frontend now sends only the message; the API owns the recipient list.
 - Return `202 { ok: true }` on success, a generic `500 { ok: false }` on
   failure — never echo the provider error.
 
+### `POST /v1/users`
+
+Registers a Firebase account with the API's user profile store, right after
+sign-up (`src/content/sign-up/sign-up.tsx`). Best-effort from the frontend's
+side — a failure here is logged but doesn't block account creation, since
+Firebase remains the source of truth for auth.
+
+```jsonc
+// request body
+{
+  "uid": "…",              // Firebase uid — must match the bearer token's subject
+  "email": "…",
+  "displayName": "…",
+  "phoneNumber": null,
+  "photoURL": null,
+  "providerId": "password"
+}
+```
+
+- Auth: `Authorization: Bearer <Firebase ID token>`. The API must verify the
+  token (`firebase-admin`) and reject if its `uid` doesn't match the body's
+  `uid` — never trust the body alone.
+- Upsert semantics are fine (sign-up already guarantees the uid is new via
+  Firebase, but treat a duplicate as a no-op rather than a hard failure).
+- Return `201 { ok: true }`; `4xx` on a token/uid mismatch or malformed body.
+
+### `PATCH /v1/users/:uid`
+
+Syncs profile edits (e.g. display name) made from `src/content/account/account.tsx`
+after they've already been applied in Firebase.
+
+```jsonc
+// request body — same shape as POST /v1/users
+{
+  "uid": "…",
+  "email": "…",
+  "displayName": "…",
+  "phoneNumber": null,
+  "photoURL": null,
+  "providerId": "password"
+}
+```
+
+- Auth: `Authorization: Bearer <Firebase ID token>`, same uid-match rule as
+  above — a user may only update their own record.
+- Return `200 { ok: true }`; `404` if the uid has no profile row yet (the
+  frontend doesn't currently handle this as a fallback create — decide
+  whether the API should upsert instead).
+
 ### 5.1 Frontend cache revalidation
 
 The frontend exposes `POST {FRONTEND_URL}/api/revalidate` guarded by a shared
@@ -355,6 +404,17 @@ create table jobs (
   first_seen_at       timestamptz not null default now(),
   last_seen_at        timestamptz not null default now(),  -- last time this Link was in the CSV
   updated_at          timestamptz not null default now()
+);
+
+create table users (
+  uid           text primary key,       -- Firebase uid
+  email         text,
+  display_name  text,
+  phone_number  text,
+  photo_url     text,
+  provider_id   text not null default 'password',
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
 );
 
 create table ingest_runs (
@@ -421,6 +481,7 @@ run():
 | `REVALIDATE_SECRET` | Bearer token for the call above — must match the frontend's `REVALIDATE_SECRET` |
 | `MAIL_HOST` / `MAIL_USER` / `MAIL_PASS` / `MAIL_FROM` | `POST /v1/contact` sender (server-only, never `NEXT_PUBLIC_*`) |
 | `CONTACT_RECIPIENTS` | Comma list of where `/v1/contact` messages go |
+| `FIREBASE_SERVICE_ACCOUNT` | JSON service-account credentials (`firebase-admin`) for verifying ID tokens on `POST /v1/users` and `PATCH /v1/users/:uid` |
 | `TURNSTILE_SECRET` | (optional) Cloudflare Turnstile verification for `/v1/contact` |
 | `CRAWL_CONCURRENCY` | Parallel enrichment fetches (default 6) |
 | `CRAWL_TIMEOUT_MS` | Per-link fetch timeout (default 10000) |
@@ -441,6 +502,7 @@ bgh-scout-api/
       status.ts          # GET /v1/status, GET /health
       ingest.ts          # POST /v1/ingest (auth)
       contact.ts         # POST /v1/contact (validate + rate limit + send)
+      users.ts            # POST /v1/users, PATCH /v1/users/:uid (Firebase ID token auth)
     ingest/
       run.ts             # orchestrator (§7)
       csv.ts             # download + parse + normalize
@@ -448,10 +510,13 @@ bgh-scout-api/
       jsonld.ts          # flatten @graph/arrays, find JobPosting, map fields
       sanitize.ts        # scrubbed description / benefits (§4.4)
       revalidate.ts      # POST the frontend revalidation hook after a run
+    auth/
+      verifyIdToken.ts   # firebase-admin token verification for /v1/users
     db/
       client.ts
       migrations/
       jobs.repo.ts
+      users.repo.ts
     lib/
       cache.ts           # snapshot body + ETag
       logger.ts
@@ -496,6 +561,7 @@ bgh-scout-api/
 
 ### Phase 3 — contact + revalidation + schedule + deploy
 - [ ] `POST /v1/contact`: validate, rate-limit, send to `CONTACT_RECIPIENTS`, generic errors (§5).
+- [ ] `POST /v1/users` + `PATCH /v1/users/:uid`: `firebase-admin` ID token verification (uid must match), upsert into `users` table.
 - [ ] `revalidate.ts`: after a successful ingest, `POST FRONTEND_REVALIDATE_URL` with `Bearer REVALIDATE_SECRET` (§5.1).
 - [ ] Deploy web service (Render/Railway).
 - [ ] Schedule ingest at 03/09/15/21 America/New_York (host cron → `POST /v1/ingest`, or in-process `node-cron`).
@@ -512,6 +578,7 @@ bgh-scout-api/
 - [x] Auth: `src/components/authProvider/authProvider.tsx` (mounted in layout) is the source of truth via `onAuthStateChanged` — clears a stale cached session. `readStoredUser()` parses `localStorage` safely (try/catch + shape check). `getFirebaseAuth()` guarantees init.
 - [x] sign-in / sign-up: dropped the 2s + 7s `setTimeout` redirects; navigate on the auth promise. account / sign-in / sign-up: redirect moved out of render into `useEffect`.
 - [x] `/api/send-email` **deleted** (was an open mail relay). `src/requests/email.ts` → `sendContactMessage()` → `POST ${API}/v1/contact` (no client-controlled `to`). `nodemailer` removed.
+- [x] `src/requests/user.ts` → `createUser()` / `updateUser()`, Firebase ID token bearer auth. Wired into sign-up (`src/content/sign-up/sign-up.tsx`, best-effort after Firebase account creation) and account (`src/content/account/account.tsx`, new "Name" section — updates Firebase `displayName` then syncs it). Blocked on the API implementing `POST /v1/users` + `PATCH /v1/users/:uid` (§5).
 - [x] `/api/revalidate`: now `POST` only, requires `Bearer REVALIDATE_SECRET`, no hour logic. `src/vercel.json` (dead cron at wrong path) deleted.
 - [x] `src/app/error.tsx` / `global-error.tsx` / `not-found.tsx` / `loading.tsx` added.
 - [x] Cleanup: `card`/`list` keys use `item.Link`; pagination `forcePage` clamped; sort `<select>` options match the state; `mixpanel` `debug` dev-only + `Object`→typed; unused deps removed (`papaparse`, `mailto-link`, `react-toggle-button`); README rewritten.

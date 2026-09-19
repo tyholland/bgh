@@ -3,6 +3,7 @@
 import { userAtom } from "@/caches/UserAtom";
 import { getFirebaseAuth } from "@/functions/firebase";
 import { trackError, trackEvent, trackIdentity, trackPage } from "@/functions/mixpanel";
+import { createUser } from "@/requests/user";
 import {
   createUserWithEmailAndPassword,
   updateProfile,
@@ -54,6 +55,27 @@ const SignUp = () => {
           message: (error as { message?: string }).message ?? "",
           email: userEmail,
           displayName: name,
+        });
+      }
+
+      try {
+        const idToken = await fbUser.getIdToken();
+        await createUser(
+          {
+            uid: fbUser.uid,
+            email: fbUser.email,
+            displayName: name,
+            phoneNumber: fbUser.phoneNumber,
+            photoURL: fbUser.photoURL,
+            providerId: fbUser.providerData[0]?.providerId ?? "firebase",
+          },
+          idToken,
+        );
+      } catch (error) {
+        trackError(user, "Create User Profile", {
+          code: (error as { code?: string }).code ?? "unknown",
+          message: (error as { message?: string }).message ?? "",
+          email: userEmail,
         });
       }
 
