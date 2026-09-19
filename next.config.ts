@@ -40,6 +40,9 @@ const csp = [
   .join("; ");
 
 const nextConfig: NextConfig = {
+  compiler: {
+    styledComponents: true,
+  },
   async headers() {
     return [
       {

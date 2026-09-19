@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
 import SignInModal from "@/components/signIn-modal/signIn-modal";
 import FilterModal from "@/components/filter-modal/filter-modal";
+import SaveSearchModal from "@/components/save-search-modal/save-search-modal";
 
 interface HomeProps {
   csvData: AllSearchData;
@@ -40,6 +41,8 @@ const Home = ({ csvData }: HomeProps) => {
   const [isListView, setIsListView] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openFilterModal, setOpenFilterModal] = useState<boolean>(false);
+  const [openSaveSearchModal, setOpenSaveSearchModal] =
+    useState<boolean>(false);
 
   const currentSort = searchParams.get("sort") || "most";
 
@@ -61,6 +64,15 @@ const Home = ({ csvData }: HomeProps) => {
     router.push(`/?${params.toString()}`, { scroll: false });
 
     trackEvent(user, "Sort", { type: "select", value: sortMap(value) });
+  };
+
+  const handleSaveSearchClick = () => {
+    if (!user) {
+      setOpenModal(true);
+      return;
+    }
+
+    setOpenSaveSearchModal(true);
   };
 
   return (
@@ -87,6 +99,9 @@ const Home = ({ csvData }: HomeProps) => {
                   onClick={() => setOpenFilterModal(true)}
                 >
                   Filter Jobs
+                </button>
+                <button className="btnFilter" onClick={handleSaveSearchClick}>
+                  Save Search
                 </button>
                 <S.Select
                   name="sortSelect"
@@ -187,6 +202,10 @@ const Home = ({ csvData }: HomeProps) => {
         openModal={openFilterModal}
         setOpenModal={setOpenFilterModal}
         data={csvData}
+      />
+      <SaveSearchModal
+        openModal={openSaveSearchModal}
+        setOpenModal={setOpenSaveSearchModal}
       />
     </>
   );

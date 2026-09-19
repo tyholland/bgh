@@ -357,6 +357,54 @@ after they've already been applied in Firebase.
   frontend doesn't currently handle this as a fallback create — decide
   whether the API should upsert instead).
 
+### `POST /v1/saved-searches`
+
+Lets a signed-in user save the current search/filter criteria (roadmap:
+"Saved searches" — not yet built in the frontend UI, but the API should exist
+first). `params` is the same shape as `UrlParams` in `src/types.ts`.
+
+```jsonc
+// request body
+{
+  "name": "Remote PM roles",       // optional, user-supplied label
+  "params": {
+    "search": "product manager",
+    "company": "",
+    "date": "",
+    "exact": "",
+    "keyword": "",
+    "industry": "Technology",
+    "sort": "newest"
+  }
+}
+```
+
+- Auth: `Authorization: Bearer <Firebase ID token>`. The `uid` is taken from
+  the verified token only — never accepted in the body.
+- Validate: `name` ≤ 100 chars if present; `params` is an object with only
+  known `UrlParams` keys, each a string ≤ 500 chars. Reject otherwise with
+  `400`.
+- Return `201 { id, uid, name, params, createdAt }`.
+
+### `GET /v1/saved-searches`
+
+Lists the caller's own saved searches (needed so the frontend can render them
+and let the user pick which one to delete).
+
+- Auth: `Authorization: Bearer <Firebase ID token>`.
+- Return `200 { savedSearches: [{ id, uid, name, params, createdAt }, …] }`,
+  newest first. Only rows owned by the token's `uid` — never another user's.
+
+### `DELETE /v1/saved-searches/:id`
+
+Removes one saved search.
+
+- Auth: `Authorization: Bearer <Firebase ID token>`.
+- The row's `uid` must match the token's `uid`; otherwise `404` (don't leak
+  whether another user's `id` exists).
+- Return `200 { ok: true }`; `404` if `id` doesn't exist or isn't owned by the
+  caller.
+
 ### 5.1 Frontend cache revalidation
 
 The frontend exposes `POST {FRONTEND_URL}/api/revalidate` guarded by a shared
@@ -416,6 +464,15 @@ create table users (
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now()
 );
+
+create table saved_searches (
+  id          uuid primary key default gen_random_uuid(),
+  uid         text not null references users(uid) on delete cascade,
+  name        text,
+  params      jsonb not null,     -- UrlParams (search/company/date/exact/keyword/industry/sort)
+  created_at  timestamptz not null default now()
+);
+create index saved_searches_uid_idx on saved_searches (uid);
 
 create table ingest_runs (
   id           uuid primary key default gen_random_uuid(),
@@ -503,6 +560,7 @@ bgh-scout-api/
       ingest.ts          # POST /v1/ingest (auth)
       contact.ts         # POST /v1/contact (validate + rate limit + send)
       users.ts            # POST /v1/users, PATCH /v1/users/:uid (Firebase ID token auth)
+      savedSearches.ts    # POST/GET /v1/saved-searches, DELETE /v1/saved-searches/:id
     ingest/
       run.ts             # orchestrator (§7)
       csv.ts             # download + parse + normalize
@@ -517,6 +575,7 @@ bgh-scout-api/
       migrations/
       jobs.repo.ts
       users.repo.ts
+      savedSearches.repo.ts
     lib/
       cache.ts           # snapshot body + ETag
       logger.ts
@@ -562,6 +621,7 @@ bgh-scout-api/
 ### Phase 3 — contact + revalidation + schedule + deploy
 - [ ] `POST /v1/contact`: validate, rate-limit, send to `CONTACT_RECIPIENTS`, generic errors (§5).
 - [ ] `POST /v1/users` + `PATCH /v1/users/:uid`: `firebase-admin` ID token verification (uid must match), upsert into `users` table.
+- [ ] `POST /v1/saved-searches` + `GET /v1/saved-searches` + `DELETE /v1/saved-searches/:id`: `firebase-admin` ID token verification, scoped to the token's `uid`, backed by the `saved_searches` table (§6).
 - [ ] `revalidate.ts`: after a successful ingest, `POST FRONTEND_REVALIDATE_URL` with `Bearer REVALIDATE_SECRET` (§5.1).
 - [ ] Deploy web service (Render/Railway).
 - [ ] Schedule ingest at 03/09/15/21 America/New_York (host cron → `POST /v1/ingest`, or in-process `node-cron`).

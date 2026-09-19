@@ -67,3 +67,14 @@ export interface User {
 }
 
 export type ElementSize = "small" | "medium" | "large";
+
+// A user's saved search — the filter criteria only, not the page number.
+export type SavedSearchParams = Omit<UrlParams, "page">;
+
+export interface SavedSearch {
+  id: string;
+  uid: string;
+  name: string | null;
+  params: SavedSearchParams;
+  createdAt: string;
+}
