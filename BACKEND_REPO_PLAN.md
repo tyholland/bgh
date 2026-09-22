@@ -204,21 +204,19 @@ job page can put `<script>` / `<img onerror>` / event handlers in its JobPosting
 
 Base URL via frontend env `NEXT_PUBLIC_API_BASE_URL` (or non-public if we proxy).
 
-### `GET /v1/jobs`
+### `GET /v1/jobs?search=&company=&industry=&keyword=&date=&exact=&sort=&page=&limit=`
 
-Returns the entire enriched dataset in one response. The frontend fetches this
-once (server-side, cached 15 min) and does all filter/sort/paginate in
-`src/functions/filterJobs.ts` on the server — only one page of results ever
-reaches the browser.
+Filters, sorts, facets, and paginates in Postgres (`src/db/jobsQuery.ts` +
+`src/db/jobs.repo.ts`) and returns only the requested page — the full dataset
+never leaves the database. The frontend (`src/app/page.tsx`) forwards
+`searchParams` straight through as query params; nothing is fetched or
+filtered client- or server-side beyond this one request.
 
 ```jsonc
 {
   "meta": {
-    "generatedAt": "2026-09-10T15:00:12.000Z",  // when this snapshot was built
-    "sourceScrapedAt": "2026-09-10T14:32:00.000Z", // max Scrape_DateTime in the data
-    "total": 1234,
-    "enriched": 1180,      // rows with Details populated
-    "enrichFailed": 41
+    "generatedAt": "2026-09-10T15:00:12.000Z",  // when this response was built
+    "sourceScrapedAt": "2026-09-10T14:32:00.000Z" // max Scrape_DateTime across the whole (unfiltered) dataset
   },
   "jobs": [
     {
@@ -237,23 +235,41 @@ reaches the browser.
         "jobBenefits": "Health, dental, 401k"
       }
     }
-    // …
-  ]
+    // … up to `limit` rows (default/frontend value: 18)
+  ],
+  "total": 214,       // rows matching the filters, across all pages
+  "totalPages": 12,
+  "page": 3,          // the requested page, clamped to [1, totalPages]
+  "companies": [{ "value": "Acme Corp", "count": 8 }],   // computed from
+  "industries": [{ "value": "Technology", "count": 41 }], // search/keyword/date
+  "scrapDates": ["2026/09/10", "2026/09/09"]              // filters only, so
+                                                           // both lists stay
+                                                           // usable regardless
+                                                           // of which is applied
 }
 ```
 
 - **Row object keys stay identical to the CSV headers** (`"Role Name"`, `"Primary
   Industry"`, `Scrape_DateTime`, `Scrape_Date`, `Company`, `Link`) — this is the
-  `CsvData` shape `src/functions/filterJobs.ts` consumes directly.
+  `CsvData` shape `src/app/page.tsx` consumes directly.
 - `Details` is present when `detailsStatus === "ok"`, otherwise omitted (matches
   the optional `Details?` in `src/types.ts`).
 - `Details.description` **must be sanitized HTML** (see §4.4). The frontend also
   runs DOMPurify on it, but the API is the primary line of defense.
-- Sort the array newest-first by `Scrape_DateTime` before returning (frontend
-  already re-sorts, but this makes the raw payload sane and keeps `jobs[0]` = most
-  recent for the "Opportunity Refresh" label).
+- Only rows with `detailsStatus === "ok"` are ever returned.
+- `company` / `industry` / `keyword` accept a comma-separated list (OR within the
+  list); `company` + `industry` combine with AND. `exact` (single day) wins over
+  `date` (on-or-after) when both are given. `sort` is one of `most` (default),
+  `least`, `a`, `z`.
+- `limit` is clamped to `[1, 50]`, defaulting to 18 if missing/invalid; `page`
+  defaults to 1 and is clamped to `totalPages`.
 - Response headers: `Cache-Control: public, s-maxage=900, stale-while-revalidate=3600`
-  + `ETag`. Gzip/brotli on (payload can be a few MB).
+  + `ETag` — useful if a CDN/proxy sits in front of the API, since each distinct
+  query string is its own cache entry. The frontend's own Next.js fetch cache
+  does **not** apply here (the query string depends on `searchParams`, a
+  Request-time API, so the fetch is necessarily "discovered" after it) — that's
+  fine, each query now hits an indexed, page-scoped SQL query instead of
+  rebuilding the whole in-memory dataset.
 
 ### `GET /v1/status`
 
@@ -427,10 +443,10 @@ ran.)
 
 ### Optional v2 (not MVP)
 
-- `GET /v1/jobs?search=&company=&industry=&keyword=&date=&exact=&sort=&page=&limit=`
-  doing the filtering in the API instead of `src/functions/filterJobs.ts`, and
-  requiring a Firebase ID token to return more than a teaser — this is what
-  truly gates the data per user (see §13). Defer until MVP is stable.
+- `GET /v1/jobs` now does filtering/sorting/pagination in the API (see above).
+  Still open: requiring a Firebase ID token to return more than a teaser —
+  this is what truly gates the data per user (see §13). Defer until MVP is
+  stable.
 
 ---
 

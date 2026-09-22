@@ -1,35 +1,21 @@
 import Home from "../content/home/home";
-import { CsvData, UrlParams } from "@/types";
-import { filterJobs } from "@/functions/filterJobs";
+import { AllSearchData, CsvData, Facet, UrlParams } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const JOBS_PER_PAGE = 18;
 
-// The BGH Scout API reads the Google Sheet CSV, dedupes it, sanitizes and
-// enriches every job with its "additional details" (schema.org/JobPosting
-// JSON-LD), and returns the whole enriched dataset in one response.
-interface JobsResponse {
+// The BGH Scout API filters, sorts, facets, and paginates in Postgres and
+// returns only the page of jobs the browser will actually render.
+interface JobsApiResponse {
+  meta: { generatedAt: string; sourceScrapedAt: string | null };
   jobs: CsvData[];
+  total: number;
+  totalPages: number;
+  page: number;
+  companies: Facet[];
+  industries: Facet[];
+  scrapDates: string[];
 }
-
-const fetchJobs = async (): Promise<CsvData[]> => {
-  if (!API_BASE_URL) {
-    throw new Error(
-      "NEXT_PUBLIC_API_BASE_URL is not set — cannot load job data.",
-    );
-  }
-
-  const res = await fetch(`${API_BASE_URL}/v1/jobs`, {
-    next: { tags: ["leads"], revalidate: 900 },
-  });
-
-  if (!res.ok) {
-    throw new Error(`Job API responded with ${res.status}`);
-  }
-
-  const body = (await res.json()) as JobsResponse;
-
-  return Array.isArray(body.jobs) ? body.jobs : [];
-};
 
 const normalizeParams = (
   raw: Record<string, string | string[] | undefined>,
@@ -41,15 +27,59 @@ const normalizeParams = (
     ]),
   );
 
+const buildQuery = (params: UrlParams): string => {
+  const query = new URLSearchParams({ limit: String(JOBS_PER_PAGE) });
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value) query.set(key, value);
+  }
+
+  return query.toString();
+};
+
+const fetchJobs = async (params: UrlParams): Promise<AllSearchData> => {
+  if (!API_BASE_URL) {
+    throw new Error(
+      "NEXT_PUBLIC_API_BASE_URL is not set — cannot load job data.",
+    );
+  }
+
+  const res = await fetch(`${API_BASE_URL}/v1/jobs?${buildQuery(params)}`, {
+    next: { tags: ["leads"], revalidate: 900 },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Job API responded with ${res.status}`);
+  }
+
+  const body = (await res.json()) as JobsApiResponse;
+
+  return {
+    data: Array.isArray(body.jobs) ? body.jobs : [],
+    total: body.total,
+    totalPages: body.totalPages,
+    page: body.page,
+    refreshedAt: body.meta.sourceScrapedAt ?? "",
+    scrapDates: body.scrapDates,
+    companies: body.companies,
+    industries: body.industries,
+  };
+};
+
 const Page = async ({
   searchParams,
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) => {
+  // The query the API needs (page, filters, sort) only exists once
+  // searchParams resolves, so this fetch is necessarily discovered after that
+  // Request-time API — Next.js's fetch cache doesn't apply here. That's fine:
+  // the API now does an indexed, per-page Postgres query instead of returning
+  // the whole dataset, so every request is cheap regardless of caching.
   const params = normalizeParams(await searchParams);
-  const jobs = await fetchJobs();
+  const csvData = await fetchJobs(params);
 
-  return <Home csvData={filterJobs(jobs, params)} />;
+  return <Home csvData={csvData} />;
 };
 
 export default Page;

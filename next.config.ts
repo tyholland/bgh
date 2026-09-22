@@ -14,6 +14,10 @@ const apiOrigin = (() => {
 // 'unsafe-inline'. The primary XSS defense for scraped job HTML is DOMPurify in
 // cardDetails-modal; this CSP is defense in depth. A nonce-based policy (via
 // middleware) is the follow-up if we want to drop 'unsafe-inline'.
+// Dev mode also needs 'unsafe-eval' — React uses eval() there to reconstruct
+// callstacks and power Fast Refresh; it never does in production.
+const isDev = process.env.NODE_ENV !== "production";
+
 const csp = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -23,7 +27,7 @@ const csp = [
   "img-src 'self' data: https:",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  "script-src 'self' 'unsafe-inline' https://cdn.mxpnl.com",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://cdn.mxpnl.com`,
   [
     "connect-src 'self'",
     "https://*.googleapis.com",
