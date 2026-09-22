@@ -100,9 +100,6 @@ const Home = ({ csvData }: HomeProps) => {
                 >
                   Filter Jobs
                 </button>
-                <button className="btnFilter" onClick={handleSaveSearchClick}>
-                  Save Search
-                </button>
                 <S.Select
                   name="sortSelect"
                   onChange={handleSort}
@@ -202,6 +199,7 @@ const Home = ({ csvData }: HomeProps) => {
         openModal={openFilterModal}
         setOpenModal={setOpenFilterModal}
         data={csvData}
+        onSaveSearchClick={handleSaveSearchClick}
       />
       <SaveSearchModal
         openModal={openSaveSearchModal}

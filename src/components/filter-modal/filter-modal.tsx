@@ -9,9 +9,20 @@ interface FilterModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
   data: AllSearchData;
+  onSaveSearchClick: () => void;
 }
 
-const FilterModal = ({ openModal, setOpenModal, data }: FilterModalProps) => {
+const FilterModal = ({
+  openModal,
+  setOpenModal,
+  data,
+  onSaveSearchClick,
+}: FilterModalProps) => {
+  const handleSaveSearch = () => {
+    setOpenModal(false);
+    onSaveSearchClick();
+  };
+
   return (
     <ModalComponent isOpen={openModal} title={`Filter Jobs`} size="large">
       <S.ModalWrapper>
@@ -21,7 +32,9 @@ const FilterModal = ({ openModal, setOpenModal, data }: FilterModalProps) => {
           scrapDates={data.scrapDates}
         />
         <S.ModalBtn>
+          <button onClick={handleSaveSearch}>Save Search</button>
           <button
+            className="submit"
             onClick={() => {
               setOpenModal(false);
             }}
