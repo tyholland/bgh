@@ -50,9 +50,26 @@ NEXT_PUBLIC_MIXPANEL_TOKEN=
 npm install
 npm run dev        # http://localhost:3000
 npm test           # vitest — unit tests in tests/
+npm run test:e2e   # playwright — e2e tests in e2e/
 npm run lint
 npx tsc --noEmit
 ```
+
+### E2E tests
+
+`e2e/` covers the scenarios a signed-in and anonymous user perform: browsing
+and paginating jobs, the sign-in gate, sign in/up/out, forgot password,
+search/filter/sort, viewing job details (including DOMPurify sanitizing a
+scraped description), saved searches, and the feedback form.
+
+Since the BGH Scout API doesn't exist yet, `playwright.config.ts` starts a
+small fixture server (`e2e/fixtures/mock-api-server.mjs`) and points
+`next dev` at it — that's the only way to control `/v1/jobs`, which is
+fetched from a Server Component and so can't be intercepted with
+`page.route()`. Firebase Auth is mocked per-test instead
+(`e2e/fixtures/firebase-auth.ts` intercepts the Identity Toolkit REST calls
+the client SDK makes), and other client-side API calls (saved searches,
+contact form) are mocked with `page.route()` directly in each spec.
 
 ## Notes
 
