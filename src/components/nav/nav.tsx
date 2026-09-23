@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { trackEvent } from "@/functions/mixpanel";
 import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
@@ -11,15 +10,6 @@ import UserIcon from "@/svg/UserIcon";
 const Nav = () => {
   const navigate = useRouter();
   const user = useAtomValue(userAtom);
-
-  const handleFeedback = () => {
-    navigate.push("/contact");
-
-    trackEvent(user, "Feedback", {
-      type: "button",
-      location: "nav",
-    });
-  };
 
   return (
     <header>
@@ -32,12 +22,13 @@ const Nav = () => {
         />
       </Link>
       <div className="section">
-        <button onClick={handleFeedback}>Feedback</button>
         <div className="linksWrapper">
           {user ? (
             <Link href="/account">
               Welcome
-              {user.displayName ? ` ${user.displayName.split(" ")[0]}` : ""}{" "}
+              {user.displayName
+                ? ` ${user.displayName.split(" ")[0]}`
+                : ""}{" "}
               <UserIcon />
             </Link>
           ) : (
