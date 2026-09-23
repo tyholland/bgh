@@ -2,13 +2,14 @@
 
 import dayjs from "dayjs";
 import Link from "next/link";
+import Image from "next/image";
 
 const Footer = () => {
   const year = dayjs().format("YYYY");
 
   return (
     <footer>
-      <img src="/dark-logo.png" alt="BGH Scout Logo" width="170" height="104" />
+      <Image src="/dark-logo.png" alt="BGH Scout Logo" width={170} height={104} />
       <div className="linkWrapper">
         <Link href="/about">About</Link>
         <Link href="/contact">Contact Us</Link>

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Card from "@/components/card/card";
 import * as S from "./home.style";
 import Pagination from "@/components/pagination/pagination";
@@ -115,30 +116,30 @@ const Home = ({ csvData }: HomeProps) => {
                     onClick={() => setIsListView(false)}
                     disabled={!isListView}
                   >
-                    <img
+                    <Image
                       src={
                         !isListView
                           ? "/dark-grid-view-icon.png"
                           : "/grid-view-icon.png"
                       }
                       alt="Grid View Icon"
-                      width="30"
-                      height="30"
+                      width={30}
+                      height={30}
                     />
                   </button>
                   <button
                     onClick={() => setIsListView(true)}
                     disabled={isListView}
                   >
-                    <img
+                    <Image
                       src={
                         isListView
                           ? "/dark-list-view-icon.png"
                           : "/list-view-icon.png"
                       }
                       alt="List View Icon"
-                      width="30"
-                      height="30"
+                      width={30}
+                      height={30}
                     />
                   </button>
                 </S.ListSection>
@@ -157,11 +158,11 @@ const Home = ({ csvData }: HomeProps) => {
         </S.ResultsWrapper>
         <S.Banner>
           <S.BannerSection>
-            <img
+            <Image
               src="/trusted-icon.png"
               alt="Trusted Opportunities"
-              width="50"
-              height="50"
+              width={50}
+              height={50}
             />
             <div className="content">
               <div className="title">Trusted Opportunities</div>
@@ -169,11 +170,11 @@ const Home = ({ csvData }: HomeProps) => {
             </div>
           </S.BannerSection>
           <S.BannerSection>
-            <img
+            <Image
               src="/bolt-icon.png"
               alt="Real-time Updates"
-              width="50"
-              height="50"
+              width={50}
+              height={50}
             />
             <div className="content">
               <div className="title">Real-time Updates</div>
@@ -181,11 +182,11 @@ const Home = ({ csvData }: HomeProps) => {
             </div>
           </S.BannerSection>
           <S.BannerSection>
-            <img
+            <Image
               src="/compass-icon.png"
               alt="Easy to Explore"
-              width="50"
-              height="50"
+              width={50}
+              height={50}
             />
             <div className="content">
               <div className="title">Easy to Explore</div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { trackEvent } from "@/functions/mixpanel";
 import { useRouter } from "next/navigation";
 import { useAtomValue } from "jotai";
@@ -23,11 +24,11 @@ const Nav = () => {
   return (
     <header>
       <Link href="/">
-        <img
+        <Image
           src="/bgh-logo.png"
           alt="BGH Scout Logo"
-          width="200"
-          height="134"
+          width={200}
+          height={134}
         />
       </Link>
       <div className="section">

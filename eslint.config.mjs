@@ -18,6 +18,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Generated test artifacts — not source, and playwright-report/trace
+    // contains minified bundles that trip rules like react-hooks/rules-of-hooks.
+    "playwright-report/**",
+    "test-results/**",
   ]),
 ]);
 
