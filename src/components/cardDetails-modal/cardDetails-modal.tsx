@@ -8,7 +8,7 @@ import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import dayjs from "dayjs";
 import DOMPurify from "dompurify";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 interface CardDetailsProps {
   openModal: boolean;
@@ -18,6 +18,7 @@ interface CardDetailsProps {
 
 const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
   const user = useAtomValue(userAtom);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
 
   // The API sanitizes this already; sanitize again in the browser as defense
   // in depth before it goes through dangerouslySetInnerHTML.
@@ -45,53 +46,13 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
   }, [data]);
 
   return (
-    <ModalComponent isOpen={openModal} title={`Job Details`} size="large">
+    <ModalComponent
+      isOpen={openModal}
+      onClose={() => setOpenModal(false)}
+      title={`Job Details`}
+      size="large"
+    >
       <S.ModalWrapper>
-        <div>
-          <span className="title">Company:</span> {data?.Company}
-        </div>
-        <div>
-          <span className="title">Industry:</span> {data?.["Primary Industry"]}
-        </div>
-        <div>
-          <span className="title">Role:</span> {data?.["Role Name"]}
-        </div>
-        {data?.Details?.datePosted && (
-          <div>
-            <span className="title">Date Posted by Company:</span>{" "}
-            {dayjs(data.Details.datePosted).format("MM-DD-YYYY")}
-          </div>
-        )}
-        {data?.Details?.validThrough && (
-          <div>
-            <span className="title">Valid Through:</span>{" "}
-            {dayjs(data.Details.validThrough).format("MM-DD-YYYY")}
-          </div>
-        )}
-        {data?.Details?.employmentType && (
-          <div>
-            <span className="title">Employment Type:</span>{" "}
-            {data.Details.employmentType}
-          </div>
-        )}
-        {data?.Details?.jobLocation?.address?.addressLocality && (
-          <div>
-            <span className="title">Location:</span>{" "}
-            {data.Details.jobLocation.address.addressLocality}
-          </div>
-        )}
-        {data?.Details?.jobBenefits && (
-          <div>
-            <span className="title">Job Benefits:</span>{" "}
-            {data.Details.jobBenefits}
-          </div>
-        )}
-        {cleanDescription && (
-          <div>
-            <span className="title">Job Description:</span>{" "}
-            <div dangerouslySetInnerHTML={{ __html: cleanDescription }} />
-          </div>
-        )}
         <S.ModalBtn>
           <button
             onClick={() => {
@@ -102,15 +63,67 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
           >
             See Role
           </button>
+        </S.ModalBtn>
+        <div>
+          <span className="title">Company:</span> {data?.Company}
+        </div>
+        <div>
+          <span className="title">Industry:</span> {data?.["Primary Industry"]}
+        </div>
+        <div>
+          <span className="title">Role:</span> {data?.["Role Name"]}
+        </div>
+        {cleanDescription && (
+          <div>
+            <span className="title">Job Description:</span>{" "}
+            <div dangerouslySetInnerHTML={{ __html: cleanDescription }} />
+          </div>
+        )}
+        <S.ModalBtn>
           <button
             onClick={() => {
-              setOpenModal(false);
+              trackEvent(user, "Additional Details");
+              setShowDetails(!showDetails);
             }}
             className="submit"
           >
-            Close
+            Additional Details
           </button>
         </S.ModalBtn>
+        {showDetails && (
+          <>
+            {data?.Details?.datePosted && (
+              <div>
+                <span className="title">Date Posted by Company:</span>{" "}
+                {dayjs(data.Details.datePosted).format("MM-DD-YYYY")}
+              </div>
+            )}
+            {data?.Details?.validThrough && (
+              <div>
+                <span className="title">Valid Through:</span>{" "}
+                {dayjs(data.Details.validThrough).format("MM-DD-YYYY")}
+              </div>
+            )}
+            {data?.Details?.employmentType && (
+              <div>
+                <span className="title">Employment Type:</span>{" "}
+                {data.Details.employmentType}
+              </div>
+            )}
+            {data?.Details?.jobLocation?.address?.addressLocality && (
+              <div>
+                <span className="title">Location:</span>{" "}
+                {data.Details.jobLocation.address.addressLocality}
+              </div>
+            )}
+            {data?.Details?.jobBenefits && (
+              <div>
+                <span className="title">Job Benefits:</span>{" "}
+                {data.Details.jobBenefits}
+              </div>
+            )}
+          </>
+        )}
       </S.ModalWrapper>
     </ModalComponent>
   );

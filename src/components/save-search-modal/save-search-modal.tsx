@@ -26,9 +26,7 @@ const PARAM_KEYS: (keyof SavedSearchParams)[] = [
   "sort",
 ];
 
-const readCurrentParams = (
-  searchParams: URLSearchParams,
-): SavedSearchParams =>
+const readCurrentParams = (searchParams: URLSearchParams): SavedSearchParams =>
   Object.fromEntries(
     PARAM_KEYS.map((key) => [key, searchParams.get(key) || ""]).filter(
       ([, value]) => value,
@@ -84,7 +82,12 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
   };
 
   return (
-    <ModalComponent isOpen={openModal} title="Save Search" size="medium">
+    <ModalComponent
+      isOpen={openModal}
+      onClose={handleClose}
+      title="Save Search"
+      size="medium"
+    >
       <S.ModalWrapper>
         {success ? (
           <div className="success">Your search has been saved.</div>
@@ -111,9 +114,6 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
               {isSaving ? "Saving..." : "Save"}
             </button>
           )}
-          <button onClick={handleClose} className="submit">
-            Close
-          </button>
         </S.ModalBtn>
       </S.ModalWrapper>
     </ModalComponent>

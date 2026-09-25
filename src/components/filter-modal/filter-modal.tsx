@@ -24,7 +24,12 @@ const FilterModal = ({
   };
 
   return (
-    <ModalComponent isOpen={openModal} title={`Filter Jobs`} size="large">
+    <ModalComponent
+      isOpen={openModal}
+      onClose={() => setOpenModal(false)}
+      title={`Filter Jobs`}
+      size="large"
+    >
       <S.ModalWrapper>
         <Filter
           companies={data.companies}
@@ -33,14 +38,6 @@ const FilterModal = ({
         />
         <S.ModalBtn>
           <button onClick={handleSaveSearch}>Save Search</button>
-          <button
-            className="submit"
-            onClick={() => {
-              setOpenModal(false);
-            }}
-          >
-            Close
-          </button>
         </S.ModalBtn>
       </S.ModalWrapper>
     </ModalComponent>

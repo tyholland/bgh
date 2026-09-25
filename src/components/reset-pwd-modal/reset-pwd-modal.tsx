@@ -38,7 +38,11 @@ const ResetPwd = ({ openModal, setOpenModal }: ResetPwdProps) => {
   };
 
   return (
-    <ModalComponent isOpen={openModal} title={`Forgot Password`}>
+    <ModalComponent
+      isOpen={openModal}
+      onClose={close}
+      title={`Forgot Password`}
+    >
       <S.ModalWrapper>
         {status === "sent" ? (
           <span>
@@ -70,9 +74,6 @@ const ResetPwd = ({ openModal, setOpenModal }: ResetPwdProps) => {
               Reset Password
             </button>
           )}
-          <button onClick={close} className="submit">
-            Close
-          </button>
         </S.ModalBtn>
       </S.ModalWrapper>
     </ModalComponent>

@@ -39,19 +39,16 @@ const SignOutModal = ({ openModal, setOpenModal }: SignOutModalProps) => {
   };
 
   return (
-    <ModalComponent isOpen={openModal} title={`Your Account`}>
+    <ModalComponent
+      isOpen={openModal}
+      onClose={() => setOpenModal(false)}
+      title={`Your Account`}
+    >
       <S.ModalWrapper>
         <span>Do you want to sign out?</span>
         <S.ModalBtn>
           <button className="submit" onClick={handleSignOut}>
             Sign Out
-          </button>
-          <button
-            onClick={() => {
-              setOpenModal(false);
-            }}
-          >
-            Close
           </button>
         </S.ModalBtn>
       </S.ModalWrapper>
