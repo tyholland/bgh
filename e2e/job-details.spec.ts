@@ -20,8 +20,14 @@ test.describe("job details", () => {
     await expect(
       page.getByText(`Company: ${JOB_WITH_XSS_COMPANY}`),
     ).toBeVisible();
-    await expect(page.getByText("Austin, TX")).toBeVisible();
     await expect(page.getByText("Design large-scale systems.")).toBeVisible();
+
+    // Location lives under "Additional Details", collapsed by default.
+    await expect(page.getByText("Austin, TX")).not.toBeVisible();
+    await page
+      .getByRole("button", { name: "Additional Details" })
+      .click();
+    await expect(page.getByText("Austin, TX")).toBeVisible();
 
     // The fixture description carries a <script> tag and an onerror handler —
     // DOMPurify (cardDetails-modal.tsx) must strip both before they reach the
