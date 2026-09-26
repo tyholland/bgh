@@ -21,6 +21,7 @@ export const ModalBtn = styled.div`
     border-radius: 20px;
     border: none;
     background: #1439e6;
+    color: #fff;
 
     @media only screen and (max-width: 950px) {
       width: 90%;

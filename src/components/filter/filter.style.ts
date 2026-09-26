@@ -159,6 +159,7 @@ export const Section = styled.div`
     font-size: 12px;
     border-radius: 10px;
     background: #1439e6;
+    color: #fff;
 
     &:hover {
       cursor: pointer;
