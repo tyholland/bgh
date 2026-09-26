@@ -92,6 +92,9 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
         </S.ModalBtn>
         {showDetails && (
           <>
+            <div>
+              <i>-- Under Development --</i>
+            </div>
             {data?.Details?.datePosted && (
               <div>
                 <span className="title">Date Posted by Company:</span>{" "}
