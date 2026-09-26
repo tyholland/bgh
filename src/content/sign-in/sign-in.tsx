@@ -2,7 +2,12 @@
 
 import { userAtom } from "@/caches/UserAtom";
 import { getFirebaseAuth } from "@/functions/firebase";
-import { trackError, trackEvent, trackIdentity, trackPage } from "@/functions/mixpanel";
+import {
+  trackError,
+  trackEvent,
+  trackIdentity,
+  trackPage,
+} from "@/functions/mixpanel";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useAtomValue } from "jotai";
 import Link from "next/link";

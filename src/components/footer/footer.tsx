@@ -9,7 +9,12 @@ const Footer = () => {
 
   return (
     <footer>
-      <Image src="/dark-logo.png" alt="BGH Scout Logo" width={170} height={104} />
+      <Image
+        src="/dark-logo.png"
+        alt="BGH Scout Logo"
+        width={170}
+        height={104}
+      />
       <div className="linkWrapper">
         <Link href="/about">About</Link>
         <Link href="/contact">Contact Us</Link>

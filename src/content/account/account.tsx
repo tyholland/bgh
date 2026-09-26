@@ -69,7 +69,8 @@ const Account = () => {
     const currentUser = auth.currentUser;
     const trimmedName = displayName.trim();
 
-    if (!currentUser || !trimmedName || trimmedName === user?.displayName) return;
+    if (!currentUser || !trimmedName || trimmedName === user?.displayName)
+      return;
 
     setIsSavingName(true);
 
