@@ -4,10 +4,10 @@ import { useEffect } from "react";
 
 export default function Error({
   error,
-  reset,
+  retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  retry: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -29,7 +29,7 @@ export default function Error({
         We couldn&apos;t load this page right now. Please try again in a moment.
       </p>
       <button
-        onClick={reset}
+        onClick={retry}
         style={{
           border: "none",
           borderRadius: 10,

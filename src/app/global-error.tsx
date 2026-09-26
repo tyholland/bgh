@@ -1,6 +1,6 @@
 "use client";
 
-export default function GlobalError({ reset }: { reset: () => void }) {
+export default function GlobalError({ retry }: { retry: () => void }) {
   return (
     <html lang="en">
       <body
@@ -17,7 +17,7 @@ export default function GlobalError({ reset }: { reset: () => void }) {
         <h1>Something went wrong</h1>
         <p>The app hit an unexpected error. Please reload.</p>
         <button
-          onClick={reset}
+          onClick={retry}
           style={{
             border: "none",
             borderRadius: 10,
