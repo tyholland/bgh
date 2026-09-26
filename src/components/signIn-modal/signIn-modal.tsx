@@ -13,7 +13,11 @@ const SignInModal = ({ openModal, setOpenModal }: SignInModalProps) => {
   const navigate = useRouter();
 
   return (
-    <ModalComponent isOpen={openModal} title={`Please Sign In`}>
+    <ModalComponent
+      isOpen={openModal}
+      onClose={() => setOpenModal(false)}
+      title={`Please Sign In`}
+    >
       <S.ModalWrapper>
         <span>You need to sign in, in order to use BGH features</span>
         <S.ModalBtn>
@@ -24,14 +28,6 @@ const SignInModal = ({ openModal, setOpenModal }: SignInModalProps) => {
             }}
           >
             Sign In
-          </button>
-          <button
-            onClick={() => {
-              setOpenModal(false);
-            }}
-            className="submit"
-          >
-            Close
           </button>
         </S.ModalBtn>
       </S.ModalWrapper>

@@ -10,11 +10,13 @@ import {
   LargeModalStyle,
   MediumModalStyle,
 } from "@/constants";
+import { CloseButton } from "./modal.style";
 
 interface ModalComponentProps {
   title: string;
   children: string | JSX.Element;
   isOpen: boolean;
+  onClose: () => void;
   size?: ElementSize;
 }
 
@@ -22,6 +24,7 @@ const ModalComponent = ({
   title,
   children,
   isOpen,
+  onClose,
   size = "small",
 }: ModalComponentProps) => {
   const modalSize =
@@ -34,8 +37,11 @@ const ModalComponent = ({
           : {};
 
   return (
-    <Modal open={isOpen} aria-labelledby="modal-modal-title">
+    <Modal open={isOpen} onClose={onClose} aria-labelledby="modal-modal-title">
       <Box sx={modalSize}>
+        <CloseButton onClick={onClose} aria-label="Close">
+          ×
+        </CloseButton>
         <Typography id="modal-modal-title" variant="h4" component="h2">
           {title}
         </Typography>

@@ -1,19 +1,17 @@
 import { revalidateTag } from "next/cache";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET() {
-  const hour = Number(
-    new Intl.DateTimeFormat("en-US", {
-      hour: "numeric",
-      hour12: false,
-      timeZone: "America/New_York",
-    }).format(new Date()),
-  );
+// Called by the BGH Scout API after each ingest run so the site picks up fresh
+// jobs immediately instead of waiting for the 15-minute fetch cache to lapse.
+export async function POST(req: NextRequest) {
+  const secret = process.env.REVALIDATE_SECRET;
+  const provided = req.headers.get("authorization")?.replace("Bearer ", "");
 
-  if (![3, 9, 15, 21].includes(hour)) {
-    return Response.json({ skipped: true });
+  if (!secret || provided !== secret) {
+    return NextResponse.json({ revalidated: false }, { status: 401 });
   }
 
   revalidateTag("leads", "max");
 
-  return Response.json({ revalidated: true });
+  return NextResponse.json({ revalidated: true, now: Date.now() });
 }

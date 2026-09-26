@@ -3,25 +3,41 @@
 import * as S from "./signIn-modal.style";
 import ModalComponent from "../modal/modal";
 import Filter from "../filter/filter";
+import { AllSearchData } from "@/types";
 
 interface FilterModalProps {
   openModal: boolean;
   setOpenModal: (val: boolean) => void;
+  data: AllSearchData;
+  onSaveSearchClick: () => void;
 }
 
-const FilterModal = ({ openModal, setOpenModal }: FilterModalProps) => {
+const FilterModal = ({
+  openModal,
+  setOpenModal,
+  data,
+  onSaveSearchClick,
+}: FilterModalProps) => {
+  const handleSaveSearch = () => {
+    setOpenModal(false);
+    onSaveSearchClick();
+  };
+
   return (
-    <ModalComponent isOpen={openModal} title={`Filter Jobs`} size="large">
+    <ModalComponent
+      isOpen={openModal}
+      onClose={() => setOpenModal(false)}
+      title={`Filter Jobs`}
+      size="large"
+    >
       <S.ModalWrapper>
-        <Filter />
+        <Filter
+          companies={data.companies}
+          industries={data.industries}
+          scrapDates={data.scrapDates}
+        />
         <S.ModalBtn>
-          <button
-            onClick={() => {
-              setOpenModal(false);
-            }}
-          >
-            Close
-          </button>
+          <button onClick={handleSaveSearch}>Save Search</button>
         </S.ModalBtn>
       </S.ModalWrapper>
     </ModalComponent>

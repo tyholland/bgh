@@ -3,7 +3,6 @@
 import * as S from "./list.style";
 import { CsvData } from "@/types";
 import { useAtomValue } from "jotai";
-import { jobAtom } from "@/caches/JobsAtom";
 import { trackEvent } from "@/functions/mixpanel";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -12,10 +11,14 @@ import { useState } from "react";
 import { userAtom } from "@/caches/UserAtom";
 import CardDetails from "../cardDetails-modal/cardDetails-modal";
 
-const List = () => {
+dayjs.extend(relativeTime);
+
+interface ListProps {
+  jobs: CsvData[];
+}
+
+const List = ({ jobs }: ListProps) => {
   const user = useAtomValue(userAtom);
-  const jobData = useAtomValue(jobAtom);
-  dayjs.extend(relativeTime);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [cardModal, setCardModal] = useState<boolean>(false);
   const [cardData, setCardData] = useState<CsvData | null>(null);
@@ -38,7 +41,7 @@ const List = () => {
           </div>
         </S.Section>
       </S.Wrapper>
-      {jobData?.data.map((item: CsvData, index: number) => {
+      {jobs.map((item: CsvData) => {
         const openJobDetails = () => {
           if (!user) {
             setOpenModal(true);
@@ -54,11 +57,10 @@ const List = () => {
           setCardModal(true);
         };
 
-        const currentDate = dayjs(item.Scrape_DateTime);
-        const postedTime = dayjs(currentDate).fromNow();
+        const postedTime = dayjs(item.Scrape_DateTime).fromNow();
 
         return (
-          <S.Wrapper onClick={openJobDetails} key={index}>
+          <S.Wrapper onClick={openJobDetails} key={item.Link}>
             <S.Section>
               <div className="position">{item["Role Name"]}</div>
               <div className="company">{item.Company}</div>

@@ -1,38 +1,33 @@
 "use client";
 
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import * as S from "./search.style";
-import { useAtom, useAtomValue } from "jotai";
-import { jobAtom } from "@/caches/JobsAtom";
-import { handleSearchParams } from "@/functions/search";
+import { useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/functions/mixpanel";
+import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import SignInModal from "../signIn-modal/signIn-modal";
 
 const Search = () => {
-  const query = window.location.search;
-  const defaultParams = new URLSearchParams(query);
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
-  const [jobData, setJobData] = useAtom(jobAtom);
   const [searchWord, setSearchWord] = useState<string>(
-    defaultParams?.get("search") || "",
+    searchParams.get("search") || "",
   );
   const [openModal, setOpenModal] = useState<boolean>(false);
 
-  const handledSearchedWord = (e: ChangeEvent<HTMLInputElement>) => {
-    const choosen = e.target.value;
-    setSearchWord(choosen);
+  const applySearch = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
 
-    if (choosen === "") {
-      const query = window.location.search;
-      const params = new URLSearchParams(query);
-      params.set("search", "");
-
-      const updatedQuery = `?${params.toString()}`;
-      window.history.pushState({}, "", updatedQuery);
-
-      jobData && handleSearchParams(jobData, params, setJobData);
+    if (value) {
+      params.set("search", value);
+    } else {
+      params.delete("search");
     }
+
+    params.set("page", "1");
+    router.push(`/?${params.toString()}`, { scroll: false });
   };
 
   const handleSearchBtn = () => {
@@ -41,32 +36,17 @@ const Search = () => {
       return;
     }
 
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-
-    params.set("search", searchWord);
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
-    jobData && handleSearchParams(jobData, params, setJobData);
+    applySearch(searchWord.trim());
 
     trackEvent(user, "Search", {
       type: "input field",
-      value: searchWord,
+      value: searchWord.trim(),
     });
   };
 
   const handleClear = () => {
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-
-    params.set("search", "");
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
     setSearchWord("");
-
-    jobData && handleSearchParams(jobData, params, setJobData);
+    applySearch("");
 
     trackEvent(user, "Search", {
       type: "clear",
@@ -85,12 +65,16 @@ const Search = () => {
             name="mainSearch"
             placeholder="Search jobs, keywords, skills..."
             value={searchWord}
-            onChange={handledSearchedWord}
+            onChange={(e) => setSearchWord(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearchBtn()}
           />
-          <button onClick={handleSearchBtn} disabled={searchWord.length === 0}>
+          <button
+            onClick={handleSearchBtn}
+            disabled={searchWord.trim().length === 0}
+          >
             Search Jobs
           </button>
-          {searchWord.length !== 0 && (
+          {(searchWord.length !== 0 || searchParams.get("search")) && (
             <button className="reset" onClick={handleClear}>
               Clear
             </button>

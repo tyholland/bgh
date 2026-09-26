@@ -3,29 +3,26 @@
 import * as S from "./pagination.style";
 import ReactPaginate from "react-paginate";
 import { PaginationClick } from "@/types";
-import { useAtom } from "jotai";
-import { jobAtom } from "@/caches/JobsAtom";
-import { handleSearchParams } from "@/functions/search";
+import { useRouter, useSearchParams } from "next/navigation";
 
 interface PaginationProps {
   totalPages: number;
+  page: number;
 }
 
-const Pagination = ({ totalPages }: PaginationProps) => {
-  const [jobData, setJobData] = useAtom(jobAtom);
-  const query = window.location.search;
-  const params = new URLSearchParams(query);
+const Pagination = ({ totalPages, page }: PaginationProps) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const goToNewPage = (pageNum: PaginationClick) => {
-    const query = window.location.search;
-    const params = new URLSearchParams(query);
-
-    params.set("page", `${pageNum.selected + 1}`);
-    const updatedQuery = `?${params.toString()}`;
-    window.history.pushState({}, "", updatedQuery);
-
-    jobData && handleSearchParams(jobData, params, setJobData);
+  const goToNewPage = ({ selected }: PaginationClick) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", `${selected + 1}`);
+    router.push(`/?${params.toString()}`, { scroll: false });
   };
+
+  if (totalPages <= 1) {
+    return null;
+  }
 
   return (
     <S.Wrapper>
@@ -37,7 +34,7 @@ const Pagination = ({ totalPages }: PaginationProps) => {
         pageCount={totalPages}
         previousLabel="<"
         renderOnZeroPageCount={null}
-        forcePage={params.get("page") ? Number(params.get("page")) - 1 : 0}
+        forcePage={Math.min(Math.max(page, 1), totalPages) - 1}
       />
     </S.Wrapper>
   );

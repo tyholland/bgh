@@ -1,114 +1,78 @@
 "use client";
 
 import { userAtom } from "@/caches/UserAtom";
-import { initFirebase } from "@/functions/firebase";
+import { getFirebaseAuth } from "@/functions/firebase";
 import {
   trackError,
   trackEvent,
   trackIdentity,
   trackPage,
 } from "@/functions/mixpanel";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { useAtom } from "jotai";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useAtomValue } from "jotai";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./sign-in.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import ResetPwd from "@/components/reset-pwd-modal/reset-pwd-modal";
 
 const SignIn = () => {
-  initFirebase();
-  const auth = getAuth();
-  const [user, setUser] = useAtom(userAtom);
+  const router = useRouter();
+  const user = useAtomValue(userAtom);
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isDisabled, setIsDisabled] = useState<boolean>(true);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
 
+  useEffect(() => {
+    trackPage(user, "Sign In", window.location.href);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (user) router.replace("/");
+  }, [user, router]);
+
   const handleSignIn = async () => {
-    const email = userEmail;
-    const password = userPassword;
-    setIsDisabled(true);
+    setIsSubmitting(true);
+    setErrorMsg(null);
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password,
+      const { user: fbUser } = await signInWithEmailAndPassword(
+        getFirebaseAuth(),
+        userEmail,
+        userPassword,
       );
 
-      const { user } = userCredential;
+      trackIdentity(fbUser.uid, userEmail, fbUser.displayName || "");
+      trackEvent(null, "Sign In", { type: "sign in", email: userEmail });
 
-      trackIdentity(user.uid, email, user.displayName || "");
+      router.replace("/");
+    } catch (error) {
+      const code = (error as { code?: string }).code ?? "unknown";
+      const message = (error as { message?: string }).message ?? "";
 
-      setTimeout(() => {
-        trackEvent(user, "Sign In", {
-          type: "sign in",
-          email: email,
-        });
-
-        window.localStorage.setItem(
-          "bgh.user",
-          JSON.stringify({
-            ...user.providerData[0],
-            uid: user.uid,
-          }),
-        );
-
-        setUser({
-          ...user.providerData[0],
-          uid: user.uid,
-        });
-      }, 2000);
-
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 7000);
-    } catch (error: any) {
-      setIsDisabled(false);
-      const errorCode = error.code;
-      const errorMessage = error.message;
-
-      trackError(user, "Sign In", {
-        code: errorCode,
-        message: errorMessage,
-        email: email,
-      });
-
-      setErrorMsg(errorCode);
+      trackError(user, "Sign In", { code, message, email: userEmail });
+      setErrorMsg(code);
+      setIsSubmitting(false);
     }
   };
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement>,
-    type: string,
+    type: "email" | "password",
   ) => {
     setErrorMsg(null);
-    const val = e.target.value;
-
-    switch (type) {
-      case "email":
-        setUserEmail(val);
-        break;
-      case "password":
-        setUserPassword(val);
-        break;
-      default:
-        setUserEmail(val);
-        break;
+    if (type === "password") {
+      setUserPassword(e.target.value);
+    } else {
+      setUserEmail(e.target.value);
     }
-
-    setIsDisabled(!userEmail || !userPassword);
   };
 
-  useEffect(() => {
-    trackPage(user, "Sign In", window.location.href);
-  }, []);
-
-  if (!!user && typeof window !== "undefined") {
-    window.location.href = "/";
-  }
+  const isDisabled = isSubmitting || !userEmail || !userPassword;
 
   return (
     <>
@@ -134,14 +98,14 @@ const SignIn = () => {
         {errorMsg && <ErrorBlock error={errorMsg} />}
         <S.Section>
           <S.Button onClick={handleSignIn} disabled={isDisabled}>
-            Sign In
+            {isSubmitting ? "Signing In..." : "Sign In"}
           </S.Button>
           <S.Button className="textBtn" onClick={() => setOpenModal(true)}>
             Forgot Password
           </S.Button>
         </S.Section>
         <S.SignUp>
-          Don't have an account. <Link href="/sign-up">Sign Up</Link>
+          Don&apos;t have an account. <Link href="/sign-up">Sign Up</Link>
         </S.SignUp>
       </S.Wrapper>
       <ResetPwd openModal={openModal} setOpenModal={setOpenModal} />

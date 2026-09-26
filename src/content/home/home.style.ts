@@ -53,9 +53,10 @@ export const Section = styled.div`
   .options {
     display: flex;
     gap: 10px;
+    width: 35%;
 
     @media only screen and (max-width: 950px) {
-      width: 60%;
+      width: 90%;
     }
   }
 
@@ -117,7 +118,7 @@ export const Select = styled.select`
   background: #fff;
   color: #000;
   padding: 5px 10px;
-  width: 40%;
+  width: 50%;
 `;
 
 export const Banner = styled.div`

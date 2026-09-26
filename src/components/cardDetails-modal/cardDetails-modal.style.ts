@@ -14,7 +14,6 @@ export const ModalBtn = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 20px;
 
   button {
     width: 100px;
@@ -34,6 +33,9 @@ export const ModalBtn = styled.div`
     &.submit {
       background: #ddd;
       color: #000;
+      width: fit-content;
+      padding: 10px 15px;
+      margin-top: 20px;
 
       &:hover {
         background: #6faeff;

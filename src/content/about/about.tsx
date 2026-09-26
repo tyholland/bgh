@@ -1,19 +1,18 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import * as S from "./about.style";
-import { trackEvent, trackPage } from "@/functions/mixpanel";
+import { trackPage } from "@/functions/mixpanel";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 
 const About = () => {
-  const navigate = useRouter();
   const user = useAtomValue(userAtom);
 
   useEffect(() => {
     trackPage(user, "About", window.location.href);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

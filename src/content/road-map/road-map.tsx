@@ -22,6 +22,7 @@ const RoadMap = () => {
 
   useEffect(() => {
     trackPage(user, "Road Map", window.location.href);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

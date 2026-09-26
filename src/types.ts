@@ -21,25 +21,36 @@ export interface CsvData {
   Details?: JobDetails;
 }
 
+// Query-string params for the job board. Everything arrives as a string (or is
+// absent), so every field is optional.
 export interface UrlParams {
-  page: number;
-  search: string;
-  company: string;
-  date: string;
-  exact: string;
-  keyword: string;
-  industry: string;
-  sort: string;
+  page?: string;
+  search?: string;
+  company?: string;
+  date?: string;
+  exact?: string;
+  keyword?: string;
+  industry?: string;
+  sort?: string;
 }
 
+// A filterable value plus how many jobs currently match it.
+export interface Facet {
+  value: string;
+  count: number;
+}
+
+// The server-filtered payload handed to the client. Only the current page of
+// results is included — the full dataset never reaches the browser.
 export interface AllSearchData {
   data: CsvData[];
-  allData: CsvData[];
   total: number;
   totalPages: number;
+  page: number;
+  refreshedAt: string;
   scrapDates: string[];
-  companies: string[];
-  industries: string[];
+  companies: Facet[];
+  industries: Facet[];
 }
 
 export interface PaginationClick {
@@ -56,3 +67,14 @@ export interface User {
 }
 
 export type ElementSize = "small" | "medium" | "large";
+
+// A user's saved search — the filter criteria only, not the page number.
+export type SavedSearchParams = Omit<UrlParams, "page">;
+
+export interface SavedSearch {
+  id: string;
+  uid: string;
+  name: string | null;
+  params: SavedSearchParams;
+  createdAt: string;
+}

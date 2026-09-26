@@ -13,7 +13,7 @@ export const ModalBtn = styled.div`
   margin-top: 20px;
 
   button {
-    width: 100px;
+    width: 30%;
     padding: 10px;
     border-radius: 20px;
     border: none;

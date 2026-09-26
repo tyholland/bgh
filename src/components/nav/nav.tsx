@@ -1,56 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { trackEvent } from "@/functions/mixpanel";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useAtomValue } from "jotai";
-import { jobAtom } from "@/caches/JobsAtom";
 import { userAtom } from "@/caches/UserAtom";
 import UserIcon from "@/svg/UserIcon";
 
 const Nav = () => {
-  const navigate = useRouter();
-  const jobData = useAtomValue(jobAtom);
   const user = useAtomValue(userAtom);
 
-  const handleFeedback = () => {
-    navigate.push("/contact");
-
-    trackEvent(user, "Feedback", {
-      type: "button",
-      location: "nav",
-    });
-  };
-
   return (
-    <>
-      <header>
-        <Link href={!!jobData ? "/home" : "/"}>
-          <img
-            src="/bgh-logo.png"
-            alt="BGH Scout Logo"
-            width="200"
-            height="134"
-          />
-        </Link>
-        <div className="section">
-          <button onClick={handleFeedback}>Feedback</button>
-          <div className="linksWrapper">
-            {!!user ? (
-              <Link href="/account">
-                Welcome
-                {user.displayName
-                  ? ` ${user.displayName.split(" ")[0]}`
-                  : ""}{" "}
-                <UserIcon />
-              </Link>
-            ) : (
-              <Link href="/sign-in">Sign In</Link>
-            )}
-          </div>
+    <header>
+      <Link href="/">
+        <Image
+          src="/bgh-logo.png"
+          alt="BGH Scout Logo"
+          width={200}
+          height={134}
+        />
+      </Link>
+      <div className="section">
+        <div className="linksWrapper">
+          {user ? (
+            <Link href="/account">
+              Welcome
+              {user.displayName
+                ? ` ${user.displayName.split(" ")[0]}`
+                : ""}{" "}
+              <UserIcon />
+            </Link>
+          ) : (
+            <Link href="/sign-in">Sign In</Link>
+          )}
         </div>
-      </header>
-    </>
+      </div>
+    </header>
   );
 };
 

@@ -3,7 +3,6 @@
 import * as S from "./card.style";
 import { CsvData } from "@/types";
 import { useAtomValue } from "jotai";
-import { jobAtom } from "@/caches/JobsAtom";
 import { trackEvent } from "@/functions/mixpanel";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -12,17 +11,21 @@ import { useState } from "react";
 import { userAtom } from "@/caches/UserAtom";
 import CardDetails from "../cardDetails-modal/cardDetails-modal";
 
-const Card = () => {
+dayjs.extend(relativeTime);
+
+interface CardProps {
+  jobs: CsvData[];
+}
+
+const Card = ({ jobs }: CardProps) => {
   const user = useAtomValue(userAtom);
-  const jobData = useAtomValue(jobAtom);
-  dayjs.extend(relativeTime);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [cardModal, setCardModal] = useState<boolean>(false);
   const [cardData, setCardData] = useState<CsvData | null>(null);
 
   return (
     <>
-      {jobData?.data.map((item: CsvData, index: number) => {
+      {jobs.map((item: CsvData) => {
         const openJobDetails = () => {
           if (!user) {
             setOpenModal(true);
@@ -38,11 +41,10 @@ const Card = () => {
           setCardModal(true);
         };
 
-        const currentDate = dayjs(item.Scrape_DateTime);
-        const postedTime = dayjs(currentDate).fromNow();
+        const postedTime = dayjs(item.Scrape_DateTime).fromNow();
 
         return (
-          <S.Wrapper onClick={openJobDetails} key={index}>
+          <S.Wrapper onClick={openJobDetails} key={item.Link}>
             <div className="topLayer">
               <div className="company">{item.Company}</div>
               <div className="posted">Posted: {postedTime}</div>

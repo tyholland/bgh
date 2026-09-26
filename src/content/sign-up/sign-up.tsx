@@ -1,143 +1,104 @@
 "use client";
 
 import { userAtom } from "@/caches/UserAtom";
-import { initFirebase } from "@/functions/firebase";
+import { getFirebaseAuth } from "@/functions/firebase";
+import { trackError, trackEvent, trackIdentity, trackPage } from "@/functions/mixpanel";
+import { createUser } from "@/requests/user";
 import {
-  trackError,
-  trackEvent,
-  trackIdentity,
-  trackPage,
-} from "@/functions/mixpanel";
-import {
-  getAuth,
   createUserWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { useAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./sign-up.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 
 const SignUp = () => {
-  initFirebase();
-  const auth = getAuth();
-  const [user, setUser] = useAtom(userAtom);
+  const router = useRouter();
+  const user = useAtomValue(userAtom);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [isDisabled, setIsDisabled] = useState<boolean>(true);
-
-  const handleCreate = async () => {
-    const email = userEmail;
-    const password = userPassword;
-    setIsDisabled(true);
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-
-      const { user } = userCredential;
-
-      try {
-        await updateProfile(user, {
-          displayName: `${firstName} ${lastName}`,
-        });
-      } catch (error: any) {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-
-        trackError(user, "Update Account", {
-          code: errorCode,
-          message: errorMessage,
-          email: email,
-          displayName: `${firstName} ${lastName}`,
-        });
-      }
-
-      trackIdentity(user.uid, email, `${firstName} ${lastName}`);
-
-      setTimeout(() => {
-        trackEvent(user, "Account Creation", {
-          type: "new account",
-          email: email,
-          name: `${firstName} ${lastName}`,
-        });
-
-        window.localStorage.setItem(
-          "bgh.user",
-          JSON.stringify({
-            ...user.providerData[0],
-            uid: user.uid,
-            displayName: `${firstName} ${lastName}`,
-          }),
-        );
-
-        setUser({
-          ...user.providerData[0],
-          uid: user.uid,
-          displayName: `${firstName} ${lastName}`,
-        });
-      }, 2000);
-
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 7000);
-    } catch (error: any) {
-      setIsDisabled(false);
-      const errorCode = error.code;
-      const errorMessage = error.message;
-
-      trackError(user, "Create Account", {
-        code: errorCode,
-        message: errorMessage,
-        email,
-      });
-
-      setErrorMsg(errorCode);
-    }
-  };
-
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    type: string,
-  ) => {
-    setErrorMsg(null);
-    const val = e.target.value;
-
-    switch (type) {
-      case "firstName":
-        setFirstName(val);
-        break;
-      case "lastName":
-        setLastName(val);
-        break;
-      case "email":
-        setUserEmail(val);
-        break;
-      case "password":
-        setUserPassword(val);
-        break;
-      default:
-        setFirstName(val);
-        break;
-    }
-
-    setIsDisabled(!userEmail || !userPassword || !firstName || !lastName);
-  };
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     trackPage(user, "Sign Up", window.location.href);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (!!user && typeof window !== "undefined") {
-    window.location.href = "/";
-  }
+  useEffect(() => {
+    if (user) router.replace("/");
+  }, [user, router]);
+
+  const handleCreate = async () => {
+    setIsSubmitting(true);
+    setErrorMsg(null);
+
+    const name = `${firstName} ${lastName}`.trim();
+
+    try {
+      const { user: fbUser } = await createUserWithEmailAndPassword(
+        getFirebaseAuth(),
+        userEmail,
+        userPassword,
+      );
+
+      try {
+        await updateProfile(fbUser, { displayName: name });
+      } catch (error) {
+        trackError(user, "Update Account", {
+          code: (error as { code?: string }).code ?? "unknown",
+          message: (error as { message?: string }).message ?? "",
+          email: userEmail,
+          displayName: name,
+        });
+      }
+
+      try {
+        const idToken = await fbUser.getIdToken();
+        await createUser(
+          {
+            uid: fbUser.uid,
+            email: fbUser.email,
+            displayName: name,
+            phoneNumber: fbUser.phoneNumber,
+            photoURL: fbUser.photoURL,
+            providerId: fbUser.providerData[0]?.providerId ?? "firebase",
+          },
+          idToken,
+        );
+      } catch (error) {
+        trackError(user, "Create User Profile", {
+          code: (error as { code?: string }).code ?? "unknown",
+          message: (error as { message?: string }).message ?? "",
+          email: userEmail,
+        });
+      }
+
+      trackIdentity(fbUser.uid, userEmail, name);
+      trackEvent(null, "Account Creation", {
+        type: "new account",
+        email: userEmail,
+        name,
+      });
+
+      router.replace("/");
+    } catch (error) {
+      const code = (error as { code?: string }).code ?? "unknown";
+      const message = (error as { message?: string }).message ?? "";
+
+      trackError(user, "Create Account", { code, message, email: userEmail });
+      setErrorMsg(code);
+      setIsSubmitting(false);
+    }
+  };
+
+  const isDisabled =
+    isSubmitting || !userEmail || !userPassword || !firstName || !lastName;
 
   return (
     <>
@@ -146,7 +107,9 @@ const SignUp = () => {
           <S.Input
             type="text"
             name="firstName"
-            onChange={(e) => handleInputChange(e, "firstName")}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setFirstName(e.target.value)
+            }
             placeholder="Enter your first name"
             required
           />
@@ -155,7 +118,9 @@ const SignUp = () => {
           <S.Input
             type="text"
             name="lastName"
-            onChange={(e) => handleInputChange(e, "lastName")}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setLastName(e.target.value)
+            }
             placeholder="Enter your last name"
             required
           />
@@ -164,7 +129,9 @@ const SignUp = () => {
           <S.Input
             type="email"
             name="email"
-            onChange={(e) => handleInputChange(e, "email")}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setUserEmail(e.target.value)
+            }
             placeholder="Enter your email"
             required
           />
@@ -173,14 +140,16 @@ const SignUp = () => {
           <S.Input
             type="password"
             name="password"
-            onChange={(e) => handleInputChange(e, "password")}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setUserPassword(e.target.value)
+            }
             placeholder="Enter your password"
             required
           />
         </div>
         {errorMsg && <ErrorBlock error={errorMsg} />}
         <S.Button onClick={handleCreate} disabled={isDisabled}>
-          Create Account
+          {isSubmitting ? "Creating..." : "Create Account"}
         </S.Button>
         <S.SignIn>
           Already have an account. <Link href="/sign-in">Sign In</Link>
