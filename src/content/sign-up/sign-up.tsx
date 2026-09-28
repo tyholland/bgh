@@ -2,12 +2,14 @@
 
 import { userAtom } from "@/caches/UserAtom";
 import { getFirebaseAuth } from "@/functions/firebase";
-import { trackError, trackEvent, trackIdentity, trackPage } from "@/functions/mixpanel";
-import { createUser } from "@/requests/user";
 import {
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
+  trackError,
+  trackEvent,
+  trackIdentity,
+  trackPage,
+} from "@/functions/mixpanel";
+import { createUser } from "@/requests/user";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useAtomValue } from "jotai";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -64,7 +66,7 @@ const SignUp = () => {
           {
             uid: fbUser.uid,
             email: fbUser.email,
-            displayName: name,
+            displayName: firstName,
             phoneNumber: fbUser.phoneNumber,
             photoURL: fbUser.photoURL,
             providerId: fbUser.providerData[0]?.providerId ?? "firebase",
