@@ -348,30 +348,67 @@ Firebase remains the source of truth for auth.
   `uid` — never trust the body alone.
 - Upsert semantics are fine (sign-up already guarantees the uid is new via
   Firebase, but treat a duplicate as a no-op rather than a hard failure).
+- New rows default `email_notifications` to `true` (the column default) — the
+  body never sets it at sign-up time.
 - Return `201 { ok: true }`; `4xx` on a token/uid mismatch or malformed body.
+
+### `GET /v1/users/:uid`
+
+Reads the caller's own profile, used by the account page
+(`src/components/notification-settings/notification-settings.tsx`) to load
+the current `emailNotifications` value — a preference that lives only in this
+table and has no Firebase equivalent, so it can't come from `onAuthStateChanged`.
+
+- Auth: `Authorization: Bearer <Firebase ID token>`, same uid-match rule as
+  below — a user may only read their own record.
+- Return `200`:
+  ```jsonc
+  {
+    "uid": "…",
+    "email": "…",
+    "displayName": "…",
+    "phoneNumber": null,
+    "photoURL": null,
+    "providerId": "password",
+    "emailNotifications": true
+  }
+  ```
+- `404` if the uid has no profile row yet.
 
 ### `PATCH /v1/users/:uid`
 
-Syncs profile edits (e.g. display name) made from `src/content/account/account.tsx`
-after they've already been applied in Firebase.
+Syncs profile edits (e.g. display name, or the email notification toggle in
+the new "Notification Emails" account section) made from
+`src/content/account/account.tsx` after any Firebase-side change has already
+been applied.
 
 ```jsonc
-// request body — same shape as POST /v1/users
+// request body — a PARTIAL update: only send the fields that changed.
+// `src/requests/user.ts` has two callers today:
+//  - updateUser() sends the full Firebase-sourced profile shape (uid, email,
+//    displayName, phoneNumber, photoURL, providerId) after a Firebase profile edit.
+//  - updateEmailNotifications() sends only { "emailNotifications": true|false }.
 {
-  "uid": "…",
-  "email": "…",
-  "displayName": "…",
-  "phoneNumber": null,
-  "photoURL": null,
-  "providerId": "password"
+  "emailNotifications": false
 }
 ```
 
 - Auth: `Authorization: Bearer <Firebase ID token>`, same uid-match rule as
   above — a user may only update their own record.
+- Merge semantics: update only the keys present in the body; leave every
+  other column (including `email_notifications`) untouched.
 - Return `200 { ok: true }`; `404` if the uid has no profile row yet (the
   frontend doesn't currently handle this as a fallback create — decide
   whether the API should upsert instead).
+
+**Notification gating rule (applies to any future email-sending feature, not
+just this endpoint):** `email_notifications` is the single switch for whether
+this user may be emailed anything *unsolicited* — job-match alerts, saved-search
+digests, or any other notification a future job/worker sends. Before any such
+send, the backend must load the row and skip the send entirely if
+`email_notifications` is `false`. This does **not** apply to `POST /v1/contact`,
+which relays a message the user actively submitted, not a notification sent to
+them.
 
 ### `POST /v1/saved-searches`
 
@@ -471,14 +508,15 @@ create table jobs (
 );
 
 create table users (
-  uid           text primary key,       -- Firebase uid
-  email         text,
-  display_name  text,
-  phone_number  text,
-  photo_url     text,
-  provider_id   text not null default 'password',
-  created_at    timestamptz not null default now(),
-  updated_at    timestamptz not null default now()
+  uid                  text primary key,       -- Firebase uid
+  email                text,
+  display_name         text,
+  phone_number         text,
+  photo_url            text,
+  provider_id          text not null default 'password',
+  email_notifications  boolean not null default true, -- master switch: see §5 gating rule
+  created_at           timestamptz not null default now(),
+  updated_at           timestamptz not null default now()
 );
 
 create table saved_searches (
@@ -636,7 +674,7 @@ bgh-scout-api/
 
 ### Phase 3 — contact + revalidation + schedule + deploy
 - [ ] `POST /v1/contact`: validate, rate-limit, send to `CONTACT_RECIPIENTS`, generic errors (§5).
-- [ ] `POST /v1/users` + `PATCH /v1/users/:uid`: `firebase-admin` ID token verification (uid must match), upsert into `users` table.
+- [ ] `POST /v1/users` + `GET /v1/users/:uid` + `PATCH /v1/users/:uid`: `firebase-admin` ID token verification (uid must match), upsert into `users` table. `PATCH` merges only the provided keys — needed for the `emailNotifications` toggle to not clobber the rest of the profile. Any future notification-sending code must check `email_notifications` before emailing a user (§5 gating rule).
 - [ ] `POST /v1/saved-searches` + `GET /v1/saved-searches` + `DELETE /v1/saved-searches/:id`: `firebase-admin` ID token verification, scoped to the token's `uid`, backed by the `saved_searches` table (§6).
 - [ ] `revalidate.ts`: after a successful ingest, `POST FRONTEND_REVALIDATE_URL` with `Bearer REVALIDATE_SECRET` (§5.1).
 - [ ] Deploy web service (Render/Railway).
@@ -655,6 +693,7 @@ bgh-scout-api/
 - [x] sign-in / sign-up: dropped the 2s + 7s `setTimeout` redirects; navigate on the auth promise. account / sign-in / sign-up: redirect moved out of render into `useEffect`.
 - [x] `/api/send-email` **deleted** (was an open mail relay). `src/requests/email.ts` → `sendContactMessage()` → `POST ${API}/v1/contact` (no client-controlled `to`). `nodemailer` removed.
 - [x] `src/requests/user.ts` → `createUser()` / `updateUser()`, Firebase ID token bearer auth. Wired into sign-up (`src/content/sign-up/sign-up.tsx`, best-effort after Firebase account creation) and account (`src/content/account/account.tsx`, new "Name" section — updates Firebase `displayName` then syncs it). Blocked on the API implementing `POST /v1/users` + `PATCH /v1/users/:uid` (§5).
+- [x] `src/requests/user.ts` → `getUser()` / `updateEmailNotifications()`. New "Notification Emails" account section (`src/components/notification-settings/notification-settings.tsx`) loads `emailNotifications` via `GET /v1/users/:uid` and flips it via a partial `PATCH /v1/users/:uid` body. Blocked on the API implementing `GET /v1/users/:uid`, the `PATCH` merge semantics, the `users.email_notifications` column, and the gating rule that any notification-sending code must skip a user with `email_notifications = false` (§5, §6) — no such sending code exists yet in this plan, so there's nothing else in this repo to gate today.
 - [x] `/api/revalidate`: now `POST` only, requires `Bearer REVALIDATE_SECRET`, no hour logic. `src/vercel.json` (dead cron at wrong path) deleted.
 - [x] `src/app/error.tsx` / `global-error.tsx` / `not-found.tsx` / `loading.tsx` added.
 - [x] Cleanup: `card`/`list` keys use `item.Link`; pagination `forcePage` clamped; sort `<select>` options match the state; `mixpanel` `debug` dev-only + `Object`→typed; unused deps removed (`papaparse`, `mailto-link`, `react-toggle-button`); README rewritten.

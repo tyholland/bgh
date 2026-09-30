@@ -8,6 +8,7 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import SignOutModal from "@/components/signOut-modal/signOut-modal";
 import SavedSearches from "@/components/saved-searches/saved-searches";
+import NotificationSettings from "@/components/notification-settings/notification-settings";
 import {
   updatePassword,
   updateProfile,
@@ -212,6 +213,11 @@ const Account = () => {
         <S.Pwd>
           <h3>Saved Searches</h3>
           <SavedSearches />
+        </S.Pwd>
+        <hr />
+        <S.Pwd>
+          <h3>Notification Emails</h3>
+          <NotificationSettings />
         </S.Pwd>
         <hr />
         <button onClick={() => setOpenModal(true)}>Sign Out</button>
