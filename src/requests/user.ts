@@ -68,3 +68,60 @@ export const updateUser = async (user: User, idToken: string) => {
     throw new Error(`Update user API responded with ${res.status}`);
   }
 };
+
+/**
+ * Fetches the caller's own profile, including preferences (e.g.
+ * `emailNotifications`) that live only in the API's `users` table and have no
+ * Firebase equivalent. `idToken` must belong to `uid`.
+ */
+export const getUser = async (
+  uid: string,
+  idToken: string,
+): Promise<UserProfilePayload & { emailNotifications: boolean }> => {
+  if (!API_BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is not set — cannot load user.");
+  }
+
+  const res = await fetch(`${API_BASE_URL}/v1/users/${uid}`, {
+    headers: {
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Get user API responded with ${res.status}`);
+  }
+
+  return res.json();
+};
+
+/**
+ * Flips the account-level email notification preference. This is the single
+ * switch the backend must check before sending any notification email to
+ * this user — a partial update, unlike `updateUser`, so it never touches the
+ * Firebase-sourced profile fields.
+ */
+export const updateEmailNotifications = async (
+  uid: string,
+  emailNotifications: boolean,
+  idToken: string,
+) => {
+  if (!API_BASE_URL) {
+    throw new Error(
+      "NEXT_PUBLIC_API_BASE_URL is not set — cannot update notification preference.",
+    );
+  }
+
+  const res = await fetch(`${API_BASE_URL}/v1/users/${uid}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ emailNotifications }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Update notification preference API responded with ${res.status}`);
+  }
+};
