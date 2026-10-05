@@ -14,28 +14,6 @@ export const Wrapper = styled.div`
     flex-direction: column;
   }
 
-  .resetAll {
-    width: 50%;
-    border: none;
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 10px;
-    background: #ff6b6b;
-    color: #fff;
-    cursor: pointer;
-
-    &:hover {
-      box-shadow: 5px 5px 5px #ddd;
-    }
-
-    &:disabled {
-      cursor: no-drop;
-      background: #ddd;
-      color: #999;
-      box-shadow: none;
-    }
-  }
-
   .react-datepicker-wrapper {
     input {
       background: #fff;

@@ -72,12 +72,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     [industries, industryQuery],
   );
 
-  const hasActiveFilters =
-    selectedCompanies.length > 0 ||
-    selectedIndustries.length > 0 ||
-    postedDate.length > 0 ||
-    exactDate.length > 0;
-
   const requireUser = () => {
     if (user) return true;
     setOpenModal(true);
@@ -159,30 +153,18 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     trackEvent(user, "Filter", { type: "exact date", value: choice });
   };
 
-  const handleReset = (filter: string) => {
+  const handleReset = (filter: "company" | "industry" | "date") => {
     pushParams((params) => {
-      if (filter === "all") {
-        ["company", "industry", "date", "exact"].forEach((key) =>
-          params.delete(key),
-        );
-        setCompanyArr([]);
-        setIndustryArr([]);
+      params.delete(filter);
+      if (filter === "company") setCompanyArr([]);
+      if (filter === "industry") setIndustryArr([]);
+      if (filter === "date") {
+        params.delete("exact");
         setShowExactDate(false);
-      } else {
-        params.delete(filter);
-        if (filter === "company") setCompanyArr([]);
-        if (filter === "industry") setIndustryArr([]);
-        if (filter === "date") {
-          params.delete("exact");
-          setShowExactDate(false);
-        }
       }
     });
 
-    trackEvent(user, "Filter", {
-      type: "reset",
-      value: filter === "all" ? "all filters" : filter,
-    });
+    trackEvent(user, "Filter", { type: "reset", value: filter });
   };
 
   return (
@@ -322,13 +304,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.FilterContent>
           </div>
         )}
-        <button
-          className="resetAll"
-          onClick={() => handleReset("all")}
-          disabled={!hasActiveFilters}
-        >
-          Reset All Filters
-        </button>
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
     </>

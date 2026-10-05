@@ -17,6 +17,15 @@ export const ModalWrapper = styled.div`
   .error {
     color: #c0392b;
   }
+
+  .notice {
+    background: #ffe9a8;
+    width: fit-content;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 700;
+    color: #000;
+  }
 `;
 
 export const Input = styled.input`
