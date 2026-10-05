@@ -19,12 +19,14 @@ const applyFilters = (jobs, params) => {
 
   const search = params.get("search");
   if (search) {
-    const needle = search.toLowerCase();
-    result = result.filter((job) =>
-      `${job["Role Name"]} ${job.Company} ${job["Primary Industry"]}`
-        .toLowerCase()
-        .includes(needle),
-    );
+    const needles = search
+      .split(",")
+      .filter(Boolean)
+      .map((entry) => entry.toLowerCase());
+    result = result.filter((job) => {
+      const title = job["Role Name"].toLowerCase();
+      return needles.every((needle) => title.includes(needle));
+    });
   }
 
   const keyword = params.get("keyword");
