@@ -64,16 +64,6 @@ const Search = () => {
     });
   };
 
-  const handleClear = () => {
-    setSearchWord("");
-    pushParams((params) => params.delete("search"));
-
-    trackEvent(user, "Search", {
-      type: "clear",
-      value: "clear search input",
-    });
-  };
-
   const handleSaveSearchClick = () => {
     if (!requireUser()) return;
     setOpenSaveSearchModal(true);
@@ -99,11 +89,6 @@ const Search = () => {
           >
             Search Jobs
           </button>
-          {searchBubble.length > 0 && (
-            <button className="reset" onClick={handleClear}>
-              Clear
-            </button>
-          )}
           <button className="save" onClick={handleSaveSearchClick}>
             Save Search
           </button>
