@@ -5,7 +5,6 @@ export const Wrapper = styled.div`
   flex-direction: column;
   gap: 30px;
   padding: 2%;
-  margin: 30px 0;
 
   @media only screen and (max-width: 950px) {
     padding: 2%;
@@ -17,6 +16,7 @@ export const CardWrapper = styled.div`
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
+  margin: 30px 0;
 
   &.list {
     gap: 0;
