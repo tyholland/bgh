@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import * as S from "./signIn-modal.style";
+import * as S from "./filter-modal.style";
 import ModalComponent from "../modal/modal";
 import Filter from "../filter/filter";
 import { AllSearchData } from "@/types";
@@ -69,8 +69,19 @@ const FilterModal = ({
           >
             Reset All Filters
           </button>
-          <button onClick={handleSaveSearch}>Save Search</button>
-          <button onClick={() => setOpenModal(false)}>See Results</button>
+          <button
+            className="save"
+            onClick={handleSaveSearch}
+            disabled={!hasActiveFilters}
+          >
+            Save Search
+          </button>
+          <button
+            onClick={() => setOpenModal(false)}
+            disabled={!hasActiveFilters}
+          >
+            See Results
+          </button>
         </S.ModalBtn>
       </S.ModalWrapper>
     </ModalComponent>

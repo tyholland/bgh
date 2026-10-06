@@ -32,9 +32,8 @@ export const Wrapper = styled.div`
     }
 
     &.save {
-      background: transparent;
-      border: 1px solid #1439e6;
-      color: #1439e6;
+      background: #6ad5b5;
+      color: #000;
     }
 
     &:hover {

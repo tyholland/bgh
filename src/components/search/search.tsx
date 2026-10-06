@@ -69,6 +69,8 @@ const Search = () => {
     setOpenSaveSearchModal(true);
   };
 
+  console.log(searchBubble.length);
+
   return (
     <>
       <S.Wrapper>
@@ -89,7 +91,11 @@ const Search = () => {
           >
             Search Jobs
           </button>
-          <button className="save" onClick={handleSaveSearchClick}>
+          <button
+            className="save"
+            onClick={handleSaveSearchClick}
+            disabled={searchBubble.length === 0}
+          >
             Save Search
           </button>
         </S.Section>

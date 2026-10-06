@@ -28,12 +28,7 @@ export const ModalBtn = styled.div`
 
     &:hover {
       cursor: pointer;
-    }
-
-    &:disabled {
-      cursor: no-drop;
-      background: #ddd;
-      color: #999;
+      box-shadow: 5px 5px 5px #999;
     }
 
     &.submit {
@@ -48,10 +43,17 @@ export const ModalBtn = styled.div`
 
     &.resetAll {
       background: #ff6b6b;
+    }
 
-      &:hover {
-        box-shadow: 5px 5px 5px #ddd;
-      }
+    &.save {
+      background: #6ad5b5;
+      color: #000;
+    }
+
+    &:disabled {
+      cursor: no-drop;
+      background: #ddd;
+      color: #999;
     }
   }
 `;
