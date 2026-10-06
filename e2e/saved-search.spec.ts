@@ -67,7 +67,6 @@ test("saves a search, applies it from the account page, then deletes it", async 
   await page.getByRole("button", { name: "Search Jobs" }).click();
   await expect(page.getByText("1 jobs found")).toBeVisible();
 
-  await page.getByRole("button", { name: "Filter Jobs" }).click();
   await page.getByRole("button", { name: "Save Search" }).click();
   await expect(
     page.getByRole("heading", { name: "Save Search" }),

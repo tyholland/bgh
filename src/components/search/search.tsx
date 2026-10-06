@@ -7,51 +7,70 @@ import { trackEvent } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import SignInModal from "../signIn-modal/signIn-modal";
+import SaveSearchModal from "../save-search-modal/save-search-modal";
+
+const splitParam = (value: string | null) =>
+  value ? value.split(",").filter(Boolean) : [];
 
 const Search = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
-  const [searchWord, setSearchWord] = useState<string>(
-    searchParams.get("search") || "",
-  );
+
+  const searchBubble = splitParam(searchParams.get("search"));
+
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [openSaveSearchModal, setOpenSaveSearchModal] =
+    useState<boolean>(false);
+  const [searchWord, setSearchWord] = useState<string>("");
 
-  const applySearch = (value: string) => {
+  const requireUser = () => {
+    if (user) return true;
+    setOpenModal(true);
+    return false;
+  };
+
+  const pushParams = (mutate: (params: URLSearchParams) => void) => {
     const params = new URLSearchParams(searchParams.toString());
-
-    if (value) {
-      params.set("search", value);
-    } else {
-      params.delete("search");
-    }
-
+    mutate(params);
     params.set("page", "1");
     router.push(`/?${params.toString()}`, { scroll: false });
   };
 
-  const handleSearchBtn = () => {
-    if (!user) {
-      setOpenModal(true);
-      return;
-    }
+  const handleSearch = () => {
+    if (!requireUser()) return;
 
-    applySearch(searchWord.trim());
+    const entry = searchWord.trim();
+    if (!entry || searchBubble.includes(entry)) return;
+
+    pushParams((params) =>
+      params.set("search", [...searchBubble, entry].join(",")),
+    );
+    setSearchWord("");
+
+    trackEvent(user, "Search", { type: "search", value: entry });
+  };
+
+  const handleRemoveSearch = (entry: string) => {
+    if (!requireUser()) return;
+
+    const updated = searchBubble.filter((item) => item !== entry);
+    pushParams((params) =>
+      updated.length > 0
+        ? params.set("search", updated.join(","))
+        : params.delete("search"),
+    );
 
     trackEvent(user, "Search", {
-      type: "input field",
-      value: searchWord.trim(),
+      type: "remove search",
+      value: entry,
+      searches: updated.join(","),
     });
   };
 
-  const handleClear = () => {
-    setSearchWord("");
-    applySearch("");
-
-    trackEvent(user, "Search", {
-      type: "clear",
-      value: "clear search input",
-    });
+  const handleSaveSearchClick = () => {
+    if (!requireUser()) return;
+    setOpenSaveSearchModal(true);
   };
 
   return (
@@ -66,22 +85,41 @@ const Search = () => {
             placeholder="Search jobs, keywords, skills..."
             value={searchWord}
             onChange={(e) => setSearchWord(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSearchBtn()}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
           <button
-            onClick={handleSearchBtn}
+            onClick={handleSearch}
             disabled={searchWord.trim().length === 0}
           >
             Search Jobs
           </button>
-          {(searchWord.length !== 0 || searchParams.get("search")) && (
-            <button className="reset" onClick={handleClear}>
-              Clear
-            </button>
-          )}
+          <button
+            className="save"
+            onClick={handleSaveSearchClick}
+            disabled={searchBubble.length === 0}
+          >
+            Save Search
+          </button>
         </S.Section>
+        {searchBubble.length > 0 && (
+          <S.KeywordBubble>
+            {searchBubble.map((item: string) => (
+              <button
+                className="bubble"
+                onClick={() => handleRemoveSearch(item)}
+                key={item}
+              >
+                {item} <span>x</span>
+              </button>
+            ))}
+          </S.KeywordBubble>
+        )}
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
+      <SaveSearchModal
+        openModal={openSaveSearchModal}
+        setOpenModal={setOpenSaveSearchModal}
+      />
     </>
   );
 };

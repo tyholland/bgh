@@ -14,28 +14,6 @@ export const Wrapper = styled.div`
     flex-direction: column;
   }
 
-  .resetAll {
-    width: 50%;
-    border: none;
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 10px;
-    background: #ff6b6b;
-    color: #fff;
-    cursor: pointer;
-
-    &:hover {
-      box-shadow: 5px 5px 5px #ddd;
-    }
-
-    &:disabled {
-      cursor: no-drop;
-      background: #ddd;
-      color: #999;
-      box-shadow: none;
-    }
-  }
-
   .react-datepicker-wrapper {
     input {
       background: #fff;
@@ -119,61 +97,6 @@ export const FilterContent = styled.div`
   .multi {
     color: #999;
     font-size: 12px;
-  }
-`;
-
-export const KeywordBubble = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  margin-top: 5px;
-
-  .bubble {
-    background: #6faeff;
-    border-radius: 10px;
-    padding: 4px 8px;
-    color: #fff;
-    width: fit-content;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    cursor: pointer;
-
-    span {
-      font-weight: 700;
-    }
-  }
-`;
-
-export const Section = styled.div`
-  display: flex;
-  gap: 8px;
-
-  button {
-    width: 100%;
-    border: none;
-    padding: 5px 10px;
-    font-size: 12px;
-    border-radius: 10px;
-    background: #1439e6;
-    color: #fff;
-
-    &:hover {
-      cursor: pointer;
-    }
-
-    &:disabled {
-      cursor: no-drop;
-      background: #ddd;
-      color: #999;
-    }
-
-    &.search {
-      width: 100px;
-    }
   }
 `;
 

@@ -10,6 +10,8 @@ export const ModalBtn = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
   margin-top: 20px;
 
   button {
@@ -21,11 +23,12 @@ export const ModalBtn = styled.div`
     color: #fff;
 
     @media only screen and (max-width: 950px) {
-      width: 90%;
+      width: 45%;
     }
 
     &:hover {
       cursor: pointer;
+      box-shadow: 5px 5px 5px #999;
     }
 
     &.submit {
@@ -36,6 +39,21 @@ export const ModalBtn = styled.div`
         background: #6faeff;
         color: #fff;
       }
+    }
+
+    &.resetAll {
+      background: #ff6b6b;
+    }
+
+    &.save {
+      background: #6ad5b5;
+      color: #000;
+    }
+
+    &:disabled {
+      cursor: no-drop;
+      background: #ddd;
+      color: #999;
     }
   }
 `;

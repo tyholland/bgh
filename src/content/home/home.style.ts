@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
   padding: 2%;
 
   @media only screen and (max-width: 950px) {
@@ -16,6 +16,7 @@ export const CardWrapper = styled.div`
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
+  margin: 30px 0;
 
   &.list {
     gap: 0;

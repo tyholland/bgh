@@ -29,12 +29,10 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
   const selectedCompanies = splitParam(searchParams.get("company"));
   const selectedIndustries = splitParam(searchParams.get("industry"));
-  const keywordBubble = splitParam(searchParams.get("keyword"));
   const postedDate = searchParams.get("date") || "";
   const exactDate = searchParams.get("exact") || "";
 
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [keyword, setKeyword] = useState<string>("");
   const [companyQuery, setCompanyQuery] = useState<string>("");
   const [industryQuery, setIndustryQuery] = useState<string>("");
   const [companyArr, setCompanyArr] = useState<string[]>(selectedCompanies);
@@ -73,13 +71,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
       ),
     [industries, industryQuery],
   );
-
-  const hasActiveFilters =
-    keywordBubble.length > 0 ||
-    selectedCompanies.length > 0 ||
-    selectedIndustries.length > 0 ||
-    postedDate.length > 0 ||
-    exactDate.length > 0;
 
   const requireUser = () => {
     if (user) return true;
@@ -162,99 +153,23 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     trackEvent(user, "Filter", { type: "exact date", value: choice });
   };
 
-  const handleReset = (filter: string) => {
+  const handleReset = (filter: "company" | "industry" | "date") => {
     pushParams((params) => {
-      if (filter === "all") {
-        ["company", "industry", "keyword", "date", "exact"].forEach((key) =>
-          params.delete(key),
-        );
-        setCompanyArr([]);
-        setIndustryArr([]);
+      params.delete(filter);
+      if (filter === "company") setCompanyArr([]);
+      if (filter === "industry") setIndustryArr([]);
+      if (filter === "date") {
+        params.delete("exact");
         setShowExactDate(false);
-        setKeyword("");
-      } else {
-        params.delete(filter);
-        if (filter === "company") setCompanyArr([]);
-        if (filter === "industry") setIndustryArr([]);
-        if (filter === "keyword") setKeyword("");
-        if (filter === "date") {
-          params.delete("exact");
-          setShowExactDate(false);
-        }
       }
     });
 
-    trackEvent(user, "Filter", {
-      type: "reset",
-      value: filter === "all" ? "all filters" : filter,
-    });
-  };
-
-  const handleKeywordSearch = () => {
-    if (!requireUser()) return;
-
-    const entry = keyword.trim();
-    if (!entry || keywordBubble.includes(entry)) return;
-
-    pushParams((params) =>
-      params.set("keyword", [...keywordBubble, entry].join(",")),
-    );
-    setKeyword("");
-
-    trackEvent(user, "Filter", { type: "keyword", value: entry });
-  };
-
-  const handleRemoveKeyword = (entry: string) => {
-    if (!requireUser()) return;
-
-    const updated = keywordBubble.filter((item) => item !== entry);
-    pushParams((params) => params.set("keyword", updated.join(",")));
-
-    trackEvent(user, "Filter", {
-      type: "remove keyword",
-      value: entry,
-      keywords: updated.join(","),
-    });
+    trackEvent(user, "Filter", { type: "reset", value: filter });
   };
 
   return (
     <>
       <S.Wrapper>
-        <div>
-          <S.FilterContent>
-            <div>Keyword Search</div>
-          </S.FilterContent>
-          <S.Section>
-            <S.Input
-              type="text"
-              name="keyword"
-              value={keyword}
-              placeholder="Enter multiple keywords..."
-              onChange={(e) => setKeyword(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleKeywordSearch()}
-            />
-            <button
-              onClick={handleKeywordSearch}
-              disabled={keyword.trim().length === 0}
-              className="search"
-            >
-              Search
-            </button>
-          </S.Section>
-          {keywordBubble.length > 0 && (
-            <S.KeywordBubble>
-              {keywordBubble.map((item: string) => (
-                <button
-                  className="bubble"
-                  onClick={() => handleRemoveKeyword(item)}
-                  key={item}
-                >
-                  {item} <span>x</span>
-                </button>
-              ))}
-            </S.KeywordBubble>
-          )}
-        </div>
         <div>
           <S.FilterContent className="posted">
             <div>Posted Date</div>
@@ -389,13 +304,6 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.FilterContent>
           </div>
         )}
-        <button
-          className="resetAll"
-          onClick={() => handleReset("all")}
-          disabled={!hasActiveFilters}
-        >
-          Reset All Filters
-        </button>
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
     </>

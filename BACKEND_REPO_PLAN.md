@@ -261,6 +261,11 @@ filtered client- or server-side beyond this one request.
   list); `company` + `industry` combine with AND. `exact` (single day) wins over
   `date` (on-or-after) when both are given. `sort` is one of `most` (default),
   `least`, `a`, `z`.
+- `search` also accepts a comma-separated list (the frontend's main search box
+  adds one entry per keyword bubble), but unlike `company`/`industry`/`keyword`
+  it's AND, not OR: every term must appear in `"Role Name"` (the job title) —
+  not `Company`/`Primary Industry` — case-insensitively, in any order, for a
+  row to match.
 - `limit` is clamped to `[1, 50]`, defaulting to 18 if missing/invalid; `page`
   defaults to 1 and is clamped to `totalPages`.
 - Response headers: `Cache-Control: public, s-maxage=900, stale-while-revalidate=3600`

@@ -31,6 +31,11 @@ export const Wrapper = styled.div`
       padding: 0;
     }
 
+    &.save {
+      background: #6ad5b5;
+      color: #000;
+    }
+
     &:hover {
       cursor: pointer;
     }
@@ -59,4 +64,31 @@ export const Section = styled.div`
   padding: 1%;
   border-radius: 10px;
   justify-content: space-between;
+  flex-wrap: wrap;
+`;
+
+export const KeywordBubble = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-size: 12px;
+
+  .bubble {
+    background: #6faeff;
+    border-radius: 10px;
+    padding: 4px 8px;
+    color: #fff;
+    width: fit-content;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+
+    span {
+      font-weight: 700;
+    }
+  }
 `;

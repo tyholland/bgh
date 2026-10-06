@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import * as S from "./save-search-modal.style";
 import ModalComponent from "../modal/modal";
 import { getFirebaseAuth } from "@/functions/firebase";
-import { createSavedSearch } from "@/requests/savedSearches";
+import { createSavedSearch, getSavedSearches } from "@/requests/savedSearches";
 import { SavedSearchParams } from "@/types";
 import { trackError, trackEvent } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
@@ -33,6 +33,9 @@ const readCurrentParams = (searchParams: URLSearchParams): SavedSearchParams =>
     ),
   );
 
+const paramsMatch = (a: SavedSearchParams, b: SavedSearchParams) =>
+  PARAM_KEYS.every((key) => (a[key] || "") === (b[key] || ""));
+
 const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
@@ -40,18 +43,62 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [alreadySaved, setAlreadySaved] = useState<boolean>(false);
+  const [isChecking, setIsChecking] = useState<boolean>(false);
 
   const currentParams = readCurrentParams(searchParams);
+
+  // Check this exact set of filters against the user's existing saved
+  // searches whenever the modal opens, so we can warn instead of letting
+  // them create an identical duplicate.
+  useEffect(() => {
+    if (!openModal || !user) return;
+
+    let cancelled = false;
+
+    const checkExisting = async () => {
+      setIsChecking(true);
+
+      try {
+        const auth = getFirebaseAuth();
+        const idToken = await auth.currentUser?.getIdToken();
+        if (!idToken) throw new Error("Not signed in");
+
+        const existing = await getSavedSearches(idToken);
+        const match = existing.some((saved) =>
+          paramsMatch(saved.params, currentParams),
+        );
+
+        if (!cancelled) setAlreadySaved(match);
+      } catch (err) {
+        if (!cancelled) {
+          trackError(user, "Check Saved Search", {
+            message: (err as { message?: string }).message ?? "",
+          });
+        }
+      } finally {
+        if (!cancelled) setIsChecking(false);
+      }
+    };
+
+    checkExisting();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openModal, user]);
 
   const handleClose = () => {
     setOpenModal(false);
     setName("");
     setSuccess(false);
     setError(null);
+    setAlreadySaved(false);
   };
 
   const handleSave = async () => {
-    if (!user) return;
+    if (!user || alreadySaved) return;
 
     setIsSaving(true);
     setError(null);
@@ -91,6 +138,8 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
       <S.ModalWrapper>
         {success ? (
           <div className="success">Your search has been saved.</div>
+        ) : alreadySaved ? (
+          <div className="notice">This search is already saved.</div>
         ) : (
           <>
             <span>
@@ -109,8 +158,8 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
           </>
         )}
         <S.ModalBtn>
-          {!success && (
-            <button onClick={handleSave} disabled={isSaving}>
+          {!success && !alreadySaved && (
+            <button onClick={handleSave} disabled={isSaving || isChecking}>
               {isSaving ? "Saving..." : "Save"}
             </button>
           )}
