@@ -3,8 +3,9 @@ import styled from "styled-components";
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 30px;
   padding: 2%;
+  margin: 30px 0;
 
   @media only screen and (max-width: 950px) {
     padding: 2%;
