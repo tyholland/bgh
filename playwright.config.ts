@@ -53,6 +53,10 @@ export default defineConfig({
       timeout: 120_000,
       env: {
         PORT: String(APP_PORT),
+        // Next 16's dev-server lockfile is keyed by distDir, not port, so a
+        // developer's already-running `next dev` would otherwise block this
+        // one from starting (see next.config.ts).
+        NEXT_DIST_DIR: ".next-e2e",
         NEXT_PUBLIC_API_BASE_URL: MOCK_API_BASE_URL,
         REVALIDATE_SECRET: "e2e-test-secret",
         // Firebase Auth network calls are mocked per-test via

@@ -55,7 +55,11 @@ const Search = () => {
     if (!requireUser()) return;
 
     const updated = searchBubble.filter((item) => item !== entry);
-    pushParams((params) => params.set("search", updated.join(",")));
+    pushParams((params) =>
+      updated.length > 0
+        ? params.set("search", updated.join(","))
+        : params.delete("search"),
+    );
 
     trackEvent(user, "Search", {
       type: "remove search",
@@ -68,8 +72,6 @@ const Search = () => {
     if (!requireUser()) return;
     setOpenSaveSearchModal(true);
   };
-
-  console.log(searchBubble.length);
 
   return (
     <>

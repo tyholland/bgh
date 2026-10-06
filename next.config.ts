@@ -47,6 +47,12 @@ const nextConfig: NextConfig = {
   compiler: {
     styledComponents: true,
   },
+  // Next 16 locks a single `next dev` per resolved distDir (see
+  // node_modules/next/dist/build/lockfile.js), independent of port. Playwright's
+  // webServer starts its own `next dev` on a dedicated port (see
+  // playwright.config.ts), which would otherwise collide with a developer's
+  // already-running dev server on the default `.next` distDir.
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   async headers() {
     return [
       {

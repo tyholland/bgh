@@ -37,7 +37,9 @@ test.describe("search", () => {
     await page.getByRole("button", { name: "Search Jobs" }).click();
     await expect(page.getByText("1 jobs found")).toBeVisible();
 
-    await page.getByRole("button", { name: "Clear" }).click();
+    await page
+      .getByRole("button", { name: `${UNIQUE_SEARCH_TERM} x` })
+      .click();
 
     await expect(page).not.toHaveURL(/search=/);
     await expect(
