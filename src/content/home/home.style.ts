@@ -1,5 +1,21 @@
 import styled from "styled-components";
 
+// The page design doesn't have room for a visible page title (the nav logo
+// carries branding instead), but search engines and screen readers still
+// need a real <h1> describing the page content — kept off-screen rather
+// than removed.
+export const VisuallyHidden = styled.h1`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+`;
+
 export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
