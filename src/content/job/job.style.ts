@@ -54,6 +54,40 @@ export const ApplyBtn = styled.div`
   }
 `;
 
+export const ShareBtns = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .label {
+    font-size: 12px;
+    color: #666;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    color: #444;
+
+    &:hover {
+      cursor: pointer;
+      background: #f2f2f2;
+    }
+  }
+
+  .copied {
+    font-size: 12px;
+    color: #1439e6;
+  }
+`;
+
 export const AdditionalBtn = styled.div`
   display: flex;
   justify-content: space-between;

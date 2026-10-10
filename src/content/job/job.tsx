@@ -9,6 +9,10 @@ import { CsvData } from "@/types";
 import { userAtom } from "@/caches/UserAtom";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
 import SignInModal from "@/components/signIn-modal/signIn-modal";
+import LinkedInIcon from "@/svg/LinkedInIcon";
+import XIcon from "@/svg/XIcon";
+import FacebookIcon from "@/svg/FacebookIcon";
+import LinkIcon from "@/svg/LinkIcon";
 
 interface JobProps {
   job: CsvData;
@@ -23,11 +27,40 @@ const Job = ({ job, descriptionHtml }: JobProps) => {
   const details = job.Details;
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
 
   const requireUser = () => {
     if (user) return true;
     setOpenModal(true);
     return false;
+  };
+
+  const shareText = `${job["Role Name"]} at ${job.Company}`;
+
+  const openShareWindow = (shareUrl: string, platform: string) => {
+    if (!requireUser()) return;
+
+    trackEvent(user, "Share Job", { platform, ...job });
+    window.open(shareUrl, "_blank", "noopener,noreferrer,width=600,height=500");
+  };
+
+  const showShareMessage = (message: string) => {
+    setShareMessage(message);
+    setTimeout(() => setShareMessage(null), 2500);
+  };
+
+  const handleCopyLink = async () => {
+    if (!requireUser()) return;
+
+    trackEvent(user, "Share Job", { platform: "copy-link", ...job });
+
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      showShareMessage("Link copied!");
+    } catch {
+      // Clipboard access can be denied by the browser (e.g. non-HTTPS or
+      // permission blocked) — fail silently rather than throw in the UI.
+    }
   };
 
   useEffect(() => {
@@ -66,6 +99,57 @@ const Job = ({ job, descriptionHtml }: JobProps) => {
             Apply on {job.Company}&apos;s site
           </a>
         </S.ApplyBtn>
+        <S.ShareBtns>
+          <span className="label">Share:</span>
+          <button
+            type="button"
+            aria-label="Share on LinkedIn"
+            title="Share on LinkedIn"
+            onClick={() =>
+              openShareWindow(
+                `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`,
+                "linkedin",
+              )
+            }
+          >
+            <LinkedInIcon />
+          </button>
+          <button
+            type="button"
+            aria-label="Share on X"
+            title="Share on X"
+            onClick={() =>
+              openShareWindow(
+                `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(shareText)}`,
+                "x",
+              )
+            }
+          >
+            <XIcon />
+          </button>
+          <button
+            type="button"
+            aria-label="Share on Facebook"
+            title="Share on Facebook"
+            onClick={() =>
+              openShareWindow(
+                `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`,
+                "facebook",
+              )
+            }
+          >
+            <FacebookIcon />
+          </button>
+          <button
+            type="button"
+            aria-label="Copy link"
+            title="Copy link"
+            onClick={handleCopyLink}
+          >
+            <LinkIcon />
+          </button>
+          {shareMessage && <span className="copied">{shareMessage}</span>}
+        </S.ShareBtns>
         {descriptionHtml && (
           <div className={!user ? "blur" : ""}>
             <span className="title">Job Description:</span>{" "}
