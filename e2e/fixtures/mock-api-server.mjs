@@ -122,6 +122,23 @@ const server = createServer((req, res) => {
     return;
   }
 
+  // GET /v1/jobs/:id — stands in for the not-yet-built single-job endpoint
+  // the /jobs/[id] detail page needs (see BACKEND_REPO_PLAN.md §5).
+  const jobByIdMatch = req.url.match(/^\/v1\/jobs\/([^/?]+)/);
+  if (req.method === "GET" && jobByIdMatch) {
+    const job = JOBS.find((j) => j.id === decodeURIComponent(jobByIdMatch[1]));
+
+    if (!job) {
+      res.writeHead(404, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: "not found" }));
+      return;
+    }
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify(job));
+    return;
+  }
+
   res.writeHead(404, { "Content-Type": "application/json" });
   res.end(JSON.stringify({ error: "not found" }));
 });

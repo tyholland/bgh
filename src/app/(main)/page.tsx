@@ -1,4 +1,4 @@
-import Home from "../content/home/home";
+import Home from "@/content/home/home";
 import { AllSearchData, CsvData, Facet, UrlParams } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
