@@ -10,6 +10,10 @@ export const Wrapper = styled.div`
   .title {
     font-weight: 700;
   }
+
+  .blur {
+    filter: blur(3px);
+  }
 `;
 
 export const Back = styled.div`
