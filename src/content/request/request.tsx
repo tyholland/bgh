@@ -65,6 +65,7 @@ const Request = () => {
   return (
     <>
       <S.Wrapper>
+        <S.VisuallyHidden>Request | BGH Scout</S.VisuallyHidden>
         {hasRequest ? (
           <div>Thank you for your request</div>
         ) : (

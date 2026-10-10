@@ -77,6 +77,7 @@ const SignIn = () => {
   return (
     <>
       <S.Wrapper>
+        <S.VisuallyHidden>Sign In | BGH Scout</S.VisuallyHidden>
         <div>
           <S.Input
             type="email"

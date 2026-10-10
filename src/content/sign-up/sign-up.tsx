@@ -105,6 +105,7 @@ const SignUp = () => {
   return (
     <>
       <S.Wrapper>
+        <S.VisuallyHidden>Sign Up | BGH Scout</S.VisuallyHidden>
         <div>
           <S.Input
             type="text"

@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import Home from "@/content/home/home";
 import { AllSearchData, CsvData, Facet, UrlParams } from "@/types";
+import { defaultMetaData, metaTitle, metaUrl } from "@/constants";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const JOBS_PER_PAGE = 18;
@@ -65,6 +67,28 @@ const fetchJobs = async (params: UrlParams): Promise<AllSearchData> => {
     industries: body.industries,
   };
 };
+
+// Filtered views (?company=, ?industry=, ?search=) are subsets of the same
+// dataset, not distinct content, so every variant's canonical still points
+// at "/" — avoids Google indexing (and splitting ranking across) thousands
+// of near-duplicate filter combinations. The title/description still vary
+// per filter, which is what actually matters for anyone who shares a
+// filtered link directly (link previews, browser tab).
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}): Promise<Metadata> {
+  const params = normalizeParams(await searchParams);
+
+  const filterLabel = params.company || params.industry || params.search;
+  if (!filterLabel) return defaultMetaData();
+
+  const title = `${filterLabel} Jobs | ${metaTitle}`;
+  const description = `Job openings matching "${filterLabel}" — found via BGH Scout, aggregated from employer career pages and other public sources.`;
+
+  return defaultMetaData(title, description, metaUrl);
+}
 
 const Page = async ({
   searchParams,

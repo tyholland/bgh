@@ -65,6 +65,7 @@ const Contact = () => {
   return (
     <>
       <S.Wrapper>
+        <S.VisuallyHidden>Contact | BGH Scout</S.VisuallyHidden>
         {hasFeedback ? (
           <div>Thank you for your feedback</div>
         ) : (
