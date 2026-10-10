@@ -67,7 +67,7 @@ const Card = ({ jobs }: CardProps) => {
         );
 
         return href ? (
-          <S.Wrapper as={Link} href={href} onClick={openJobDetails} key={item.Link}>
+          <S.Wrapper as={Link} href={href} key={item.Link}>
             {content}
           </S.Wrapper>
         ) : (
