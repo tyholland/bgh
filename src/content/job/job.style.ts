@@ -5,7 +5,7 @@ export const Wrapper = styled.div`
   flex-direction: column;
   gap: 16px;
   padding: 5%;
-  max-width: 800px;
+  width: 100%;
 
   .title {
     font-weight: 700;
@@ -46,6 +46,29 @@ export const ApplyBtn = styled.div`
     &:hover {
       cursor: pointer;
       color: #fff;
+    }
+  }
+`;
+
+export const AdditionalBtn = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  button {
+    width: fit-content;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    background: #6ad5b5;
+    color: #fff;
+
+    @media only screen and (max-width: 950px) {
+      width: 90%;
+    }
+
+    &:hover {
+      cursor: pointer;
     }
   }
 `;
