@@ -79,7 +79,17 @@ const List = ({ jobs }: ListProps) => {
         );
 
         return href ? (
-          <S.Wrapper as={Link} href={href} key={item.Link}>
+          <S.Wrapper
+            as={Link}
+            href={href}
+            onClick={() =>
+              trackEvent(user, "Job Listing", {
+                type: "list",
+                ...item,
+              })
+            }
+            key={item.Link}
+          >
             {content}
           </S.Wrapper>
         ) : (
