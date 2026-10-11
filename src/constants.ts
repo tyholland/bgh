@@ -42,8 +42,11 @@ export const metaTitle = "BGH Scout";
 export const metaUrl = "https://www.bghscout.com";
 const metaDescription =
   "BGH Scout is designed to help job seekers discover career opportunities more quickly by aggregating job openings from employer career pages and other publicly available sources.";
-const metaLogo = "https://www.bghscout.com/bgh-logo.png";
-const metaIcon = "https://www.bghscout.com/favicon.ico";
+// Relative — resolved against metadataBase below. Keeping them relative
+// means a domain change only has to update metaUrl, not every image/icon
+// reference too.
+const metaLogo = "/bgh-logo.png";
+const metaIcon = "/favicon.ico";
 const metaSite = "BGH Scout";
 
 export const defaultMetaData = (
@@ -54,6 +57,16 @@ export const defaultMetaData = (
   const data: Metadata = {
     title: title,
     description: descript,
+    // Lets every other URL in this object (OG/Twitter images, icons) be
+    // relative instead of hardcoding the domain — and gives every caller a
+    // canonical tag for free, from the `url` each already passes in. Only
+    // meaningfully takes effect where it's set closest to the root
+    // (src/app/layout.tsx's defaultMetaData() call), but setting it here too
+    // keeps every page's metadata object self-describing.
+    metadataBase: new URL(metaUrl),
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: title,
       description: descript,

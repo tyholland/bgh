@@ -1,13 +1,13 @@
 import { Metadata } from "next";
-import AboutPage from "../../content/about/about";
+import SignUpPage from "@/content/sign-up/sign-up";
 import { defaultMetaData, metaTitle, metaUrl } from "@/constants";
 
 export const metadata: Metadata = defaultMetaData(
-  `About | ${metaTitle}`,
+  `Sign Up | ${metaTitle}`,
   undefined,
-  `${metaUrl}/about`,
+  `${metaUrl}/sign-up`,
 );
 
-const About = () => <AboutPage />;
+const SignUp = () => <SignUpPage />;
 
-export default About;
+export default SignUp;

@@ -26,7 +26,11 @@ const Footer = () => {
         <div>&copy; {year} BGH Scout.</div>
         <div>
           Site by{" "}
-          <a href="https://heiprodigital.com" target="_blank">
+          <a
+            href="https://heiprodigital.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             HeiPro Digital
           </a>
         </div>

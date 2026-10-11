@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import RoadMapPage from "../../content/road-map/road-map";
+import RoadMapPage from "@/content/road-map/road-map";
 import { defaultMetaData, metaTitle, metaUrl } from "@/constants";
 
 export const metadata: Metadata = defaultMetaData(

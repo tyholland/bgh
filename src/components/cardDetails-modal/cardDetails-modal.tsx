@@ -7,8 +7,8 @@ import { trackEvent } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import dayjs from "dayjs";
-import DOMPurify from "dompurify";
 import { useMemo, useState } from "react";
+import { sanitizeJobDescriptionClient } from "@/functions/sanitizeJobDescription";
 
 interface CardDetailsProps {
   openModal: boolean;
@@ -21,29 +21,13 @@ const CardDetails = ({ openModal, setOpenModal, data }: CardDetailsProps) => {
   const [showDetails, setShowDetails] = useState<boolean>(false);
 
   // The API sanitizes this already; sanitize again in the browser as defense
-  // in depth before it goes through dangerouslySetInnerHTML.
-  const cleanDescription = useMemo(() => {
-    const raw = data?.Details?.description;
-    if (typeof window === "undefined" || !raw) return "";
-
-    return DOMPurify.sanitize(raw, {
-      ALLOWED_TAGS: [
-        "p",
-        "br",
-        "ul",
-        "ol",
-        "li",
-        "strong",
-        "b",
-        "em",
-        "i",
-        "h3",
-        "h4",
-        "a",
-      ],
-      ALLOWED_ATTR: ["href"],
-    });
-  }, [data]);
+  // in depth before it goes through dangerouslySetInnerHTML. The allow-list
+  // is shared with the /jobs/[id] page's server-side sanitizer so the two
+  // environments can't drift apart.
+  const cleanDescription = useMemo(
+    () => sanitizeJobDescriptionClient(data?.Details?.description),
+    [data],
+  );
 
   return (
     <ModalComponent

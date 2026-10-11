@@ -4,7 +4,7 @@
 // values (job counts, alphabetical extremes, a unique search hit) without
 // importing this file — see e2e/fixtures/test-data.ts for the literals that
 // must stay in sync with this list.
-export const JOBS = [
+const RAW_JOBS = [
   {
     "Role Name": "Account Executive",
     Company: "Acme Corp",
@@ -184,3 +184,12 @@ export const JOBS = [
     Link: "https://jobs.umbrella.example/zonal-sales-manager",
   },
 ];
+
+// Stands in for the `id` field the real API is expected to add (see
+// BACKEND_REPO_PLAN.md §5 and the /jobs/[id] detail page) — derived from
+// the already-unique Link slug rather than hand-maintaining a 21st field per
+// fixture row.
+export const JOBS = RAW_JOBS.map((job) => ({
+  ...job,
+  id: job.Link.split("/").pop(),
+}));

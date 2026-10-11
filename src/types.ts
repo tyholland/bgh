@@ -19,6 +19,12 @@ export interface CsvData {
   Company: string;
   Link: string;
   Details?: JobDetails;
+  // Stable per-job identifier used to build /jobs/[id] detail-page URLs.
+  // Optional until the API ships it (see BACKEND_REPO_PLAN.md §5) — anything
+  // reading this field must handle it being absent and degrade gracefully
+  // (e.g. skip rendering a link to the detail page) rather than assume it's
+  // always present.
+  id?: string;
 }
 
 // Query-string params for the job board. Everything arrives as a string (or is

@@ -62,7 +62,10 @@ describe("POST /api/revalidate", () => {
     const res = await POST(makeRequest("Bearer top-secret"));
 
     expect(res.status).toBe(200);
-    expect(revalidateTagMock).toHaveBeenCalledWith("leads", "max");
+    // "max" would serve stale content while revalidating in the background —
+    // wrong for a webhook that needs the next request to see fresh data
+    // immediately (see src/app/api/revalidate/route.ts).
+    expect(revalidateTagMock).toHaveBeenCalledWith("leads", { expire: 0 });
 
     const body = await res.json();
     expect(body.revalidated).toBe(true);

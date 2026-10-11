@@ -1,13 +1,13 @@
 import { Metadata } from "next";
-import SignInPage from "../../content/sign-in/sign-in";
+import AccountPage from "@/content/account/account";
 import { defaultMetaData, metaTitle, metaUrl } from "@/constants";
 
 export const metadata: Metadata = defaultMetaData(
-  `Sign In | ${metaTitle}`,
+  `Account | ${metaTitle}`,
   undefined,
-  `${metaUrl}/sign-in`,
+  `${metaUrl}/account`,
 );
 
-const SignIn = () => <SignInPage />;
+const Account = () => <AccountPage />;
 
-export default SignIn;
+export default Account;

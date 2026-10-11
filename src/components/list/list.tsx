@@ -10,6 +10,8 @@ import SignInModal from "../signIn-modal/signIn-modal";
 import { useState } from "react";
 import { userAtom } from "@/caches/UserAtom";
 import CardDetails from "../cardDetails-modal/cardDetails-modal";
+import Link from "next/link";
+import { jobHref } from "@/functions/jobHref";
 
 dayjs.extend(relativeTime);
 
@@ -42,7 +44,16 @@ const List = ({ jobs }: ListProps) => {
         </S.Section>
       </S.Wrapper>
       {jobs.map((item: CsvData) => {
-        const openJobDetails = () => {
+        // See card.tsx for why this is a real <a href> rather than a plain
+        // onClick div: crawlers and ctrl/cmd-click need a genuine link to
+        // the public /jobs/[id] page even though a plain click still opens
+        // the quick-preview modal.
+        const href = jobHref(item);
+
+        const openJobDetails = (e: React.MouseEvent) => {
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+          e.preventDefault();
+
           if (!user) {
             setOpenModal(true);
             return;
@@ -58,15 +69,32 @@ const List = ({ jobs }: ListProps) => {
         };
 
         const postedTime = dayjs(item.Scrape_DateTime).fromNow();
+        const content = (
+          <S.Section>
+            <div className="position">{item["Role Name"]}</div>
+            <div className="company">{item.Company}</div>
+            <div className="industry">{item["Primary Industry"]}</div>
+            <div className="posted">{postedTime}</div>
+          </S.Section>
+        );
 
-        return (
+        return href ? (
+          <S.Wrapper
+            as={Link}
+            href={href}
+            onClick={() =>
+              trackEvent(user, "Job Listing", {
+                type: "list",
+                ...item,
+              })
+            }
+            key={item.Link}
+          >
+            {content}
+          </S.Wrapper>
+        ) : (
           <S.Wrapper onClick={openJobDetails} key={item.Link}>
-            <S.Section>
-              <div className="position">{item["Role Name"]}</div>
-              <div className="company">{item.Company}</div>
-              <div className="industry">{item["Primary Industry"]}</div>
-              <div className="posted">{postedTime}</div>
-            </S.Section>
+            {content}
           </S.Wrapper>
         );
       })}

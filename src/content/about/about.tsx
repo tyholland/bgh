@@ -60,7 +60,7 @@ const About = () => {
       </div>
       <div>Help people uncover opportunities they might otherwise miss.</div>
       <hr />
-      <h1>What We Believe</h1>
+      <h2>What We Believe</h2>
       <div>We believe that visibility creates opportunity.</div>
       <div>
         BGH Scout is not designed to automate applications or replace
@@ -84,9 +84,9 @@ const About = () => {
         </ul>
       </div>
       <hr />
-      <h1>Meet the Founders</h1>
-      <h2>Chris Beganski</h2>
-      <h3>Founder & Product Development</h3>
+      <h2>Meet the Founders</h2>
+      <h3>Chris Beganski</h3>
+      <h4>Founder & Product Development</h4>
       <div>
         Chris created the technology behind BGH Scout after experiencing
         firsthand the challenges of a modern job search. What began as a
@@ -102,8 +102,8 @@ const About = () => {
           LinkedIn Profile
         </Link>
       </div>
-      <h2>Ben Greene</h2>
-      <h3>Founder & Growth</h3>
+      <h3>Ben Greene</h3>
+      <h4>Founder & Growth</h4>
       <div>
         Ben focuses on growth, partnerships, user feedback, and helping shape
         the long-term vision of BGH Scout. His background in sales and business
@@ -118,8 +118,8 @@ const About = () => {
           LinkedIn Profile
         </Link>
       </div>
-      <h2>Ty Holland</h2>
-      <h3>Founder & Website Development</h3>
+      <h3>Ty Holland</h3>
+      <h4>Founder & Website Development</h4>
       <div>
         Ty leads website development, user experience, branding, and marketing
         initiatives. His expertise helps transform powerful technology into an
@@ -131,7 +131,7 @@ const About = () => {
         </Link>
       </div>
       <hr />
-      <h1>Looking Ahead</h1>
+      <h2>Looking Ahead</h2>
       <div>We're just getting started.</div>
       <div>
         As BGH Scout continues to grow, we will keep expanding company coverage,
