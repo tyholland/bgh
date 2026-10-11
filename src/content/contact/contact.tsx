@@ -113,6 +113,7 @@ const Contact = () => {
                   setFeedback(e.target.value)
                 }
                 placeholder="Enter your feedback"
+                value={feedback}
                 required
               />
             </div>
