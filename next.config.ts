@@ -48,6 +48,19 @@ const nextConfig: NextConfig = {
   compiler: {
     styledComponents: true,
   },
+  // jsdom (used by sanitizeJobDescription.server.ts, /jobs/[id] only) is on
+  // Next's own default serverExternalPackages list, but that hasn't been
+  // enough in practice: Turbopack has a known bug (vercel/next.js — search
+  // "ERR_REQUIRE_ESM" + "externalRequire" + jsdom) where it still bundles
+  // jsdom into the server chunk instead of leaving it truly external, and
+  // its own externalRequire shim can't do Node's require(ESM) interop that
+  // jsdom's html-encoding-sniffer -> @exodus/bytes chain relies on — it
+  // crashes the whole route on import with "Failed to load external module
+  // jsdom...: ERR_REQUIRE_ESM" (this is exactly what happened on
+  // bghscout.com/jobs/[id] in production). Re-declaring all three here
+  // forces Turbopack to route the require through real Node, which handles
+  // it fine.
+  serverExternalPackages: ["jsdom", "html-encoding-sniffer", "@exodus/bytes"],
   // Next 16 locks a single `next dev` per resolved distDir (see
   // node_modules/next/dist/build/lockfile.js), independent of port. Playwright's
   // webServer starts its own `next dev` on a dedicated port (see
