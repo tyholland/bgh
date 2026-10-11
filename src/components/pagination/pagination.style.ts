@@ -19,6 +19,7 @@ export const Wrapper = styled.div`
 
     @media only screen and (max-width: 950px) {
       gap: 15px;
+      flex-wrap: wrap;
     }
 
     li {

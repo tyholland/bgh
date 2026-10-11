@@ -6,10 +6,9 @@ import { useAtomValue } from "jotai";
 import { trackEvent } from "@/functions/mixpanel";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import SignInModal from "../signIn-modal/signIn-modal";
-import { useState } from "react";
 import { userAtom } from "@/caches/UserAtom";
-import CardDetails from "../cardDetails-modal/cardDetails-modal";
+import Link from "next/link";
+import { jobHref } from "@/functions/jobHref";
 
 dayjs.extend(relativeTime);
 
@@ -19,47 +18,43 @@ interface CardProps {
 
 const Card = ({ jobs }: CardProps) => {
   const user = useAtomValue(userAtom);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [cardModal, setCardModal] = useState<boolean>(false);
-  const [cardData, setCardData] = useState<CsvData | null>(null);
 
   return (
     <>
       {jobs.map((item: CsvData) => {
-        const openJobDetails = () => {
-          if (!user) {
-            setOpenModal(true);
-            return;
-          }
-
-          trackEvent(user, "Job Listing", {
-            type: "card",
-            ...item,
-          });
-
-          setCardData(item);
-          setCardModal(true);
-        };
+        // Cards link straight through to the public /jobs/[id] page — once
+        // the API provides `id` (see jobHref), a real href means crawlers,
+        // ctrl/cmd-click, and "copy link" all reach a real, shareable URL.
+        const href = jobHref(item);
 
         const postedTime = dayjs(item.Scrape_DateTime).fromNow();
-
-        return (
-          <S.Wrapper onClick={openJobDetails} key={item.Link}>
+        const content = (
+          <>
             <div className="topLayer">
               <div className="company">{item.Company}</div>
               <div className="posted">Posted: {postedTime}</div>
             </div>
             <div className="position">{item["Role Name"]}</div>
             <div className="industry">{item["Primary Industry"]}</div>
+          </>
+        );
+
+        return (
+          <S.Wrapper
+            as={Link}
+            href={href || "#"}
+            onClick={() =>
+              trackEvent(user, "Job Listing", {
+                type: "card",
+                ...item,
+              })
+            }
+            key={item.Link}
+          >
+            {content}
           </S.Wrapper>
         );
       })}
-      <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
-      <CardDetails
-        openModal={cardModal}
-        setOpenModal={setCardModal}
-        data={cardData}
-      />
     </>
   );
 };

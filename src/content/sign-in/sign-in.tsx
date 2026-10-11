@@ -11,14 +11,17 @@ import {
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useAtomValue } from "jotai";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./sign-in.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import ResetPwd from "@/components/reset-pwd-modal/reset-pwd-modal";
+import { getSafeRedirect } from "@/functions/safeRedirect";
 
 const SignIn = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = getSafeRedirect(searchParams.get("redirect"));
   const user = useAtomValue(userAtom);
   const [userEmail, setUserEmail] = useState<string>("");
   const [userPassword, setUserPassword] = useState<string>("");
@@ -32,8 +35,8 @@ const SignIn = () => {
   }, []);
 
   useEffect(() => {
-    if (user) router.replace("/");
-  }, [user, router]);
+    if (user) router.replace(redirectTo);
+  }, [user, router, redirectTo]);
 
   const handleSignIn = async () => {
     setIsSubmitting(true);
@@ -49,7 +52,7 @@ const SignIn = () => {
       trackIdentity(fbUser.uid, userEmail, fbUser.displayName || "");
       trackEvent(null, "Sign In", { type: "sign in", email: userEmail });
 
-      router.replace("/");
+      router.replace(redirectTo);
     } catch (error) {
       const code = (error as { code?: string }).code ?? "unknown";
       const message = (error as { message?: string }).message ?? "";
@@ -77,6 +80,7 @@ const SignIn = () => {
   return (
     <>
       <S.Wrapper>
+        <S.VisuallyHidden>Sign In | BGH Scout</S.VisuallyHidden>
         <div>
           <S.Input
             type="email"
@@ -105,7 +109,12 @@ const SignIn = () => {
           </S.Button>
         </S.Section>
         <S.SignUp>
-          Don&apos;t have an account. <Link href="/sign-up">Sign Up</Link>
+          Don&apos;t have an account.{" "}
+          <Link
+            href={`/sign-up?redirect=${encodeURIComponent(redirectTo)}`}
+          >
+            Sign Up
+          </Link>
         </S.SignUp>
       </S.Wrapper>
       <ResetPwd openModal={openModal} setOpenModal={setOpenModal} />

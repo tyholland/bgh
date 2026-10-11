@@ -17,8 +17,18 @@ export const ALPHABETICALLY_FIRST_ROLE = "Account Executive";
 export const ALPHABETICALLY_LAST_ROLE = "Zonal Sales Manager";
 
 export const JOB_WITHOUT_DETAILS_ROLE = "Account Executive";
+export const JOB_WITHOUT_DETAILS_ID = "account-executive";
 export const JOB_WITH_XSS_ROLE = "Solutions Architect";
 export const JOB_WITH_XSS_COMPANY = "Acme Corp";
+export const JOB_WITH_XSS_ID = "solutions-architect";
+
+// Backend Engineer @ Globex — the one fixture job with a full Details block
+// (location, validThrough, employmentType, benefits), so it's the one
+// that's eligible for JobPosting JSON-LD on its /jobs/[id] page.
+export const ENRICHED_JOB_ROLE = "Backend Engineer";
+export const ENRICHED_JOB_COMPANY = "Globex Corporation";
+export const ENRICHED_JOB_ID = "backend-engineer";
+export const ENRICHED_JOB_LINK = "https://jobs.globex.example/backend-engineer";
 
 export const TEST_USER: FakeUser = {
   uid: "uid-existing-1",

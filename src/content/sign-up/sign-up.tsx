@@ -12,13 +12,16 @@ import { createUser } from "@/requests/user";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useAtomValue } from "jotai";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./sign-up.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
+import { getSafeRedirect } from "@/functions/safeRedirect";
 
 const SignUp = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = getSafeRedirect(searchParams.get("redirect"));
   const user = useAtomValue(userAtom);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -33,8 +36,8 @@ const SignUp = () => {
   }, []);
 
   useEffect(() => {
-    if (user) router.replace("/");
-  }, [user, router]);
+    if (user) router.replace(redirectTo);
+  }, [user, router, redirectTo]);
 
   const handleCreate = async () => {
     setIsSubmitting(true);
@@ -88,7 +91,7 @@ const SignUp = () => {
         name,
       });
 
-      router.replace("/");
+      router.replace(redirectTo);
     } catch (error) {
       const code = (error as { code?: string }).code ?? "unknown";
       const message = (error as { message?: string }).message ?? "";
@@ -105,6 +108,7 @@ const SignUp = () => {
   return (
     <>
       <S.Wrapper>
+        <S.VisuallyHidden>Sign Up | BGH Scout</S.VisuallyHidden>
         <div>
           <S.Input
             type="text"
@@ -154,7 +158,12 @@ const SignUp = () => {
           {isSubmitting ? "Creating..." : "Create Account"}
         </S.Button>
         <S.SignIn>
-          Already have an account. <Link href="/sign-in">Sign In</Link>
+          Already have an account.{" "}
+          <Link
+            href={`/sign-in?redirect=${encodeURIComponent(redirectTo)}`}
+          >
+            Sign In
+          </Link>
         </S.SignIn>
       </S.Wrapper>
     </>

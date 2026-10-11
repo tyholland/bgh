@@ -79,6 +79,9 @@ const Home = ({ csvData }: HomeProps) => {
   return (
     <>
       <S.Wrapper>
+        <S.VisuallyHidden>
+          Search Job Openings from Top Companies | BGH Scout
+        </S.VisuallyHidden>
         <S.ResultsWrapper>
           <S.JobResultsWrapper>
             <Search />

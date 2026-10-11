@@ -7,6 +7,7 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import SignOutModal from "@/components/signOut-modal/signOut-modal";
+import SavedJobs from "@/components/saved-jobs/saved-jobs";
 import SavedSearches from "@/components/saved-searches/saved-searches";
 import NotificationSettings from "@/components/notification-settings/notification-settings";
 import {
@@ -208,6 +209,11 @@ const Account = () => {
           <button onClick={handleChangePwd} disabled={!pwd || !confirmPwd}>
             Update Password
           </button>
+        </S.Pwd>
+        <hr />
+        <S.Pwd>
+          <h3>Saved Jobs</h3>
+          <SavedJobs />
         </S.Pwd>
         <hr />
         <S.Pwd>

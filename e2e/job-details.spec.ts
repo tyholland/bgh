@@ -3,35 +3,36 @@ import {
   signInAsTestUser,
   JOB_WITH_XSS_ROLE,
   JOB_WITH_XSS_COMPANY,
+  JOB_WITH_XSS_ID,
   JOB_WITHOUT_DETAILS_ROLE,
+  JOB_WITHOUT_DETAILS_ID,
 } from "./fixtures/test-data";
 
+// Cards now link straight through to the public /jobs/[id] page (card.tsx) —
+// there's no quick-preview modal to open anymore, so these exercise the same
+// behaviors (sanitization, collapsed details, opening the original posting)
+// directly against that page instead. No sign-in required, same as the page
+// itself.
 test.describe("job details", () => {
   test("shows job details with the scraped description sanitized", async ({
     page,
   }) => {
-    await signInAsTestUser(page);
-
-    await page.getByText(JOB_WITH_XSS_ROLE, { exact: true }).click();
+    await page.goto(`/jobs/${JOB_WITH_XSS_ID}`);
 
     await expect(
-      page.getByRole("heading", { name: "Job Details" }),
+      page.getByRole("heading", { name: JOB_WITH_XSS_ROLE }),
     ).toBeVisible();
-    await expect(
-      page.getByText(`Company: ${JOB_WITH_XSS_COMPANY}`),
-    ).toBeVisible();
+    await expect(page.getByText(JOB_WITH_XSS_COMPANY).first()).toBeVisible();
     await expect(page.getByText("Design large-scale systems.")).toBeVisible();
 
     // Location lives under "Additional Details", collapsed by default.
     await expect(page.getByText("Austin, TX")).not.toBeVisible();
-    await page
-      .getByRole("button", { name: "Additional Details" })
-      .click();
+    await page.getByRole("button", { name: "Additional Details" }).click();
     await expect(page.getByText("Austin, TX")).toBeVisible();
 
     // The fixture description carries a <script> tag and an onerror handler —
-    // DOMPurify (cardDetails-modal.tsx) must strip both before they reach the
-    // DOM, so neither should ever run.
+    // DOMPurify (sanitizeJobDescription.server.ts) must strip both before
+    // they reach the DOM, so neither should ever run.
     const xssFlag = await page.evaluate(
       () => (window as unknown as { __xss?: boolean }).__xss,
     );
@@ -40,22 +41,18 @@ test.describe("job details", () => {
   });
 
   test("gracefully shows a job with no scraped details", async ({ page }) => {
-    await signInAsTestUser(page);
-
-    await page.getByText(JOB_WITHOUT_DETAILS_ROLE, { exact: true }).click();
+    await page.goto(`/jobs/${JOB_WITHOUT_DETAILS_ID}`);
 
     await expect(
-      page.getByRole("heading", { name: "Job Details" }),
-    ).toBeVisible();
-    await expect(
-      page.getByText(`Role: ${JOB_WITHOUT_DETAILS_ROLE}`),
+      page.getByRole("heading", { name: JOB_WITHOUT_DETAILS_ROLE }),
     ).toBeVisible();
     await expect(page.getByText("Job Description:")).not.toBeVisible();
   });
 
-  test("opens the original posting in a new tab from the details modal", async ({
-    page,
-  }) => {
+  test("opens the original posting in a new tab", async ({ page }) => {
+    // Applying still requires sign-in (job.tsx's own requireUser gate on the
+    // apply link) — unaffected by card.tsx, which only governs the card
+    // click into this page.
     await signInAsTestUser(page);
 
     // The fixture Link points at a domain that doesn't resolve — without a
@@ -72,14 +69,11 @@ test.describe("job details", () => {
         }),
     );
 
-    await page.getByText(JOB_WITHOUT_DETAILS_ROLE, { exact: true }).click();
-    await expect(
-      page.getByRole("heading", { name: "Job Details" }),
-    ).toBeVisible();
+    await page.goto(`/jobs/${JOB_WITHOUT_DETAILS_ID}`);
 
     const [popup] = await Promise.all([
       page.waitForEvent("popup"),
-      page.getByRole("button", { name: "See Role" }).click(),
+      page.getByRole("link", { name: /Apply on/ }).click(),
     ]);
     await popup.waitForLoadState();
 

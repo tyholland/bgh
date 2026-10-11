@@ -65,6 +65,7 @@ const Contact = () => {
   return (
     <>
       <S.Wrapper>
+        <S.VisuallyHidden>Contact | BGH Scout</S.VisuallyHidden>
         {hasFeedback ? (
           <div>Thank you for your feedback</div>
         ) : (
@@ -112,6 +113,7 @@ const Contact = () => {
                   setFeedback(e.target.value)
                 }
                 placeholder="Enter your feedback"
+                value={feedback}
                 required
               />
             </div>

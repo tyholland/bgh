@@ -220,6 +220,7 @@ filtered client- or server-side beyond this one request.
   },
   "jobs": [
     {
+      "id": "a1b2c3d4",
       "Role Name": "Senior Product Manager",
       "Primary Industry": "Technology",
       "Scrape_DateTime": "2026-09-10 14:32:00",
@@ -252,6 +253,12 @@ filtered client- or server-side beyond this one request.
 - **Row object keys stay identical to the CSV headers** (`"Role Name"`, `"Primary
   Industry"`, `Scrape_DateTime`, `Scrape_Date`, `Company`, `Link`) — this is the
   `CsvData` shape `src/app/page.tsx` consumes directly.
+- `id`: a stable per-job identifier, **not yet implemented** — resolves open
+  question #2 below. `src/types.ts` already has `id?: string` (optional until
+  this ships) and everything that reads it (`src/functions/jobHref.ts`,
+  `src/app/jobs/[id]/page.tsx`, `src/app/sitemap.ts`) degrades to "no link to
+  the detail page for this job" rather than assuming it's present. See
+  "GET /v1/jobs/:id" below for why this exists.
 - `Details` is present when `detailsStatus === "ok"`, otherwise omitted (matches
   the optional `Details?` in `src/types.ts`).
 - `Details.description` **must be sanitized HTML** (see §4.4). The frontend also
@@ -275,6 +282,51 @@ filtered client- or server-side beyond this one request.
   Request-time API, so the fetch is necessarily "discovered" after it) — that's
   fine, each query now hits an indexed, page-scoped SQL query instead of
   rebuilding the whole in-memory dataset.
+
+### `GET /v1/jobs/:id` — not yet implemented, needed for SEO job detail pages
+
+Added for `src/app/jobs/[id]/page.tsx`: a real, crawlable, shareable URL per
+job, with `JobPosting` JSON-LD for Google for Jobs eligibility. Today every
+job's "page" is a client-side modal with no URL — invisible to crawlers and
+ungated by sign-in walls alike, see `card.tsx`'s `openJobDetails`.
+
+```jsonc
+// GET /v1/jobs/a1b2c3d4 → 200, same shape as one entry in /v1/jobs's `jobs[]`
+{
+  "id": "a1b2c3d4",
+  "Role Name": "Senior Product Manager",
+  "Primary Industry": "Technology",
+  "Scrape_DateTime": "2026-09-10 14:32:00",
+  "Scrape_Date": "2026/09/10",
+  "Company": "Acme Corp",
+  "Link": "https://careers.acme.com/jobs/123",
+  "Details": { /* same as /v1/jobs, when enriched */ }
+}
+
+// GET /v1/jobs/does-not-exist → 404 { "error": "not found" }
+```
+
+- Frontend side already built against this contract: `src/requests/jobs.ts`
+  (`getJobById`), `src/functions/jobHref.ts`, `src/functions/jobPostingJsonLd.ts`,
+  `src/app/jobs/[id]/page.tsx`. All of it degrades gracefully (no link
+  rendered, no JSON-LD emitted) while `id` is absent from `/v1/jobs`, so this
+  can ship whenever — nothing on the frontend needs to be re-deployed in lockstep.
+- **`id` just needs to be stable and URL-safe** — it does not need to be
+  guessable, sequential, or meaningful. A hash of `Link` (e.g. `md5(link)`
+  truncated, or any deterministic digest) works as well as a real serial
+  primary key and avoids a migration if `jobs` doesn't already have one.
+  Resolves open question #2 below: yes, `Link` is already treated as the
+  per-job identity everywhere in the frontend (React list keys in
+  `card.tsx`/`list.tsx` use `item.Link` today) — `id` is just a URL-safe
+  presentation of that same identity, not a new uniqueness claim.
+- e2e-tested against a mock implementation in
+  `e2e/fixtures/mock-api-server.mjs` / `jobs-data.mjs` (derives `id` from each
+  fixture's `Link` slug) — see `e2e/job-page.spec.ts`.
+- `src/app/sitemap.ts` also page through `/v1/jobs` (not a new endpoint) to
+  list every job URL — see the `limit` note there: capped at 50 today, so a
+  large dataset means many small requests per sitemap generation. Worth a
+  higher limit (or a dedicated ids-only endpoint) once real job volume makes
+  that a real cost — not needed to ship the single-job endpoint above.
 
 ### `GET /v1/status`
 
@@ -701,6 +753,27 @@ bgh-scout-api/
 - [x] `src/requests/user.ts` → `getUser()` / `updateEmailNotifications()`. New "Notification Emails" account section (`src/components/notification-settings/notification-settings.tsx`) loads `emailNotifications` via `GET /v1/users/:uid` and flips it via a partial `PATCH /v1/users/:uid` body. Blocked on the API implementing `GET /v1/users/:uid`, the `PATCH` merge semantics, the `users.email_notifications` column, and the gating rule that any notification-sending code must skip a user with `email_notifications = false` (§5, §6) — no such sending code exists yet in this plan, so there's nothing else in this repo to gate today.
 - [x] `/api/revalidate`: now `POST` only, requires `Bearer REVALIDATE_SECRET`, no hour logic. `src/vercel.json` (dead cron at wrong path) deleted.
 - [x] `src/app/error.tsx` / `global-error.tsx` / `not-found.tsx` / `loading.tsx` added.
+- [x] **SEO: public `/jobs/[id]` detail pages.** Job content was previously
+  only reachable through a client-side modal — no URL, no JSON-LD, gated
+  behind sign-in for logged-out visitors — so crawlers (and Google for Jobs)
+  could never see it. Added `src/app/jobs/[id]/page.tsx` (public,
+  server-rendered, `generateMetadata`, `JobPosting` JSON-LD via
+  `src/functions/jobPostingJsonLd.ts`), `src/requests/jobs.ts`
+  (`getJobById`), server-side description sanitization
+  (`sanitizeJobDescription.server.ts`, via `jsdom` — moved to a real
+  dependency), job cards/list rows now real `<a href>`s to it
+  (`src/functions/jobHref.ts`), and a dynamic per-job `src/app/sitemap.ts`
+  split (`generateSitemaps`) with matching `src/app/robots.ts` entries.
+  Moved every other page under a `(main)` route group
+  (`src/app/(main)/...`) so `/jobs/[id]` isn't wrapped in the root
+  `loading.tsx` Suspense boundary — without that, `notFound()` still
+  rendered the right content but shipped it with a `200` status (a "soft
+  404"), confirmed via `next build && next start` against the mock API
+  before and after. e2e-covered in `e2e/job-page.spec.ts` against a mock
+  `GET /v1/jobs/:id` (`e2e/fixtures/mock-api-server.mjs`). Blocked on the
+  API implementing `GET /v1/jobs/:id` + an `id` field on `/v1/jobs` rows
+  (§5) — everything here degrades to "no link to the detail page" until
+  then, so it's safe to ship ahead of that.
 - [x] Cleanup: `card`/`list` keys use `item.Link`; pagination `forcePage` clamped; sort `<select>` options match the state; `mixpanel` `debug` dev-only + `Object`→typed; unused deps removed (`papaparse`, `mailto-link`, `react-toggle-button`); README rewritten.
 - [ ] **Set env in Vercel:** `NEXT_PUBLIC_API_BASE_URL`, `REVALIDATE_SECRET`.
 - [ ] Confirm the API emits `Scrape_Date` as `YYYY/MM/DD` and a `Scrape_DateTime` dayjs can parse (`filterJobs.ts` accepts `YYYY/MM/DD`, `YYYY-MM-DD`, `MM/DD/YYYY`, `MM-DD-YYYY` for the date, but the sheet's real format should be confirmed).
@@ -720,6 +793,17 @@ editing the URL; the sign-in modal is client-side. Fully gating the data needs:
 
 This is a feature, not a fix — deferred until the API exists.
 
+**Interaction with the SEO job detail pages (§5, `src/app/jobs/[id]/page.tsx`):**
+whatever this gating ends up being, it must not block an unauthenticated
+`GET /v1/jobs/:id` — that's the one request Google's crawler makes, with no
+session of any kind. Gating the *list* endpoint (`/v1/jobs`, e.g. to stop
+URL-edited pagination) is independent and can go ahead without this
+conflict; gating the *single-job* endpoint the same way silently undoes all
+of the SEO work, since the detail page would render empty/401 for every
+crawler. If the product call is "job content is public, only accounts are
+gated," that's just "don't apply this to `/v1/jobs/:id`" — worth deciding
+explicitly rather than discovering it later.
+
 ---
 
 ## 11. Testing
@@ -736,9 +820,18 @@ This is a feature, not a fix — deferred until the API exists.
 ## 12. Open questions (confirm before Phase 2)
 
 1. Does the sheet ever remove delisted jobs, or only append? → drop-vs-keep logic.
-2. Stable dedupe key — is `Link` guaranteed unique + stable per job?
+2. ~~Stable dedupe key — is `Link` guaranteed unique + stable per job?~~
+   **Resolved for the frontend's purposes:** yes, treat it as unique — it's
+   already the de facto identity (React list keys in `card.tsx`/`list.tsx`).
+   The still-open part is whether the *sheet* can ever reuse a `Link` for a
+   different posting; if that's possible, dedupe at ingest needs to account
+   for it, but the API can still mint a stable `id` from `Link` today (see
+   "GET /v1/jobs/:id" in §5) and revisit if that assumption breaks.
 3. Expected max row count (affects backfill time and whether `/v1/jobs` should
    stay "return everything" or move to server-side pagination sooner).
 4. Any career-site domains known to hard-block bots? (may need per-domain handling
    or accept `not_found`).
 5. Should `/v1/jobs` be auth-gated (API key) or stay public like the current CSV?
+   If this becomes auth-gated, see §13 below — the job detail pages added for
+   SEO need at least job content (not necessarily the full search/list view)
+   to stay reachable by logged-out crawlers, or all of that SEO work is undone.

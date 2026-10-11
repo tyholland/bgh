@@ -11,7 +11,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ revalidated: false }, { status: 401 });
   }
 
-  revalidateTag("leads", "max");
+  // "max" (the usual recommendation) serves stale content while revalidating
+  // in the background — the opposite of what this endpoint is for. This is
+  // the webhook case the Next docs call out explicitly: expire immediately
+  // so the very next request gets fresh data, not another round of stale.
+  revalidateTag("leads", { expire: 0 });
 
   return NextResponse.json({ revalidated: true, now: Date.now() });
 }

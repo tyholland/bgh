@@ -11,9 +11,10 @@ const apiOrigin = (() => {
 })();
 
 // Next injects inline bootstrap scripts without a nonce, so script-src needs
-// 'unsafe-inline'. The primary XSS defense for scraped job HTML is DOMPurify in
-// cardDetails-modal; this CSP is defense in depth. A nonce-based policy (via
-// middleware) is the follow-up if we want to drop 'unsafe-inline'.
+// 'unsafe-inline'. The primary XSS defense for scraped job HTML is DOMPurify
+// (sanitizeJobDescription.server.ts); this CSP is defense in depth. A
+// nonce-based policy (via middleware) is the follow-up if we want to drop
+// 'unsafe-inline'.
 // Dev mode also needs 'unsafe-eval' — React uses eval() there to reconstruct
 // callstacks and power Fast Refresh; it never does in production.
 const isDev = process.env.NODE_ENV !== "production";

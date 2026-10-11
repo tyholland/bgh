@@ -6,10 +6,9 @@ import { useAtomValue } from "jotai";
 import { trackEvent } from "@/functions/mixpanel";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import SignInModal from "../signIn-modal/signIn-modal";
-import { useState } from "react";
 import { userAtom } from "@/caches/UserAtom";
-import CardDetails from "../cardDetails-modal/cardDetails-modal";
+import Link from "next/link";
+import { jobHref } from "@/functions/jobHref";
 
 dayjs.extend(relativeTime);
 
@@ -19,9 +18,6 @@ interface ListProps {
 
 const List = ({ jobs }: ListProps) => {
   const user = useAtomValue(userAtom);
-  const [openModal, setOpenModal] = useState<boolean>(false);
-  const [cardModal, setCardModal] = useState<boolean>(false);
-  const [cardData, setCardData] = useState<CsvData | null>(null);
 
   return (
     <>
@@ -42,40 +38,37 @@ const List = ({ jobs }: ListProps) => {
         </S.Section>
       </S.Wrapper>
       {jobs.map((item: CsvData) => {
-        const openJobDetails = () => {
-          if (!user) {
-            setOpenModal(true);
-            return;
-          }
-
-          trackEvent(user, "Job Listing", {
-            type: "list",
-            ...item,
-          });
-
-          setCardData(item);
-          setCardModal(true);
-        };
+        // See card.tsx for why this is a real <a href> rather than a plain
+        // onClick div: crawlers and ctrl/cmd-click need a genuine link to
+        // the public /jobs/[id] page.
+        const href = jobHref(item);
 
         const postedTime = dayjs(item.Scrape_DateTime).fromNow();
+        const content = (
+          <S.Section>
+            <div className="position">{item["Role Name"]}</div>
+            <div className="company">{item.Company}</div>
+            <div className="industry">{item["Primary Industry"]}</div>
+            <div className="posted">{postedTime}</div>
+          </S.Section>
+        );
 
         return (
-          <S.Wrapper onClick={openJobDetails} key={item.Link}>
-            <S.Section>
-              <div className="position">{item["Role Name"]}</div>
-              <div className="company">{item.Company}</div>
-              <div className="industry">{item["Primary Industry"]}</div>
-              <div className="posted">{postedTime}</div>
-            </S.Section>
+          <S.Wrapper
+            as={Link}
+            href={href || "#"}
+            onClick={() =>
+              trackEvent(user, "Job Listing", {
+                type: "list",
+                ...item,
+              })
+            }
+            key={item.Link}
+          >
+            {content}
           </S.Wrapper>
         );
       })}
-      <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
-      <CardDetails
-        openModal={cardModal}
-        setOpenModal={setCardModal}
-        data={cardData}
-      />
     </>
   );
 };

@@ -39,18 +39,17 @@ const RoadMap = () => {
         our users, and we expect our roadmap to evolve as we continue to receive
         feedback.
       </div>
-      <h1>Smarter Search Experience</h1>
+      <h2>Smarter Search Experience</h2>
       <div>
         We're working on ways to help users quickly find the opportunities that
         matter most to them, including:
         <ul>
-          <li>Saved searches</li>
           <li>Enhanced filtering options</li>
           <li>Personalized search preferences</li>
           <li>Faster access to frequently searched criteria</li>
         </ul>
       </div>
-      <h1>Alerts & Notifications</h1>
+      <h2>Alerts & Notifications</h2>
       <div>
         Timing matters in a job search. We're exploring ways to help users stay
         informed about new opportunities as quickly as possible.
@@ -58,7 +57,6 @@ const RoadMap = () => {
       <div>
         Potential enhancements include:
         <ul>
-          <li>Notifications based on saved searches</li>
           <li>Custom job alerts</li>
           <li>Alerts for newly discovered opportunities</li>
           <li>More control over how and when notifications are received</li>
@@ -68,7 +66,7 @@ const RoadMap = () => {
           </li>
         </ul>
       </div>
-      <h1>Job Search Activity Tracking</h1>
+      <h2>Job Search Activity Tracking</h2>
       <div>
         We're evaluating tools that help users better understand and organize
         their job search activity, including:
@@ -79,7 +77,7 @@ const RoadMap = () => {
           <li>Personal job search dashboards</li>
         </ul>
       </div>
-      <h1>User Profiles</h1>
+      <h2>User Profiles</h2>
       <div>
         We're exploring profile features that would allow users to personalize
         their experience and better manage their job search.
@@ -87,13 +85,12 @@ const RoadMap = () => {
       <div>
         Potential features include:
         <ul>
-          <li>Saved opportunities</li>
           <li>Search history</li>
           <li>Job tracking tools</li>
           <li>Personalized recommendations</li>
         </ul>
       </div>
-      <h1>Networking & Connections</h1>
+      <h2>Networking & Connections</h2>
       <div>Applying is only one part of a successful job search.</div>
       <div>
         We're exploring ways to help users identify and connect with
@@ -101,14 +98,14 @@ const RoadMap = () => {
         relationships, learn more about companies, and gain valuable insights
         throughout the job search process.
       </div>
-      <h1>Additional Job Search Tools</h1>
+      <h2>Additional Job Search Tools</h2>
       <div>
         We're continuously evaluating new features that can support job seekers
         throughout their entire journey, from discovering opportunities to
         preparing for interviews and making informed career decisions.
       </div>
       <div>As BGH Scout grows, we expect this section to grow with it.</div>
-      <h1>Help Shape What's Next</h1>
+      <h2>Help Shape What's Next</h2>
       <div>
         BGH Scout is still in its early stages, and user feedback plays a major
         role in determining what comes next.
@@ -122,7 +119,7 @@ const RoadMap = () => {
         Many of the improvements we're building today started as suggestions
         from users just like you.
       </div>
-      <h2>Have feedback or a feature request? We'd love to hear from you.</h2>
+      <h3>Have feedback or a feature request? We'd love to hear from you.</h3>
       <button onClick={handleFeedback}>Add Feedback</button>
     </S.Wrapper>
   );

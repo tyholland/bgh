@@ -28,6 +28,7 @@ export const Item = styled.div`
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 12px 16px;
+  background: #fff;
 
   @media only screen and (max-width: 950px) {
     flex-direction: column;
