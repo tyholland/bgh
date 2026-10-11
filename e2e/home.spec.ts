@@ -39,13 +39,17 @@ test.describe("home page — anonymous visitor", () => {
     await expect(page).toHaveURL("/");
   });
 
-  test("prompts sign in when opening a job card", async ({ page }) => {
+  test("opens a job card without requiring sign-in", async ({ page }) => {
     await page.goto("/");
 
+    // Cards link straight through to the public /jobs/[id] page now
+    // (card.tsx) — no sign-in gate on the card click itself. A longer
+    // timeout covers Turbopack compiling that route on its first hit.
     await page.getByText(ALPHABETICALLY_FIRST_ROLE, { exact: true }).click();
 
+    await page.waitForURL(/\/jobs\//, { timeout: 30_000 });
     await expect(
-      page.getByRole("heading", { name: "Please Sign In" }),
+      page.getByRole("heading", { name: ALPHABETICALLY_FIRST_ROLE }),
     ).toBeVisible();
   });
 

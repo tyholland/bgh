@@ -23,20 +23,21 @@ test.describe("job detail page", () => {
     ).toBeVisible();
   });
 
-  test("a plain click still opens the quick-preview modal instead of navigating", async ({
+  test("a plain click navigates straight to the job's public page", async ({
     page,
   }) => {
     await page.goto("/");
 
-    // Logged out, so the gate shows the sign-in modal rather than job
-    // details — unchanged by this feature. The point of this test is that
-    // a plain left-click does NOT navigate the browser to /jobs/[id]; it's
-    // still intercepted client-side, same as before.
+    // card.tsx renders the card as a real Link once the job has an id, and a
+    // plain click now follows it directly — no sign-in gate, no
+    // quick-preview modal. A longer timeout covers Turbopack compiling that
+    // route on its first hit.
     await page.getByText(ENRICHED_JOB_ROLE, { exact: true }).click();
+
+    await page.waitForURL(`/jobs/${ENRICHED_JOB_ID}`, { timeout: 30_000 });
     await expect(
-      page.getByRole("heading", { name: "Please Sign In" }),
+      page.getByRole("heading", { name: ENRICHED_JOB_ROLE }),
     ).toBeVisible();
-    await expect(page).toHaveURL("/");
   });
 
   test("renders the public job page without requiring sign-in", async ({
@@ -53,6 +54,9 @@ test.describe("job detail page", () => {
     await expect(
       page.getByText("Build and maintain our core API services."),
     ).toBeVisible();
+
+    // Location sits behind the "Additional Details" toggle (job.tsx).
+    await page.getByRole("button", { name: "Additional Details" }).click();
     await expect(page.getByText("Remote")).toBeVisible();
 
     const applyLink = page.getByRole("link", { name: /Apply on/ });
