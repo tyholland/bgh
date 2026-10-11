@@ -89,7 +89,7 @@ footer {
     height: fit-content;
     flex-direction: column;
     padding: 0 0 20px 0;
-    bottom: -275px;
+    bottom: -285px;
   }
 
   .linkWrapper {
@@ -108,6 +108,10 @@ footer {
   .social {
     display: flex;
     align-items: center;
+
+    @media only screen and (max-width: 950px) {
+      padding-bottom: 20px;
+    }
 
     a {
       color: #fff;
