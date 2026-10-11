@@ -8,6 +8,9 @@ import * as S from "./job.style";
 import { CsvData } from "@/types";
 import { userAtom } from "@/caches/UserAtom";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
+import { getFirebaseAuth } from "@/functions/firebase";
+import { createSavedJob, deleteSavedJob, getSavedJobs } from "@/requests/savedJobs";
+import { formatViewCount } from "@/functions/formatViewCount";
 import SignInModal from "@/components/signIn-modal/signIn-modal";
 import LinkedInIcon from "@/svg/LinkedInIcon";
 import XIcon from "@/svg/XIcon";
@@ -28,6 +31,10 @@ const Job = ({ job, descriptionHtml }: JobProps) => {
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [shareMessage, setShareMessage] = useState<string | null>(null);
+  // null = not saved; a string = saved, holding the saved_jobs row id needed
+  // to unsave.
+  const [savedJobId, setSavedJobId] = useState<string | null>(null);
+  const [isSavingJob, setIsSavingJob] = useState<boolean>(false);
 
   const requireUser = () => {
     if (user) return true;
@@ -68,6 +75,69 @@ const Job = ({ job, descriptionHtml }: JobProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Determines the button's initial Save/Saved state for this specific job —
+  // only fetches the signed-in user's saved jobs once, on this one detail
+  // page (not on every card in a list).
+  useEffect(() => {
+    if (!user || !job.id) return;
+
+    let cancelled = false;
+
+    const checkSaved = async () => {
+      try {
+        const idToken = await getFirebaseAuth().currentUser?.getIdToken();
+        if (!idToken) return;
+
+        const savedJobs = await getSavedJobs(idToken);
+        const match = savedJobs.find((saved) => saved.jobId === job.id);
+
+        if (!cancelled) setSavedJobId(match?.id ?? null);
+      } catch {
+        // Non-critical — the button just falls back to showing "Save Job".
+      }
+    };
+
+    checkSaved();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, job.id]);
+
+  const handleToggleSaveJob = async () => {
+    if (!requireUser() || !job.id) return;
+
+    setIsSavingJob(true);
+
+    try {
+      const idToken = await getFirebaseAuth().currentUser?.getIdToken();
+      if (!idToken) throw new Error("Not signed in");
+
+      if (savedJobId) {
+        await deleteSavedJob(savedJobId, idToken);
+        setSavedJobId(null);
+        trackEvent(user, "Unsave Job", { ...job });
+      } else {
+        const saved = await createSavedJob(
+          {
+            jobId: job.id,
+            roleName: job["Role Name"],
+            company: job.Company,
+            link: job.Link,
+          },
+          idToken,
+        );
+        setSavedJobId(saved.id);
+        trackEvent(user, "Save Job", { ...job });
+      }
+    } catch {
+      // Best-effort — leave the button in its previous state rather than
+      // show a dedicated error UI for this low-stakes action.
+    } finally {
+      setIsSavingJob(false);
+    }
+  };
+
   return (
     <>
       <S.Wrapper>
@@ -80,6 +150,9 @@ const Job = ({ job, descriptionHtml }: JobProps) => {
           <div className="company">
             {job.Company} &middot; {job["Primary Industry"]}
           </div>
+          {typeof job.viewCount === "number" && (
+            <div className="viewCount">{formatViewCount(job.viewCount)}</div>
+          )}
         </S.Heading>
 
         <S.ApplyBtn>
@@ -98,6 +171,16 @@ const Job = ({ job, descriptionHtml }: JobProps) => {
           >
             Apply on {job.Company}&apos;s site
           </a>
+          {job.id && (
+            <button
+              type="button"
+              className="saveJob"
+              onClick={handleToggleSaveJob}
+              disabled={isSavingJob}
+            >
+              {savedJobId ? "★ Saved" : "☆ Save Job"}
+            </button>
+          )}
         </S.ApplyBtn>
         <S.ShareBtns>
           <span className="label">Share:</span>

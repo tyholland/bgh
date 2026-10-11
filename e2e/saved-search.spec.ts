@@ -16,6 +16,10 @@ interface SavedSearchRecord {
 test("saves a search, applies it from the account page, then deletes it", async ({
   page,
 }) => {
+  // Clipboard access needs explicit permission in Chromium — granted up
+  // front for the "Copy Link" step later in this test.
+  await page.context().grantPermissions(["clipboard-write"]);
+
   await signInAsTestUser(page);
 
   const savedSearches: SavedSearchRecord[] = [];
@@ -90,6 +94,10 @@ test("saves a search, applies it from the account page, then deletes it", async 
 
   await page.getByRole("link", { name: /Welcome Jordan/ }).click();
   await expect(page).toHaveURL("/account");
+
+  await page.getByRole("button", { name: "Copy Link" }).click();
+  await expect(page.getByRole("button", { name: "Link copied!" })).toBeVisible();
+
   await page.getByRole("button", { name: "Delete", exact: true }).click();
 
   await expect(

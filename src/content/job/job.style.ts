@@ -35,9 +35,19 @@ export const Heading = styled.div`
     font-size: 16px;
     font-weight: 700;
   }
+
+  .viewCount {
+    font-size: 13px;
+    color: #666;
+  }
 `;
 
 export const ApplyBtn = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+
   a {
     display: inline-block;
     width: fit-content;
@@ -50,6 +60,25 @@ export const ApplyBtn = styled.div`
     &:hover {
       cursor: pointer;
       color: #fff;
+    }
+  }
+
+  .saveJob {
+    width: fit-content;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 1px solid #1439e6;
+    background: #fff;
+    color: #1439e6;
+
+    &:hover {
+      cursor: pointer;
+      background: #eef1fd;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.6;
     }
   }
 `;

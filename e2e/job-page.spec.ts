@@ -55,6 +55,10 @@ test.describe("job detail page", () => {
       page.getByText("Build and maintain our core API services."),
     ).toBeVisible();
 
+    // Shared across the whole suite's hits on this job id, so assert the
+    // shape rather than an exact count (see mock-api-server.mjs's viewCounts).
+    await expect(page.getByText(/Viewed by \d+ job seeker/)).toBeVisible();
+
     // Location sits behind the "Additional Details" toggle (job.tsx).
     await page.getByRole("button", { name: "Additional Details" }).click();
     await expect(page.getByText("Remote")).toBeVisible();

@@ -44,7 +44,6 @@ const RoadMap = () => {
         We're working on ways to help users quickly find the opportunities that
         matter most to them, including:
         <ul>
-          <li>Saved searches</li>
           <li>Enhanced filtering options</li>
           <li>Personalized search preferences</li>
           <li>Faster access to frequently searched criteria</li>
@@ -58,7 +57,6 @@ const RoadMap = () => {
       <div>
         Potential enhancements include:
         <ul>
-          <li>Notifications based on saved searches</li>
           <li>Custom job alerts</li>
           <li>Alerts for newly discovered opportunities</li>
           <li>More control over how and when notifications are received</li>
@@ -87,7 +85,6 @@ const RoadMap = () => {
       <div>
         Potential features include:
         <ul>
-          <li>Saved opportunities</li>
           <li>Search history</li>
           <li>Job tracking tools</li>
           <li>Personalized recommendations</li>

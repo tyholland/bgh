@@ -89,6 +89,8 @@ const facetCounts = (jobs, key) => {
   return [...counts.entries()].map(([value, count]) => ({ value, count }));
 };
 
+const viewCounts = new Map();
+
 const server = createServer((req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
@@ -122,11 +124,14 @@ const server = createServer((req, res) => {
     return;
   }
 
-  // GET /v1/jobs/:id — stands in for the not-yet-built single-job endpoint
-  // the /jobs/[id] detail page needs (see BACKEND_REPO_PLAN.md §5).
+  // GET /v1/jobs/:id — stands in for the single-job endpoint the /jobs/[id]
+  // detail page needs (see BACKEND_REPO_PLAN.md §5). Mirrors the real API's
+  // view_count behavior closely enough for e2e assertions: an in-memory,
+  // per-job counter that increments on every call.
   const jobByIdMatch = req.url.match(/^\/v1\/jobs\/([^/?]+)/);
   if (req.method === "GET" && jobByIdMatch) {
-    const job = JOBS.find((j) => j.id === decodeURIComponent(jobByIdMatch[1]));
+    const id = decodeURIComponent(jobByIdMatch[1]);
+    const job = JOBS.find((j) => j.id === id);
 
     if (!job) {
       res.writeHead(404, { "Content-Type": "application/json" });
@@ -134,8 +139,10 @@ const server = createServer((req, res) => {
       return;
     }
 
+    viewCounts.set(id, (viewCounts.get(id) ?? 0) + 1);
+
     res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(job));
+    res.end(JSON.stringify({ ...job, viewCount: viewCounts.get(id) }));
     return;
   }
 

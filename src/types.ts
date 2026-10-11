@@ -25,6 +25,9 @@ export interface CsvData {
   // (e.g. skip rendering a link to the detail page) rather than assume it's
   // always present.
   id?: string;
+  // All-time view count for this job, only ever present on the single-job
+  // response (GET /v1/jobs/:id) — see the backend's job_view_counts table.
+  viewCount?: number;
 }
 
 // Query-string params for the job board. Everything arrives as a string (or is
@@ -82,5 +85,19 @@ export interface SavedSearch {
   uid: string;
   name: string | null;
   params: SavedSearchParams;
+  createdAt: string;
+}
+
+// A user's bookmark of a single job — denormalized (role/company/link
+// captured at save time) so it keeps rendering even if the live job later
+// disappears (delisted, or briefly gone around the backend's daily ingest
+// clear — see bgh_node's 007_saved_jobs.sql).
+export interface SavedJob {
+  id: string;
+  uid: string;
+  jobId: string;
+  roleName: string;
+  company: string | null;
+  link: string;
   createdAt: string;
 }

@@ -44,6 +44,9 @@ const toQueryString = (params: SavedSearchParams) => {
   return query.toString();
 };
 
+const buildShareableUrl = (params: SavedSearchParams) =>
+  `${window.location.origin}/?${toQueryString(params)}`;
+
 const SavedSearches = () => {
   const rawUser = useAtomValue(userAtom);
   // Gate on mount for the same reason as `src/content/account/account.tsx`:
@@ -56,6 +59,7 @@ const SavedSearches = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -122,6 +126,22 @@ const SavedSearches = () => {
     }
   };
 
+  const handleCopyLink = async (savedSearch: SavedSearch) => {
+    trackEvent(user, "Share Search", {
+      type: "copy-link",
+      name: savedSearch.name ?? "",
+    });
+
+    try {
+      await navigator.clipboard.writeText(buildShareableUrl(savedSearch.params));
+      setCopiedId(savedSearch.id);
+      setTimeout(() => setCopiedId(null), 2500);
+    } catch {
+      // Clipboard access can be denied by the browser — fail silently
+      // rather than throw in the UI, same as job.tsx's copy-link button.
+    }
+  };
+
   if (!user) {
     return (
       <S.Wrapper>
@@ -160,6 +180,9 @@ const SavedSearches = () => {
                 <Link href={`/?${toQueryString(savedSearch.params)}`}>
                   View Results
                 </Link>
+                <button onClick={() => handleCopyLink(savedSearch)}>
+                  {copiedId === savedSearch.id ? "Link copied!" : "Copy Link"}
+                </button>
                 <button
                   className="delete"
                   onClick={() => handleDelete(savedSearch)}
