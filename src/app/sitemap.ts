@@ -11,6 +11,10 @@ const staticPages: Array<{
   priority: number;
 }> = [
   { path: "", changeFrequency: "hourly", priority: 1 },
+  // Individual /companies/[company] pages aren't enumerated here (would mean
+  // fetching and paging through the full companies facet just for the
+  // sitemap) — they're still crawlable via the links on this page.
+  { path: "/companies", changeFrequency: "daily", priority: 0.7 },
   { path: "/about", changeFrequency: "monthly", priority: 0.6 },
   { path: "/road-map", changeFrequency: "monthly", priority: 0.4 },
   { path: "/contact", changeFrequency: "yearly", priority: 0.3 },

@@ -8,8 +8,9 @@ import { getFirebaseAuth } from "@/functions/firebase";
 import {
   deleteSavedSearch,
   getSavedSearches,
+  updateSavedSearch,
 } from "@/requests/savedSearches";
-import { SavedSearch, SavedSearchParams } from "@/types";
+import { AlertFrequency, SavedSearch, SavedSearchParams } from "@/types";
 import { trackError, trackEvent } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
@@ -60,6 +61,8 @@ const SavedSearches = () => {
   const [actionError, setActionError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [savingAlertId, setSavingAlertId] = useState<string | null>(null);
+  const [alertError, setAlertError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -126,6 +129,54 @@ const SavedSearches = () => {
     }
   };
 
+  const handleAlertFrequencyChange = async (
+    savedSearch: SavedSearch,
+    nextFrequency: AlertFrequency,
+  ) => {
+    if (!user) return;
+
+    const previous = savedSearch.alertFrequency;
+    setSavingAlertId(savedSearch.id);
+    setAlertError(null);
+
+    setSearches((prev) =>
+      prev.map((item) =>
+        item.id === savedSearch.id
+          ? { ...item, alertFrequency: nextFrequency }
+          : item,
+      ),
+    );
+
+    try {
+      const auth = getFirebaseAuth();
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) throw new Error("Not signed in");
+
+      await updateSavedSearch(savedSearch.id, nextFrequency, idToken);
+
+      trackEvent(user, "Update Saved Search Alert", {
+        type: "select",
+        id: savedSearch.id,
+        alertFrequency: nextFrequency,
+      });
+    } catch (err) {
+      setSearches((prev) =>
+        prev.map((item) =>
+          item.id === savedSearch.id
+            ? { ...item, alertFrequency: previous }
+            : item,
+        ),
+      );
+      trackError(user, "Update Saved Search Alert", {
+        message: (err as { message?: string }).message ?? "",
+        id: savedSearch.id,
+      });
+      setAlertError("We couldn't update that alert. Please try again.");
+    } finally {
+      setSavingAlertId(null);
+    }
+  };
+
   const handleCopyLink = async (savedSearch: SavedSearch) => {
     trackEvent(user, "Share Search", {
       type: "copy-link",
@@ -155,6 +206,7 @@ const SavedSearches = () => {
   return (
     <S.Wrapper>
       {actionError && <div className="error">{actionError}</div>}
+      {alertError && <div className="error">{alertError}</div>}
       {loadError ? (
         <div className="error">{loadError}</div>
       ) : searches.length === 0 ? (
@@ -175,6 +227,23 @@ const SavedSearches = () => {
                 <div className="date">
                   Saved {dayjs(savedSearch.createdAt).format("MM-DD-YYYY")}
                 </div>
+                <label className="alertFrequency">
+                  Email alerts:
+                  <select
+                    value={savedSearch.alertFrequency}
+                    disabled={savingAlertId === savedSearch.id}
+                    onChange={(e) =>
+                      handleAlertFrequencyChange(
+                        savedSearch,
+                        e.target.value as AlertFrequency,
+                      )
+                    }
+                  >
+                    <option value="off">Off</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                  </select>
+                </label>
               </div>
               <div className="actions">
                 <Link href={`/?${toQueryString(savedSearch.params)}`}>

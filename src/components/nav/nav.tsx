@@ -27,6 +27,7 @@ const Nav = () => {
       </Link>
       <div className="section">
         <div className="linksWrapper">
+          <Link href="/companies">Companies</Link>
           {user ? (
             <Link href="/account">
               Welcome

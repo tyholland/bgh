@@ -18,6 +18,7 @@ const savedSearch: SavedSearch = {
   uid: "uid-1",
   name: "Engineer roles",
   params,
+  alertFrequency: "off",
   createdAt: "2026-09-23T00:00:00.000Z",
 };
 
@@ -66,8 +67,27 @@ describe("createSavedSearch", () => {
           Authorization: `Bearer ${idToken}`,
         },
       });
-      expect(JSON.parse(init.body)).toEqual({ name: "Engineer roles", params });
+      expect(JSON.parse(init.body)).toEqual({
+        name: "Engineer roles",
+        params,
+        alertFrequency: "off",
+      });
       expect(result).toEqual(savedSearch);
+    });
+
+    it("sends the given alertFrequency instead of the \"off\" default", async () => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 201,
+        json: async () => ({ ...savedSearch, alertFrequency: "daily" }),
+      } as Response);
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { createSavedSearch } = await load();
+      await createSavedSearch(params, idToken, "Engineer roles", "daily");
+
+      const [, init] = fetchMock.mock.calls[0];
+      expect(JSON.parse(init.body)).toMatchObject({ alertFrequency: "daily" });
     });
 
     it("throws when the API responds with a non-OK status", async () => {
@@ -129,6 +149,61 @@ describe("getSavedSearches", () => {
 
       const { getSavedSearches } = await load();
       await expect(getSavedSearches(idToken)).rejects.toThrow(/401/);
+    });
+  });
+});
+
+describe("updateSavedSearch", () => {
+  it("throws when NEXT_PUBLIC_API_BASE_URL is not set", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { updateSavedSearch } = await load();
+
+    await expect(
+      updateSavedSearch("search-1", "daily", idToken),
+    ).rejects.toThrow(/NEXT_PUBLIC_API_BASE_URL/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  describe("with a configured base URL", () => {
+    beforeEach(() => {
+      vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.test");
+    });
+
+    it("PATCHes the alertFrequency, authenticated with the id token", async () => {
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200 } as Response);
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { updateSavedSearch } = await load();
+      await updateSavedSearch("search-1", "weekly", idToken);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchMock.mock.calls[0];
+      expect(url).toBe("https://api.test/v1/saved-searches/search-1");
+      expect(init).toMatchObject({
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      expect(JSON.parse(init.body)).toEqual({ alertFrequency: "weekly" });
+    });
+
+    it("throws when the API responds with a non-OK status", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({ ok: false, status: 404 } as Response),
+      );
+
+      const { updateSavedSearch } = await load();
+      await expect(
+        updateSavedSearch("search-1", "daily", idToken),
+      ).rejects.toThrow(/404/);
     });
   });
 });

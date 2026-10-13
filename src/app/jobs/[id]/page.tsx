@@ -2,7 +2,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Job from "@/content/job/job";
-import { getJobById } from "@/requests/jobs";
+import { getJobById, getSimilarJobs } from "@/requests/jobs";
 import { sanitizeJobDescriptionServer } from "@/functions/sanitizeJobDescription.server";
 import { buildJobPostingJsonLd } from "@/functions/jobPostingJsonLd";
 import { defaultMetaData, metaUrl } from "@/constants";
@@ -50,6 +50,7 @@ const JobPage = async ({ params }: PageProps) => {
   const descriptionHtml = sanitizeJobDescriptionServer(
     job.Details?.description,
   );
+  const similarJobs = await getSimilarJobs(job);
 
   const jsonLd = buildJobPostingJsonLd(
     job,
@@ -71,7 +72,7 @@ const JobPage = async ({ params }: PageProps) => {
           }}
         />
       )}
-      <Job job={job} descriptionHtml={descriptionHtml} />
+      <Job job={job} descriptionHtml={descriptionHtml} similarJobs={similarJobs} />
     </>
   );
 };

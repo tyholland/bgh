@@ -53,6 +53,30 @@ export const Item = styled.div`
       color: #999;
       font-size: 12px;
     }
+
+    .alertFrequency {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #555;
+      margin-top: 4px;
+
+      select {
+        border: 1px solid #000;
+        border-radius: 8px;
+        background: #fff;
+        color: #000;
+        padding: 2px 6px;
+        font-size: 12px;
+
+        &:disabled {
+          color: #999;
+          background: #ddd;
+          cursor: no-drop;
+        }
+      }
+    }
   }
 
   .actions {

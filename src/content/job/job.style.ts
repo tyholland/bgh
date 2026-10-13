@@ -117,6 +117,47 @@ export const ShareBtns = styled.div`
   }
 `;
 
+export const SimilarJobs = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .title {
+    font-weight: 700;
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 12px 16px;
+    background: #fff;
+    color: inherit;
+    text-decoration: none;
+
+    &:hover {
+      border-color: #1439e6;
+    }
+
+    .role {
+      font-weight: 700;
+    }
+
+    .meta {
+      font-size: 13px;
+      color: #666;
+    }
+  }
+`;
+
 export const AdditionalBtn = styled.div`
   display: flex;
   justify-content: space-between;

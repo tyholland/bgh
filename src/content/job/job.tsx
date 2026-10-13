@@ -11,6 +11,7 @@ import { trackEvent, trackPage } from "@/functions/mixpanel";
 import { getFirebaseAuth } from "@/functions/firebase";
 import { createSavedJob, deleteSavedJob, getSavedJobs } from "@/requests/savedJobs";
 import { formatViewCount } from "@/functions/formatViewCount";
+import { jobHref } from "@/functions/jobHref";
 import SignInModal from "@/components/signIn-modal/signIn-modal";
 import LinkedInIcon from "@/svg/LinkedInIcon";
 import XIcon from "@/svg/XIcon";
@@ -23,9 +24,12 @@ interface JobProps {
   // component ever sees it — this is presentational only, not a second
   // sanitization pass.
   descriptionHtml: string;
+  // Other open roles in the same industry (src/requests/jobs.ts's
+  // getSimilarJobs) — already excludes this job and caps at a handful.
+  similarJobs: CsvData[];
 }
 
-const Job = ({ job, descriptionHtml }: JobProps) => {
+const Job = ({ job, descriptionHtml, similarJobs }: JobProps) => {
   const user = useAtomValue(userAtom);
   const details = job.Details;
   const [showDetails, setShowDetails] = useState<boolean>(false);
@@ -286,6 +290,36 @@ const Job = ({ job, descriptionHtml }: JobProps) => {
               </div>
             )}
           </div>
+        )}
+        {similarJobs.length > 0 && (
+          <S.SimilarJobs>
+            <div className="title">Similar Jobs</div>
+            <div className="list">
+              {similarJobs.map((similar) => {
+                const href = jobHref(similar);
+                if (!href) return null;
+
+                return (
+                  <Link
+                    key={similar.Link}
+                    href={href}
+                    className="item"
+                    onClick={() =>
+                      trackEvent(user, "Job Listing", {
+                        type: "similar",
+                        ...similar,
+                      })
+                    }
+                  >
+                    <div className="role">{similar["Role Name"]}</div>
+                    <div className="meta">
+                      {similar.Company} &middot; {similar["Primary Industry"]}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </S.SimilarJobs>
         )}
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />

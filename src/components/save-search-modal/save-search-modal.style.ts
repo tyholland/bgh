@@ -5,6 +5,13 @@ export const ModalWrapper = styled.div`
   flex-direction: column;
   gap: 16px;
 
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+  }
+
   .success {
     background: #6ad5b5;
     width: fit-content;
@@ -34,6 +41,15 @@ export const Input = styled.input`
   border: 1px solid #000;
   border-radius: 10px;
   padding: 12px 10px;
+  width: 100%;
+`;
+
+export const Select = styled.select`
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 10px;
   width: 100%;
 `;
 
