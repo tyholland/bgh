@@ -73,7 +73,9 @@ export const Section = styled.div`
     width: 45%;
 
     @media only screen and (max-width: 950px) {
-      width: 90%;
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
     }
   }
 
@@ -96,6 +98,7 @@ export const Section = styled.div`
     color: #fff;
     width: 40%;
     cursor: pointer;
+    font-weight: 600;
   }
 
   .company {
@@ -110,6 +113,7 @@ export const Section = styled.div`
     font-size: 13px;
     justify-content: center;
     align-items: center;
+    font-weight: 600;
   }
 `;
 
