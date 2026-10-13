@@ -29,7 +29,7 @@ export async function generateMetadata({
     return defaultMetaData("Job Not Found");
   }
 
-  const title = `${job["Role Name"]} at ${job.Company}`;
+  const title = job["Role Name"].replace(/\s+/g, " ").trim();
   const description =
     job.Details?.description
       ?.replace(/<[^>]+>/g, " ")
