@@ -63,8 +63,13 @@ export const Section = styled.div`
   gap: 8px;
   padding: 1%;
   border-radius: 10px;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  flex-direction: column;
+
+  .searchBtn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 `;
 
 export const KeywordBubble = styled.div`

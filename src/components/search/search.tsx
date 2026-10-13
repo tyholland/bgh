@@ -78,6 +78,7 @@ const Search = () => {
       <S.Wrapper>
         <div className="header">Find your next opportunity</div>
         <div>Discover roles at top companies and grow your career</div>
+        <div>🔔 Get email alerts for this search</div>
         <S.Section>
           <S.Input
             type="text"
@@ -87,19 +88,21 @@ const Search = () => {
             onChange={(e) => setSearchWord(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <button
-            onClick={handleSearch}
-            disabled={searchWord.trim().length === 0}
-          >
-            Search Jobs
-          </button>
-          <button
-            className="save"
-            onClick={handleSaveSearchClick}
-            disabled={searchBubble.length === 0}
-          >
-            Save Search
-          </button>
+          <div className="searchBtn">
+            <button
+              onClick={handleSearch}
+              disabled={searchWord.trim().length === 0}
+            >
+              Search Jobs
+            </button>
+            <button
+              className="save"
+              onClick={handleSaveSearchClick}
+              disabled={searchBubble.length === 0}
+            >
+              Save Search
+            </button>
+          </div>
         </S.Section>
         {searchBubble.length > 0 && (
           <S.KeywordBubble>

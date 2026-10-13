@@ -12,7 +12,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 import List from "@/components/list/list";
 import { userAtom } from "@/caches/UserAtom";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
+
+dayjs.extend(relativeTime);
 import SignInModal from "@/components/signIn-modal/signIn-modal";
 import FilterModal from "@/components/filter-modal/filter-modal";
 import SaveSearchModal from "@/components/save-search-modal/save-search-modal";
@@ -173,7 +176,10 @@ const Home = ({ csvData }: HomeProps) => {
             />
             <div className="content">
               <div className="title">Trusted Opportunities</div>
-              <div>Curated roles from top companies</div>
+              <div>
+                Sourced from {csvData.companies.length} companies&apos; own
+                career pages
+              </div>
             </div>
           </S.BannerSection>
           <S.BannerSection>
@@ -185,7 +191,11 @@ const Home = ({ csvData }: HomeProps) => {
             />
             <div className="content">
               <div className="title">Real-time Updates</div>
-              <div>New jobs posted every day</div>
+              <div>
+                {csvData.refreshedAt
+                  ? `Refreshed ${dayjs(csvData.refreshedAt).fromNow()}`
+                  : "New jobs posted every day"}
+              </div>
             </div>
           </S.BannerSection>
           <S.BannerSection>

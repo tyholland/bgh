@@ -26,6 +26,12 @@ export const Heading = styled.div`
   }
 `;
 
+export const Intro = styled.p`
+  margin: 0;
+  color: #444;
+  max-width: 640px;
+`;
+
 export const CardWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;

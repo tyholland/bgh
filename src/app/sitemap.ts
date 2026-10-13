@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { metaUrl } from "@/constants";
 import { jobHref } from "@/functions/jobHref";
 import { fetchJobsPageForSitemap } from "@/functions/sitemapJobPages";
+import { getCompanies } from "@/requests/jobs";
 
 // Static, content-worthy pages only — auth/account pages are excluded here
 // and blocked in robots.ts since they have nothing for search engines to index.
@@ -11,9 +12,6 @@ const staticPages: Array<{
   priority: number;
 }> = [
   { path: "", changeFrequency: "hourly", priority: 1 },
-  // Individual /companies/[company] pages aren't enumerated here (would mean
-  // fetching and paging through the full companies facet just for the
-  // sitemap) — they're still crawlable via the links on this page.
   { path: "/companies", changeFrequency: "daily", priority: 0.7 },
   { path: "/about", changeFrequency: "monthly", priority: 0.6 },
   { path: "/road-map", changeFrequency: "monthly", priority: 0.4 },
@@ -47,12 +45,27 @@ export default async function sitemap({
   const lastModified = new Date();
 
   if (sitemapId === 0) {
-    return staticPages.map(({ path, changeFrequency, priority }) => ({
-      url: `${metaUrl}${path}`,
+    const staticEntries = staticPages.map(
+      ({ path, changeFrequency, priority }) => ({
+        url: `${metaUrl}${path}`,
+        lastModified,
+        changeFrequency,
+        priority,
+      }),
+    );
+
+    // Same "never take the build down" rule as fetchJobsPageForSitemap below
+    // — an API hiccup here just means no company URLs this round, not a
+    // failed sitemap/build.
+    const companies = await getCompanies().catch(() => []);
+    const companyEntries = companies.map((company) => ({
+      url: `${metaUrl}/companies/${encodeURIComponent(company.value)}`,
       lastModified,
-      changeFrequency,
-      priority,
+      changeFrequency: "daily" as const,
+      priority: 0.6,
     }));
+
+    return [...staticEntries, ...companyEntries];
   }
 
   const { jobs } = await fetchJobsPageForSitemap(sitemapId);
