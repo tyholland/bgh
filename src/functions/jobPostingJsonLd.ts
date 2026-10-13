@@ -1,5 +1,47 @@
 import { CsvData } from "@/types";
 
+// The backend only ever hands us one flattened string for a job's location
+// (e.g. "Boston, MA" or "123 Main St, Boston, MA, USA" or just "Remote") —
+// see BACKEND_REPO_PLAN.md §4.2, which reads only `addressLocality` off the
+// employer's own JobPosting markup and drops any sibling streetAddress /
+// addressRegion / addressCountry fields it had. Reconstruct them here by
+// position: the last three comma-separated parts are locality/region/country
+// and anything left over in front is the street address.
+const parseAddressLocality = (
+  raw: string,
+): {
+  streetAddress?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  addressCountry?: string;
+} => {
+  const parts = raw
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length <= 3) {
+    const [addressLocality, addressRegion, addressCountry] = parts;
+    return { addressLocality, addressRegion, addressCountry };
+  }
+
+  const addressCountry = parts.pop();
+  const addressRegion = parts.pop();
+  const addressLocality = parts.pop();
+  return { streetAddress: parts.join(", "), addressLocality, addressRegion, addressCountry };
+};
+
+// Best-effort "company website" for hiringOrganization.sameAs — we don't
+// store one separately, but `Link` always points at the employer's own
+// domain (careers page or ATS), so its origin is the closest thing we have.
+const companyWebsite = (link: string): string | undefined => {
+  try {
+    return new URL(link).origin;
+  } catch {
+    return undefined;
+  }
+};
+
 // Builds a schema.org JobPosting object for the /jobs/[id] page's JSON-LD
 // <script> tag — this is what makes a listing eligible for Google for Jobs.
 //
@@ -34,21 +76,25 @@ export const buildJobPostingJsonLd = (
     return null;
   }
 
+  const hiringOrganization: Record<string, unknown> = {
+    "@type": "Organization",
+    name: job.Company,
+  };
+  const sameAs = companyWebsite(job.Link);
+  if (sameAs) hiringOrganization.sameAs = sameAs;
+
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org/",
     "@type": "JobPosting",
     title: job["Role Name"],
     description: descriptionHtml,
     datePosted: details.datePosted,
-    hiringOrganization: {
-      "@type": "Organization",
-      name: job.Company,
-    },
+    hiringOrganization,
     jobLocation: {
       "@type": "Place",
       address: {
         "@type": "PostalAddress",
-        addressLocality,
+        ...parseAddressLocality(addressLocality),
       },
     },
     // We aggregate job postings but don't host the application itself —
