@@ -16,6 +16,7 @@ import { trackEvent, trackPage } from "@/functions/mixpanel";
 import SignInModal from "@/components/signIn-modal/signIn-modal";
 import FilterModal from "@/components/filter-modal/filter-modal";
 import SaveSearchModal from "@/components/save-search-modal/save-search-modal";
+import Link from "next/link";
 
 interface HomeProps {
   csvData: AllSearchData;
@@ -98,6 +99,9 @@ const Home = ({ csvData }: HomeProps) => {
                 </div>
               </div>
               <div className="options">
+                <Link href="/companies" className="company">
+                  Companies
+                </Link>
                 <button
                   className="btnFilter"
                   onClick={() => setOpenFilterModal(true)}

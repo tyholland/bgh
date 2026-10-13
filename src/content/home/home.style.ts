@@ -70,7 +70,7 @@ export const Section = styled.div`
   .options {
     display: flex;
     gap: 10px;
-    width: 35%;
+    width: 45%;
 
     @media only screen and (max-width: 950px) {
       width: 90%;
@@ -96,6 +96,20 @@ export const Section = styled.div`
     color: #fff;
     width: 40%;
     cursor: pointer;
+  }
+
+  .company {
+    background: #6faeff;
+    display: flex;
+    border: none;
+    padding: 6px;
+    border-radius: 10px;
+    color: #fff;
+    width: 40%;
+    cursor: pointer;
+    font-size: 13px;
+    justify-content: center;
+    align-items: center;
   }
 `;
 
