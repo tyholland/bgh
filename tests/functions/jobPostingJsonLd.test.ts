@@ -37,10 +37,18 @@ describe("buildJobPostingJsonLd", () => {
       title: "Senior Product Manager",
       description: descriptionHtml,
       datePosted: "2026-09-08",
-      hiringOrganization: { "@type": "Organization", name: "Acme Corp" },
+      hiringOrganization: {
+        "@type": "Organization",
+        name: "Acme Corp",
+        sameAs: "https://careers.acme.com",
+      },
       jobLocation: {
         "@type": "Place",
-        address: { "@type": "PostalAddress", addressLocality: "Boston, MA" },
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: "Boston",
+          addressRegion: "MA",
+        },
       },
       directApply: false,
       url: pageUrl,

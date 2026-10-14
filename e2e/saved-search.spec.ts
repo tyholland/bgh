@@ -10,10 +10,11 @@ interface SavedSearchRecord {
   uid: string;
   name: string | null;
   params: Record<string, string>;
+  alertFrequency: string;
   createdAt: string;
 }
 
-test("saves a search, applies it from the account page, then deletes it", async ({
+test("saves a search with an alert frequency, edits and applies it from the account page, then deletes it", async ({
   page,
 }) => {
   // Clipboard access needs explicit permission in Chromium — granted up
@@ -34,12 +35,14 @@ test("saves a search, applies it from the account page, then deletes it", async 
       const body = request.postDataJSON() as {
         name?: string;
         params: Record<string, string>;
+        alertFrequency?: string;
       };
       const record: SavedSearchRecord = {
         id: `saved-${nextId++}`,
         uid: TEST_USER.uid,
         name: body.name ?? null,
         params: body.params,
+        alertFrequency: body.alertFrequency ?? "off",
         createdAt: new Date().toISOString(),
       };
       savedSearches.push(record);
@@ -58,8 +61,16 @@ test("saves a search, applies it from the account page, then deletes it", async 
   });
 
   await page.route("**/v1/saved-searches/*", async (route) => {
-    const id = new URL(route.request().url()).pathname.split("/").pop();
+    const request = route.request();
+    const id = new URL(request.url()).pathname.split("/").pop();
     const index = savedSearches.findIndex((entry) => entry.id === id);
+
+    if (request.method() === "PATCH" && index !== -1) {
+      const body = request.postDataJSON() as { alertFrequency?: string };
+      if (body.alertFrequency) savedSearches[index].alertFrequency = body.alertFrequency;
+      return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
+    }
+
     if (index !== -1) savedSearches.splice(index, 1);
 
     return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
@@ -79,6 +90,9 @@ test("saves a search, applies it from the account page, then deletes it", async 
   await page
     .getByPlaceholder("Name this search (optional)")
     .fill("My growth marketer search");
+  await page
+    .locator('select[name="alertFrequency"]')
+    .selectOption("daily");
   await page.getByRole("button", { name: "Save", exact: true }).click();
   await expect(page.getByText("Your search has been saved.")).toBeVisible();
   await page.getByRole("button", { name: "Close", exact: true }).click();
@@ -87,6 +101,13 @@ test("saves a search, applies it from the account page, then deletes it", async 
   await expect(page).toHaveURL("/account");
   await expect(page.getByText("My growth marketer search")).toBeVisible();
   await expect(page.getByText(`Search: ${UNIQUE_SEARCH_TERM}`)).toBeVisible();
+
+  // The frequency picked in the modal carried through, and can still be
+  // changed later from the account page (saved-searches.tsx's inline select).
+  const alertSelect = page.getByLabel("Email alerts:");
+  await expect(alertSelect).toHaveValue("daily");
+  await alertSelect.selectOption("weekly");
+  await expect(alertSelect).toHaveValue("weekly");
 
   await page.getByRole("link", { name: "View Results" }).click();
   await expect(page).toHaveURL(/search=Growth\+Marketer/);

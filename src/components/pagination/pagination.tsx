@@ -8,16 +8,19 @@ import { useRouter, useSearchParams } from "next/navigation";
 interface PaginationProps {
   totalPages: number;
   page: number;
+  // Defaults to the home page — the company profile page (/companies/[company])
+  // passes its own path so paging stays on that page instead of bouncing to "/".
+  basePath?: string;
 }
 
-const Pagination = ({ totalPages, page }: PaginationProps) => {
+const Pagination = ({ totalPages, page, basePath = "/" }: PaginationProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const goToNewPage = ({ selected }: PaginationClick) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", `${selected + 1}`);
-    router.push(`/?${params.toString()}`, { scroll: false });
+    router.push(`${basePath}?${params.toString()}`, { scroll: false });
   };
 
   if (totalPages <= 1) {

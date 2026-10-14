@@ -38,8 +38,6 @@ const Search = () => {
   };
 
   const handleSearch = () => {
-    if (!requireUser()) return;
-
     const entry = searchWord.trim();
     if (!entry || searchBubble.includes(entry)) return;
 
@@ -52,8 +50,6 @@ const Search = () => {
   };
 
   const handleRemoveSearch = (entry: string) => {
-    if (!requireUser()) return;
-
     const updated = searchBubble.filter((item) => item !== entry);
     pushParams((params) =>
       updated.length > 0
@@ -76,8 +72,15 @@ const Search = () => {
   return (
     <>
       <S.Wrapper>
-        <div className="header">Find your next opportunity</div>
-        <div>Discover roles at top companies and grow your career</div>
+        <div className="header">Find Opportunities You Might Be Missing</div>
+        <div>
+          Discover openings across companies and industries, all in one place.
+          Spend less time searching multiple career sites and more time finding
+          your next opportunity.
+        </div>
+        <div>
+          Get email alerts for your search so you never miss a new opportunity.
+        </div>
         <S.Section>
           <S.Input
             type="text"
@@ -87,19 +90,21 @@ const Search = () => {
             onChange={(e) => setSearchWord(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
           />
-          <button
-            onClick={handleSearch}
-            disabled={searchWord.trim().length === 0}
-          >
-            Search Jobs
-          </button>
-          <button
-            className="save"
-            onClick={handleSaveSearchClick}
-            disabled={searchBubble.length === 0}
-          >
-            Save Search
-          </button>
+          <div className="searchBtn">
+            <button
+              onClick={handleSearch}
+              disabled={searchWord.trim().length === 0}
+            >
+              Search Jobs
+            </button>
+            <button
+              className="save"
+              onClick={handleSaveSearchClick}
+              disabled={searchBubble.length === 0}
+            >
+              Save Search
+            </button>
+          </div>
         </S.Section>
         {searchBubble.length > 0 && (
           <S.KeywordBubble>

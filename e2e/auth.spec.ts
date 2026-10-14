@@ -103,6 +103,47 @@ test.describe("sign up", () => {
   });
 });
 
+test.describe("Google sign-in", () => {
+  test("shows a Continue with Google option on both sign in and sign up", async ({
+    page,
+  }) => {
+    await page.goto("/sign-in");
+    await expect(
+      page.getByRole("button", { name: "Continue with Google" }),
+    ).toBeVisible();
+
+    await page.goto("/sign-up");
+    await expect(
+      page.getByRole("button", { name: "Continue with Google" }),
+    ).toBeVisible();
+  });
+
+  // signInWithGoogle (src/functions/googleAuth.ts) calls the real Firebase
+  // Auth SDK, which loads https://apis.google.com/js/api.js to broker the
+  // popup before ever opening one — there's no real Google/Firebase project
+  // behind this e2e run, so block that script (abort — fast and
+  // deterministic, instead of letting the SDK time out waiting ~5-15s on its
+  // internal iframe ping) and confirm the app surfaces an error and resets
+  // the button rather than hanging on "Signing In...".
+  test("surfaces an error and resets the button if the Google flow can't initialize", async ({
+    page,
+  }) => {
+    await page.route("**://apis.google.com/js/api.js*", (route) =>
+      route.abort(),
+    );
+
+    await page.goto("/sign-in");
+    await page.getByRole("button", { name: "Continue with Google" }).click();
+
+    await expect(
+      page.getByText("We encountered an error. Please try again"),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Continue with Google" }),
+    ).toBeEnabled();
+  });
+});
+
 test.describe("sign out", () => {
   test("signs the user out and returns to a signed-out home page", async ({
     page,

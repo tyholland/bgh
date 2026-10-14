@@ -80,11 +80,17 @@ export type ElementSize = "small" | "medium" | "large";
 // A user's saved search — the filter criteria only, not the page number.
 export type SavedSearchParams = Omit<UrlParams, "page">;
 
+// Whether — and how often — this saved search emails the user when new jobs
+// match it. "off" (the default) means it behaves exactly like a saved search
+// did before alerts existed: just a shortcut back to these filters.
+export type AlertFrequency = "off" | "daily" | "weekly";
+
 export interface SavedSearch {
   id: string;
   uid: string;
   name: string | null;
   params: SavedSearchParams;
+  alertFrequency: AlertFrequency;
   createdAt: string;
 }
 

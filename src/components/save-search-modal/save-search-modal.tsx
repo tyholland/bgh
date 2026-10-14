@@ -6,7 +6,7 @@ import * as S from "./save-search-modal.style";
 import ModalComponent from "../modal/modal";
 import { getFirebaseAuth } from "@/functions/firebase";
 import { createSavedSearch, getSavedSearches } from "@/requests/savedSearches";
-import { SavedSearchParams } from "@/types";
+import { AlertFrequency, SavedSearchParams } from "@/types";
 import { trackError, trackEvent } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
@@ -40,6 +40,7 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
   const [name, setName] = useState<string>("");
+  const [alertFrequency, setAlertFrequency] = useState<AlertFrequency>("off");
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -92,6 +93,7 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
   const handleClose = () => {
     setOpenModal(false);
     setName("");
+    setAlertFrequency("off");
     setSuccess(false);
     setError(null);
     setAlreadySaved(false);
@@ -108,11 +110,17 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
       const idToken = await auth.currentUser?.getIdToken();
       if (!idToken) throw new Error("Not signed in");
 
-      await createSavedSearch(currentParams, idToken, name.trim() || undefined);
+      await createSavedSearch(
+        currentParams,
+        idToken,
+        name.trim() || undefined,
+        alertFrequency,
+      );
 
       trackEvent(user, "Save Search", {
         type: "button",
         params: currentParams,
+        alertFrequency,
       });
 
       setSuccess(true);
@@ -154,6 +162,20 @@ const SaveSearchModal = ({ openModal, setOpenModal }: SaveSearchModalProps) => {
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSave()}
             />
+            <label>
+              Email me when new jobs match:
+              <S.Select
+                name="alertFrequency"
+                value={alertFrequency}
+                onChange={(e) =>
+                  setAlertFrequency(e.target.value as AlertFrequency)
+                }
+              >
+                <option value="off">Off</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+              </S.Select>
+            </label>
             {error && <div className="error">{error}</div>}
           </>
         )}

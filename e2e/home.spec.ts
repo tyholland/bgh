@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import {
   TOTAL_JOBS,
+  UNIQUE_SEARCH_TERM,
   ALPHABETICALLY_FIRST_ROLE,
   ALPHABETICALLY_LAST_ROLE,
 } from "./fixtures/test-data";
@@ -12,7 +13,7 @@ test.describe("home page — anonymous visitor", () => {
     await page.goto("/");
 
     await expect(
-      page.getByText("Find your next opportunity"),
+      page.getByText("Find Opportunities You Might Be Missing"),
     ).toBeVisible();
     await expect(
       page.getByText(new RegExp(`${TOTAL_JOBS}\\s*jobs found`)),
@@ -22,21 +23,64 @@ test.describe("home page — anonymous visitor", () => {
     ).toBeVisible();
   });
 
-  test("prompts sign in when searching without an account", async ({
+  test("searches for jobs without requiring sign-in", async ({ page }) => {
+    await page.goto("/");
+
+    // search.tsx's handleSearch dropped its requireUser() gate — anyone can
+    // search; signing in is only required to save a search
+    // (handleSaveSearchClick) — handleRemoveSearch dropped the gate too.
+    await page
+      .getByPlaceholder("Search jobs, keywords, skills...")
+      .fill(UNIQUE_SEARCH_TERM);
+    await page.getByRole("button", { name: "Search Jobs" }).click();
+
+    await expect(
+      page.getByRole("heading", { name: "Please Sign In" }),
+    ).not.toBeVisible();
+    await expect(page).toHaveURL(/search=Growth\+Marketer/);
+    await expect(page.getByText("1 jobs found")).toBeVisible();
+    await expect(
+      page.getByText(UNIQUE_SEARCH_TERM, { exact: true }),
+    ).toBeVisible();
+  });
+
+  test("still prompts sign in to save a search", async ({ page }) => {
+    await page.goto("/");
+
+    await page
+      .getByPlaceholder("Search jobs, keywords, skills...")
+      .fill(UNIQUE_SEARCH_TERM);
+    await page.getByRole("button", { name: "Search Jobs" }).click();
+    await expect(page.getByText("1 jobs found")).toBeVisible();
+
+    await page.getByRole("button", { name: "Save Search" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Please Sign In" }),
+    ).toBeVisible();
+  });
+
+  test("removes a search term without requiring sign-in", async ({
     page,
   }) => {
     await page.goto("/");
 
     await page
       .getByPlaceholder("Search jobs, keywords, skills...")
-      .fill("Engineer");
+      .fill(UNIQUE_SEARCH_TERM);
     await page.getByRole("button", { name: "Search Jobs" }).click();
+    await expect(page.getByText("1 jobs found")).toBeVisible();
+
+    await page
+      .getByRole("button", { name: `${UNIQUE_SEARCH_TERM} x` })
+      .click();
 
     await expect(
       page.getByRole("heading", { name: "Please Sign In" }),
+    ).not.toBeVisible();
+    await expect(page).not.toHaveURL(/search=/);
+    await expect(
+      page.getByText(new RegExp(`${TOTAL_JOBS}\\s*jobs found`)),
     ).toBeVisible();
-    // Gating happens before navigation — the URL must be untouched.
-    await expect(page).toHaveURL("/");
   });
 
   test("opens a job card without requiring sign-in", async ({ page }) => {

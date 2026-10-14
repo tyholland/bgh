@@ -106,4 +106,28 @@ test.describe("job detail page", () => {
       page.getByRole("heading", { name: "Page not found" }),
     ).toBeVisible();
   });
+
+  // Backend Engineer (Globex, Software Engineering) has six other Software
+  // Engineering fixtures — see e2e/fixtures/jobs-data.mjs — so this exercises
+  // both the industry filter and the 4-job cap in getSimilarJobs.
+  test("shows other roles in the same industry as Similar Jobs", async ({
+    page,
+  }) => {
+    await page.goto(`/jobs/${ENRICHED_JOB_ID}`);
+
+    await expect(page.getByText("Similar Jobs")).toBeVisible();
+    await expect(page.getByRole("link", { name: /Data Analyst/ })).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: /DevOps Engineer/ }),
+    ).toBeVisible();
+
+    // Not shown as a similar-jobs link: the job itself (it's the page's own
+    // heading, not a link), or a job from a different industry (Sales).
+    await expect(
+      page.getByRole("link", { name: ENRICHED_JOB_ROLE, exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("link", { name: /Account Executive/ }),
+    ).toHaveCount(0);
+  });
 });

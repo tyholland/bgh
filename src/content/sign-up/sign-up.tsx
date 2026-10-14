@@ -17,6 +17,8 @@ import { ChangeEvent, useEffect, useState } from "react";
 import * as S from "./sign-up.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import { getSafeRedirect } from "@/functions/safeRedirect";
+import { signInWithGoogle } from "@/functions/googleAuth";
+import GoogleIcon from "@/svg/GoogleIcon";
 
 const SignUp = () => {
   const router = useRouter();
@@ -29,6 +31,7 @@ const SignUp = () => {
   const [userPassword, setUserPassword] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     trackPage(user, "Sign Up", window.location.href);
@@ -102,6 +105,40 @@ const SignUp = () => {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleSubmitting(true);
+    setErrorMsg(null);
+
+    try {
+      const { user: fbUser, isNewUser } = await signInWithGoogle();
+
+      trackIdentity(fbUser.uid, fbUser.email || "", fbUser.displayName || "");
+      trackEvent(null, isNewUser ? "Account Creation" : "Sign In", {
+        type: "google",
+        email: fbUser.email || "",
+      });
+
+      router.replace(redirectTo);
+    } catch (error) {
+      const code = (error as { code?: string }).code ?? "unknown";
+
+      setIsGoogleSubmitting(false);
+
+      // The user closing the popup or opening a second one isn't an error
+      // worth surfacing — just let them try again.
+      if (
+        code === "auth/popup-closed-by-user" ||
+        code === "auth/cancelled-popup-request"
+      ) {
+        return;
+      }
+
+      const message = (error as { message?: string }).message ?? "";
+      trackError(user, "Create Account", { code, message, type: "google" });
+      setErrorMsg(code);
+    }
+  };
+
   const isDisabled =
     isSubmitting || !userEmail || !userPassword || !firstName || !lastName;
 
@@ -109,6 +146,17 @@ const SignUp = () => {
     <>
       <S.Wrapper>
         <S.VisuallyHidden>Sign Up | BGH Scout</S.VisuallyHidden>
+        <S.GoogleButton
+          type="button"
+          onClick={handleGoogleSignIn}
+          disabled={isGoogleSubmitting}
+        >
+          <GoogleIcon />
+          {isGoogleSubmitting ? "Signing Up..." : "Continue with Google"}
+        </S.GoogleButton>
+        <S.Divider>
+          <span>or</span>
+        </S.Divider>
         <div>
           <S.Input
             type="text"

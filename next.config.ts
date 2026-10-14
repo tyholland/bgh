@@ -28,7 +28,16 @@ const csp = [
   "img-src 'self' data: https:",
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://cdn.mxpnl.com`,
+  // https://apis.google.com is Firebase Auth's own gapi loader
+  // (node_modules/@firebase/auth: `gapiScript`), injected as a <script> tag
+  // by signInWithPopup/signInWithRedirect for any OAuth provider (Google
+  // included) — without it the popup flow fails with auth/internal-error.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://cdn.mxpnl.com https://apis.google.com`,
+  // Firebase Auth's popup/redirect flow opens a hidden same-page iframe at
+  // https://<authDomain>/__/auth/iframe (see @firebase/auth's _openIframe)
+  // to relay the OAuth result back from the popup — without frame-src this
+  // falls back to default-src 'self' and silently breaks Google sign-in.
+  "frame-src 'self' https://*.firebaseapp.com",
   [
     "connect-src 'self'",
     "https://*.googleapis.com",

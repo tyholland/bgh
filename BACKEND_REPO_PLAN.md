@@ -469,9 +469,9 @@ them.
 
 ### `POST /v1/saved-searches`
 
-Lets a signed-in user save the current search/filter criteria (roadmap:
-"Saved searches" — not yet built in the frontend UI, but the API should exist
-first). `params` is the same shape as `UrlParams` in `src/types.ts`.
+Lets a signed-in user save the current search/filter criteria, optionally
+opting into email alerts for it (§"Job alert emails" below). `params` is the
+same shape as `UrlParams` in `src/types.ts`.
 
 ```jsonc
 // request body
@@ -485,25 +485,48 @@ first). `params` is the same shape as `UrlParams` in `src/types.ts`.
     "keyword": "",
     "industry": "Technology",
     "sort": "newest"
-  }
+  },
+  "alertFrequency": "off"          // "off" | "daily" | "weekly" — defaults to "off"
 }
 ```
 
 - Auth: `Authorization: Bearer <Firebase ID token>`. The `uid` is taken from
   the verified token only — never accepted in the body.
 - Validate: `name` ≤ 100 chars if present; `params` is an object with only
-  known `UrlParams` keys, each a string ≤ 500 chars. Reject otherwise with
-  `400`.
-- Return `201 { id, uid, name, params, createdAt }`.
+  known `UrlParams` keys, each a string ≤ 500 chars; `alertFrequency` is one
+  of `off`/`daily`/`weekly`, defaulting to `off` when absent. Reject
+  otherwise with `400`.
+- Generate an `unsubscribe_token` (random, URL-safe) at insert time — needed
+  for the one-click unsubscribe link in alert emails (see below).
+- Return `201 { id, uid, name, params, alertFrequency, createdAt }`.
 
 ### `GET /v1/saved-searches`
 
 Lists the caller's own saved searches (needed so the frontend can render them
-and let the user pick which one to delete).
+and let the user pick which one to delete or re-tune its alert frequency).
 
 - Auth: `Authorization: Bearer <Firebase ID token>`.
-- Return `200 { savedSearches: [{ id, uid, name, params, createdAt }, …] }`,
+- Return `200 { savedSearches: [{ id, uid, name, params, alertFrequency, createdAt }, …] }`,
   newest first. Only rows owned by the token's `uid` — never another user's.
+  `unsubscribe_token` is internal — never included in this response.
+
+### `PATCH /v1/saved-searches/:id`
+
+Changes a saved search's alert frequency — the only field editable after
+creation (name/params still require delete-and-recreate from the frontend).
+Used by the inline frequency picker in
+`src/components/saved-searches/saved-searches.tsx`.
+
+```jsonc
+// request body
+{ "alertFrequency": "weekly" }
+```
+
+- Auth: `Authorization: Bearer <Firebase ID token>`, same ownership rule as
+  `DELETE` below.
+- Validate `alertFrequency` is one of `off`/`daily`/`weekly`; `400` otherwise.
+- Return `200 { ok: true }`; `404` if `id` doesn't exist or isn't owned by the
+  caller.
 
 ### `DELETE /v1/saved-searches/:id`
 
@@ -514,6 +537,58 @@ Removes one saved search.
   whether another user's `id` exists).
 - Return `200 { ok: true }`; `404` if `id` doesn't exist or isn't owned by the
   caller.
+
+### Job alert emails
+
+A saved search with `alert_frequency != 'off'` emails the owner a digest of
+*new* jobs matching its `params` — the feature `email_notifications` (§`PATCH
+/v1/users/:uid` above) was always meant to gate, and the reason
+`notification-settings.tsx`'s checkbox already reads "Email me job alerts and
+account updates." Not a new endpoint the frontend calls — a scheduled worker,
+same shape as the ingest cron (§7).
+
+```
+runAlerts(frequency: 'daily' | 'weekly'):
+  due = saved_searches
+          where alert_frequency = frequency
+          and (last_alerted_at is null
+               or last_alerted_at < now - (frequency == 'daily' ? 24h : 7d))
+
+  for each search in due:
+    user = users.get(search.uid)
+
+    newJobs = jobsQuery(search.params)     # same query GET /v1/jobs runs
+                .where(first_seen_at > (search.last_alerted_at ?? search.created_at))
+                .limit(20)
+
+    if user.email_notifications and newJobs.length > 0:
+      send digest email to user.email:
+        - subject: "N new jobs for '<search.name or a summary of params>'"
+        - body: role/company/link per job (capped at 20, "+K more — view all"
+          linking to the frontend's shareable URL for these params, same
+          shape saved-searches.tsx's buildShareableUrl builds)
+        - footer: one-click unsubscribe link, see below
+
+    # Always advance the watermark, even when nothing sent (no new jobs, or
+    # email_notifications is false) — otherwise turning email_notifications
+    # back on later would dump every job matched while it was off in one
+    # digest instead of just what's new since.
+    search.last_alerted_at = now
+```
+
+- Runs on a schedule (e.g. hourly) and picks the `daily`/`weekly` buckets that
+  are due, rather than one cron per frequency — keeps `INGEST_CRON`-style
+  scheduling in one place.
+- **Never sends when `email_notifications` is `false`** (§5 gating rule) —
+  this is the first real sender that rule was written for.
+- **Unsubscribe** must work from a cold email client with no Firebase
+  session: a public `GET /v1/saved-searches/:id/unsubscribe?token=<unsubscribe_token>`
+  sets that one search's `alert_frequency` to `off` (not the account-wide
+  `email_notifications` — a reader unsubscribing from one alert shouldn't
+  silently mute every other notification) and returns a small confirmation
+  HTML page. `404`/generic failure page if the token doesn't match the id.
+- A digest with zero new jobs is simply not sent (see pseudocode) — no empty
+  "nothing new" emails.
 
 ### 5.1 Frontend cache revalidation
 
@@ -577,13 +652,18 @@ create table users (
 );
 
 create table saved_searches (
-  id          uuid primary key default gen_random_uuid(),
-  uid         text not null references users(uid) on delete cascade,
-  name        text,
-  params      jsonb not null,     -- UrlParams (search/company/date/exact/keyword/industry/sort)
-  created_at  timestamptz not null default now()
+  id                 uuid primary key default gen_random_uuid(),
+  uid                text not null references users(uid) on delete cascade,
+  name               text,
+  params             jsonb not null,     -- UrlParams (search/company/date/exact/keyword/industry/sort)
+  alert_frequency    text not null default 'off', -- off|daily|weekly — see §5 "Job alert emails"
+  last_alerted_at    timestamptz,        -- watermark: only jobs first_seen_at after this get emailed
+  unsubscribe_token  text not null default encode(gen_random_bytes(24), 'hex'), -- one-click unsubscribe, never returned by the API
+  created_at         timestamptz not null default now()
 );
 create index saved_searches_uid_idx on saved_searches (uid);
+create index saved_searches_due_alerts_idx on saved_searches (alert_frequency, last_alerted_at)
+  where alert_frequency != 'off';
 
 create table ingest_runs (
   id           uuid primary key default gen_random_uuid(),
@@ -647,7 +727,8 @@ run():
 | `INGEST_CRON` | Cron expr if scheduling in-process (e.g. `0 3,9,15,21 * * *` in ET) |
 | `FRONTEND_REVALIDATE_URL` | e.g. `https://www.bghscout.com/api/revalidate` |
 | `REVALIDATE_SECRET` | Bearer token for the call above — must match the frontend's `REVALIDATE_SECRET` |
-| `MAIL_HOST` / `MAIL_USER` / `MAIL_PASS` / `MAIL_FROM` | `POST /v1/contact` sender (server-only, never `NEXT_PUBLIC_*`) |
+| `MAIL_HOST` / `MAIL_USER` / `MAIL_PASS` / `MAIL_FROM` | `POST /v1/contact` sender, also used by the job alert emails worker (server-only, never `NEXT_PUBLIC_*`) |
+| `ALERT_WORKER_CRON` | Cron expr for the job alert emails worker (e.g. `0 * * * *` — hourly; it decides internally which daily/weekly searches are due, see §5 "Job alert emails") |
 | `CONTACT_RECIPIENTS` | Comma list of where `/v1/contact` messages go |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON service-account credentials (`firebase-admin`) for verifying ID tokens on `POST /v1/users` and `PATCH /v1/users/:uid` |
 | `TURNSTILE_SECRET` | (optional) Cloudflare Turnstile verification for `/v1/contact` |
@@ -732,7 +813,8 @@ bgh-scout-api/
 ### Phase 3 — contact + revalidation + schedule + deploy
 - [ ] `POST /v1/contact`: validate, rate-limit, send to `CONTACT_RECIPIENTS`, generic errors (§5).
 - [ ] `POST /v1/users` + `GET /v1/users/:uid` + `PATCH /v1/users/:uid`: `firebase-admin` ID token verification (uid must match), upsert into `users` table. `PATCH` merges only the provided keys — needed for the `emailNotifications` toggle to not clobber the rest of the profile. Any future notification-sending code must check `email_notifications` before emailing a user (§5 gating rule).
-- [ ] `POST /v1/saved-searches` + `GET /v1/saved-searches` + `DELETE /v1/saved-searches/:id`: `firebase-admin` ID token verification, scoped to the token's `uid`, backed by the `saved_searches` table (§6).
+- [ ] `POST /v1/saved-searches` + `GET /v1/saved-searches` + `PATCH /v1/saved-searches/:id` + `DELETE /v1/saved-searches/:id`: `firebase-admin` ID token verification, scoped to the token's `uid`, backed by the `saved_searches` table (§6). `POST` accepts `alertFrequency` (default `off`) and mints `unsubscribe_token`; `PATCH` is alert-frequency-only.
+- [ ] Job alert emails worker (`ALERT_WORKER_CRON`): the `runAlerts` loop in §5 — query due `daily`/`weekly` saved searches, re-run `jobsQuery` scoped to `first_seen_at > last_alerted_at`, skip the send (but still advance the watermark) when `email_notifications` is false or there's nothing new, send via the same mail provider as `POST /v1/contact`. Needs the public `GET /v1/saved-searches/:id/unsubscribe?token=` route.
 - [ ] `revalidate.ts`: after a successful ingest, `POST FRONTEND_REVALIDATE_URL` with `Bearer REVALIDATE_SECRET` (§5.1).
 - [ ] Deploy web service (Render/Railway).
 - [ ] Schedule ingest at 03/09/15/21 America/New_York (host cron → `POST /v1/ingest`, or in-process `node-cron`).
@@ -775,6 +857,38 @@ bgh-scout-api/
   (§5) — everything here degrades to "no link to the detail page" until
   then, so it's safe to ship ahead of that.
 - [x] Cleanup: `card`/`list` keys use `item.Link`; pagination `forcePage` clamped; sort `<select>` options match the state; `mixpanel` `debug` dev-only + `Object`→typed; unused deps removed (`papaparse`, `mailto-link`, `react-toggle-button`); README rewritten.
+- [x] **Similar Jobs.** `src/requests/jobs.ts` gained a shared `getJobs()`
+  (the home page's fetch logic, extracted so other pages can reuse it) and
+  `getSimilarJobs(job)` — up to 4 other open roles in the same
+  `"Primary Industry"`, reusing the existing `/v1/jobs?industry=` filter
+  rather than a new endpoint. Rendered on `/jobs/[id]` (`job.tsx`'s new
+  "Similar Jobs" section) — deliberately **not** blurred for signed-out
+  visitors, unlike the description/details sections, since the point is to
+  keep people clicking into more jobs rather than gate it. Degrades to
+  rendering nothing on any failure (nice-to-have, not critical path, same
+  philosophy as `sitemapJobPages.ts`). e2e-covered in `e2e/job-page.spec.ts`.
+- [x] **Company profile pages.** `/companies` (browse, via the new
+  `getCompanies()` — the unfiltered companies facet, `/v1/jobs?limit=1`) and
+  `/companies/[company]` (that company's own open roles, via `getJobs({
+  company })`) — both reuse the existing `/v1/jobs` contract, no new backend
+  endpoint needed. `company` is the URL-encoded company name itself (not a
+  derived slug) to avoid any slug-collision risk between two differently
+  named companies. `Pagination` gained an optional `basePath` prop (default
+  `"/"`) so it can paginate a company's own page instead of the home page.
+  Added to nav and to `sitemap.ts`'s static pages (individual company pages
+  aren't enumerated in the sitemap — crawlable via the browse page's links
+  instead, to avoid fetching the full companies facet at sitemap-build time).
+  e2e-covered in `e2e/company-page.spec.ts`.
+- [x] **Job alert emails — frontend half.** `SavedSearch` gained
+  `alertFrequency: "off" | "daily" | "weekly"` (default `"off"` — saving a
+  search never starts emailing someone without opting in). The save-search
+  modal and the account page's saved-searches list both let the user set/edit
+  it (`src/requests/savedSearches.ts` gained `updateSavedSearch()` for the
+  latter, an optimistic update mirroring `notification-settings.tsx`'s
+  pattern). The actual matching + sending is backend work with no frontend
+  surface — see "Job alert emails" in §5 and the `saved_searches` schema
+  changes in §6 — blocked on the API the same way saved searches themselves
+  already were. e2e-covered in `e2e/saved-search.spec.ts`.
 - [ ] **Set env in Vercel:** `NEXT_PUBLIC_API_BASE_URL`, `REVALIDATE_SECRET`.
 - [ ] Confirm the API emits `Scrape_Date` as `YYYY/MM/DD` and a `Scrape_DateTime` dayjs can parse (`filterJobs.ts` accepts `YYYY/MM/DD`, `YYYY-MM-DD`, `MM/DD/YYYY`, `MM-DD-YYYY` for the date, but the sheet's real format should be confirmed).
 - [ ] Smoke test against a live API: search, every filter, sort, pagination, grid/list, a job-details modal with an enriched + a non-enriched job, sign in/out, contact + request forms.

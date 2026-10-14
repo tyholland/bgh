@@ -65,3 +65,52 @@ export const SignIn = styled.div`
     text-decoration: underline;
   }
 `;
+
+export const GoogleButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 220px;
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background: #fff;
+  color: #000;
+  font-weight: 600;
+
+  @media only screen and (max-width: 950px) {
+    width: 90%;
+  }
+
+  &:hover {
+    cursor: pointer;
+    background: #f7f7f7;
+  }
+
+  &:disabled {
+    color: #999;
+    cursor: no-drop;
+  }
+`;
+
+export const Divider = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 220px;
+  color: #666;
+  font-size: 13px;
+
+  @media only screen and (max-width: 950px) {
+    width: 90%;
+  }
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #ddd;
+  }
+`;
