@@ -12,7 +12,7 @@ test.describe("home page — anonymous visitor", () => {
     await page.goto("/");
 
     await expect(
-      page.getByText("Find your next opportunity"),
+      page.getByText("Find Opportunities You Might Be Missing"),
     ).toBeVisible();
     await expect(
       page.getByText(new RegExp(`${TOTAL_JOBS}\\s*jobs found`)),

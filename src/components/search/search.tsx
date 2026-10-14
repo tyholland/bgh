@@ -76,9 +76,15 @@ const Search = () => {
   return (
     <>
       <S.Wrapper>
-        <div className="header">Find your next opportunity</div>
-        <div>Discover roles at top companies and grow your career</div>
-        <div>🔔 Get email alerts for this search</div>
+        <div className="header">Find Opportunities You Might Be Missing</div>
+        <div>
+          Discover openings across companies and industries, all in one place.
+          Spend less time searching multiple career sites and more time finding
+          your next opportunity.
+        </div>
+        <div>
+          Get email alerts for your search so you never miss a new opportunity.
+        </div>
         <S.Section>
           <S.Input
             type="text"
