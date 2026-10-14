@@ -31,9 +31,12 @@ test.describe("company pages", () => {
 
     await expect(page).toHaveURL(`/companies/${encodeURIComponent(FILTER_COMPANY)}`);
     await expect(page.getByRole("heading", { name: FILTER_COMPANY })).toBeVisible();
-    await expect(
-      page.getByText(`${FILTER_COMPANY_JOB_COUNT} open roles`),
-    ).toBeVisible();
+    // Scoped to the count badge, not getByText — the page also repeats this
+    // number in its intro paragraph, which would otherwise make the locator
+    // ambiguous.
+    await expect(page.locator(".count")).toContainText(
+      `${FILTER_COMPANY_JOB_COUNT} open roles`,
+    );
 
     // Every visible card belongs to this company, not just the first.
     const cardCompanies = page.locator(".topLayer .company");
