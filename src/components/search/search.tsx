@@ -38,8 +38,6 @@ const Search = () => {
   };
 
   const handleSearch = () => {
-    if (!requireUser()) return;
-
     const entry = searchWord.trim();
     if (!entry || searchBubble.includes(entry)) return;
 
@@ -52,8 +50,6 @@ const Search = () => {
   };
 
   const handleRemoveSearch = (entry: string) => {
-    if (!requireUser()) return;
-
     const updated = searchBubble.filter((item) => item !== entry);
     pushParams((params) =>
       updated.length > 0
