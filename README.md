@@ -25,6 +25,19 @@ employer career pages so job seekers find them sooner.
   and only filter implementation.
 - `POST /api/revalidate` (bearer `REVALIDATE_SECRET`) is called by the API after
   each ingest to refresh the `leads` cache tag.
+- `POST /api/ai-search` turns a free-text query ("remote senior UI developer,
+  React, $100k+, posted this week") into the same filter query params Search/
+  Filter produce. Rule-based, not an LLM call — `src/functions/aiSearch.ts`'s
+  `extractJobFilters` uses dictionaries (skills, seniority, remote phrasing)
+  and regexes (salary mentions, recency like "last week") to pull out terms,
+  then matches company/industry names against the live facet list so a
+  near-miss can't leak in as a filter. Rendered as
+  `src/components/ai-search/ai-search.tsx` above the regular search box.
+  Criteria the job data has no field for (salary, years of experience, a
+  specific city) are surfaced back to the user instead of silently dropped.
+  Being rule-based, it only understands the vocabulary/phrasing listed in
+  `aiSearch.ts` — unrecognized wording falls through to a plain title search
+  rather than being dropped.
 
 ## Environment
 

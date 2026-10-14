@@ -5,6 +5,7 @@ import Card from "@/components/card/card";
 import * as S from "./home.style";
 import Pagination from "@/components/pagination/pagination";
 import Search from "@/components/search/search";
+import AiSearch from "@/components/ai-search/ai-search";
 import { AllSearchData } from "@/types";
 import { useAtomValue } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
@@ -88,6 +89,7 @@ const Home = ({ csvData }: HomeProps) => {
         </S.VisuallyHidden>
         <S.ResultsWrapper>
           <S.JobResultsWrapper>
+            <AiSearch />
             <Search />
             <S.Section className="wrapper">
               <div className="jobs">
