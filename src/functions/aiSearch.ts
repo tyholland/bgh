@@ -271,6 +271,14 @@ const escapeRegExp = (value: string) =>
 const phraseRegex = (phrase: string): RegExp =>
   new RegExp(`(?<![a-zA-Z0-9])${escapeRegExp(phrase)}(?![a-zA-Z0-9])`, "gi");
 
+// Matches `phrase` anywhere in the text, with no word-boundary requirement —
+// used for known company/industry names, which are as likely to show up as
+// a substring of a longer word/phrase in the query (e.g. "Amazon" inside
+// "Amazon.com", or the query "googl" inside a facet value) as a standalone
+// token.
+const substringRegex = (phrase: string): RegExp =>
+  new RegExp(escapeRegExp(phrase), "gi");
+
 // A phrase with no letters/digits at all (e.g. a bad company/industry value
 // in the source data that's just "." or "-") would match any stray
 // punctuation in the query — a sentence-ending period, a stray dash — since
@@ -280,9 +288,12 @@ const hasAlphanumeric = (phrase: string) => /[a-zA-Z0-9]/.test(phrase);
 
 // Strips every phrase (longest first, so "entry-level" is consumed before
 // "entry") found in `text`, returning what's left plus which phrases hit.
+// `toRegex` controls match strictness — defaults to whole-phrase/word-bounded
+// (phraseRegex); pass `substringRegex` to match anywhere, boundaries or not.
 const stripAll = (
   text: string,
   phrases: string[],
+  toRegex: (phrase: string) => RegExp = phraseRegex,
 ): { text: string; found: string[] } => {
   const found: string[] = [];
   let next = text;
@@ -290,9 +301,9 @@ const stripAll = (
   for (const phrase of phrases) {
     if (!hasAlphanumeric(phrase)) continue;
 
-    if (phraseRegex(phrase).test(next)) {
+    if (toRegex(phrase).test(next)) {
       found.push(phrase);
-      next = next.replace(phraseRegex(phrase), " ");
+      next = next.replace(toRegex(phrase), " ");
     }
   }
 
@@ -327,8 +338,11 @@ const extractPostedWithinDays = (
 /**
  * Turns a free-text query into the same shape a model's tool call would —
  * via dictionaries and regexes instead of an API call. `known` is the live
- * companies/industries facet list, matched the same way an LLM extraction
- * would be (see toSavedSearchParams) so a near-miss can't leak in.
+ * companies/industries facet list; unlike the strict word-bounded matching
+ * used for skills/seniority/remote below, these are matched by substring
+ * (either direction) so "Amazon" in the query hits a facet value of
+ * "Amazon.com, Inc." and vice versa — toSavedSearchParams still guards
+ * against anything that isn't actually one of the known values.
  */
 export const extractJobFilters = (
   query: string,
@@ -360,10 +374,20 @@ export const extractJobFilters = (
 
   // Company/industry names first — they're the most specific match and may
   // otherwise get fragmented by the generic word-splitting pass below.
-  const companyMatch = stripAll(working, known.companies);
+  // Sorted longest-first so e.g. "Bank" being stripped doesn't eat the
+  // substring a later, longer "First Union Bank" needs to match against.
+  const companyMatch = stripAll(
+    working,
+    [...known.companies].sort((a, b) => b.length - a.length),
+    substringRegex,
+  );
   working = companyMatch.text;
 
-  const industryMatch = stripAll(working, known.industries);
+  const industryMatch = stripAll(
+    working,
+    [...known.industries].sort((a, b) => b.length - a.length),
+    substringRegex,
+  );
   working = industryMatch.text;
 
   const remoteMatch = stripAll(working, REMOTE_PHRASES);
