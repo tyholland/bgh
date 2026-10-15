@@ -72,14 +72,11 @@ const Search = () => {
   return (
     <>
       <S.Wrapper>
-        <div className="header">Find Opportunities You Might Be Missing</div>
+        <div className="header">Stop Searching. Start Discovering.</div>
         <div>
-          Discover openings across companies and industries, all in one place.
-          Spend less time searching multiple career sites and more time finding
-          your next opportunity.
-        </div>
-        <div>
-          Get email alerts for your search so you never miss a new opportunity.
+          Tell BGH Scout what you're looking for, and we'll help you find
+          matching opportunities across companies and industries. Save your
+          search and get email alerts when new opportunities become available.
         </div>
         <S.Section>
           <S.Input
