@@ -94,21 +94,6 @@ export interface SavedSearch {
   createdAt: string;
 }
 
-// POST /api/ai-search request/response — the contract between the natural-
-// language search bar and the route that turns a free-text query into the
-// job board's actual filters (see src/functions/aiSearch.ts).
-export interface AiSearchRequest {
-  query: string;
-}
-
-export interface AiSearchResponse {
-  // Same shape as a saved search: every filter dimension except page.
-  params: SavedSearchParams;
-  // User-facing notes about criteria the query mentioned that this job board
-  // has no field for (e.g. salary) — surfaced instead of silently dropped.
-  notes: string[];
-}
-
 // A user's bookmark of a single job — denormalized (role/company/link
 // captured at save time) so it keeps rendering even if the live job later
 // disappears (delisted, or briefly gone around the backend's daily ingest

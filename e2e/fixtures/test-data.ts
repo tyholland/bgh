@@ -10,6 +10,14 @@ export const JOBS_PER_PAGE = 18;
 export const JOBS_ON_LAST_PAGE = TOTAL_JOBS - JOBS_PER_PAGE;
 
 export const UNIQUE_SEARCH_TERM = "Growth Marketer";
+// search.tsx's rule-based parser (src/functions/aiSearch.ts) splits
+// unrecognized wording into separate title terms, so typing
+// UNIQUE_SEARCH_TERM ends up stored as these two comma-joined `search`
+// values/bubbles rather than the single typed phrase.
+export const UNIQUE_SEARCH_PARAM = "Growth,Marketer";
+export const UNIQUE_SEARCH_BUBBLE_TERMS = ["Growth", "Marketer"];
+export const SEARCH_PLACEHOLDER =
+  'e.g. "Remote senior UI developer roles using React, posted in the last week"';
 export const FILTER_COMPANY = "Acme Corp";
 export const FILTER_COMPANY_JOB_COUNT = 5;
 

@@ -97,3 +97,36 @@ export const KeywordBubble = styled.div`
     }
   }
 `;
+
+export const Notice = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  background: #eef2ff;
+  color: #000;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+
+  &.error {
+    background: #fdecea;
+    color: #611a15;
+  }
+
+  ul {
+    margin: 4px 0 0 18px;
+    padding: 0;
+  }
+
+  .dismiss {
+    border: none;
+    background: transparent;
+    width: auto;
+    padding: 0;
+    color: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+`;

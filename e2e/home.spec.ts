@@ -2,6 +2,9 @@ import { test, expect } from "@playwright/test";
 import {
   TOTAL_JOBS,
   UNIQUE_SEARCH_TERM,
+  UNIQUE_SEARCH_PARAM,
+  UNIQUE_SEARCH_BUBBLE_TERMS,
+  SEARCH_PLACEHOLDER,
   ALPHABETICALLY_FIRST_ROLE,
   ALPHABETICALLY_LAST_ROLE,
 } from "./fixtures/test-data";
@@ -29,15 +32,16 @@ test.describe("home page — anonymous visitor", () => {
     // search.tsx's handleSearch dropped its requireUser() gate — anyone can
     // search; signing in is only required to save a search
     // (handleSaveSearchClick) — handleRemoveSearch dropped the gate too.
-    await page
-      .getByPlaceholder("Search jobs, keywords, skills...")
-      .fill(UNIQUE_SEARCH_TERM);
+    await page.getByPlaceholder(SEARCH_PLACEHOLDER).fill(UNIQUE_SEARCH_TERM);
     await page.getByRole("button", { name: "Search Jobs" }).click();
 
     await expect(
       page.getByRole("heading", { name: "Please Sign In" }),
     ).not.toBeVisible();
-    await expect(page).toHaveURL(/search=Growth\+Marketer/);
+    await expect(page).toHaveURL(/search=/);
+    expect(new URL(page.url()).searchParams.get("search")).toBe(
+      UNIQUE_SEARCH_PARAM,
+    );
     await expect(page.getByText("1 jobs found")).toBeVisible();
     await expect(
       page.getByText(UNIQUE_SEARCH_TERM, { exact: true }),
@@ -47,9 +51,7 @@ test.describe("home page — anonymous visitor", () => {
   test("still prompts sign in to save a search", async ({ page }) => {
     await page.goto("/");
 
-    await page
-      .getByPlaceholder("Search jobs, keywords, skills...")
-      .fill(UNIQUE_SEARCH_TERM);
+    await page.getByPlaceholder(SEARCH_PLACEHOLDER).fill(UNIQUE_SEARCH_TERM);
     await page.getByRole("button", { name: "Search Jobs" }).click();
     await expect(page.getByText("1 jobs found")).toBeVisible();
 
@@ -64,14 +66,26 @@ test.describe("home page — anonymous visitor", () => {
   }) => {
     await page.goto("/");
 
-    await page
-      .getByPlaceholder("Search jobs, keywords, skills...")
-      .fill(UNIQUE_SEARCH_TERM);
+    await page.getByPlaceholder(SEARCH_PLACEHOLDER).fill(UNIQUE_SEARCH_TERM);
     await page.getByRole("button", { name: "Search Jobs" }).click();
     await expect(page.getByText("1 jobs found")).toBeVisible();
 
+    // The parser split the phrase into two separate title-term bubbles —
+    // removing just one should narrow rather than clear the search. Wait for
+    // the first bubble to actually detach before the second click, so it
+    // reads the up-to-date URL instead of racing the first removal's
+    // navigation.
+    const firstBubble = page.getByRole("button", {
+      name: `${UNIQUE_SEARCH_BUBBLE_TERMS[0]} x`,
+    });
+    await firstBubble.click();
+    await expect(firstBubble).toBeHidden();
+    expect(new URL(page.url()).searchParams.get("search")).toBe(
+      UNIQUE_SEARCH_BUBBLE_TERMS[1],
+    );
+
     await page
-      .getByRole("button", { name: `${UNIQUE_SEARCH_TERM} x` })
+      .getByRole("button", { name: `${UNIQUE_SEARCH_BUBBLE_TERMS[1]} x` })
       .click();
 
     await expect(

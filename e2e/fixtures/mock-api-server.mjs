@@ -92,6 +92,13 @@ const facetCounts = (jobs, key) => {
 const viewCounts = new Map();
 
 const server = createServer((req, res) => {
+  // search.tsx fetches this directly from the browser (to get the live
+  // companies/industries facet list for its rule-based parser — see
+  // src/components/search/search.tsx), not just from Next's server — so,
+  // same as the real API's ALLOWED_ORIGINS (BACKEND_REPO_PLAN.md §"CORS"),
+  // this needs a CORS header or the browser drops the response.
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (req.method === "GET" && url.pathname === "/v1/jobs") {

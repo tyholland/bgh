@@ -1,13 +1,47 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import * as S from "./search.style";
 import { useRouter, useSearchParams } from "next/navigation";
-import { trackEvent } from "@/functions/mixpanel";
+import { trackEvent, trackError } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import SignInModal from "../signIn-modal/signIn-modal";
 import SaveSearchModal from "../save-search-modal/save-search-modal";
+import { getJobs } from "@/requests/jobs";
+import {
+  extractJobFilters,
+  KnownFacets,
+  toSavedSearchParams,
+  toUnsupportedNotes,
+} from "@/functions/aiSearch";
+import { SavedSearchParams } from "@/types";
+
+const EXAMPLE_QUERY =
+  'e.g. "Remote senior UI developer roles using React, posted in the last week"';
+
+// Caps how many companies/industries the parser matches against — mirrors
+// the old /api/ai-search route's limit (see git history) so one very long
+// facet list can't make every keystroke's parse slower.
+const MAX_KNOWN_VALUES = 500;
+
+type BubbleField = "company" | "industry" | "search" | "keyword";
+
+const BUBBLE_FIELDS: BubbleField[] = [
+  "company",
+  "industry",
+  "search",
+  "keyword",
+];
+
+// Prefixes shown on a bubble so a matched company/industry reads as what it
+// is rather than looking like a plain keyword.
+const FIELD_LABELS: Record<BubbleField, string> = {
+  company: "Company: ",
+  industry: "Industry: ",
+  search: "",
+  keyword: "",
+};
 
 const splitParam = (value: string | null) =>
   value ? value.split(",").filter(Boolean) : [];
@@ -17,12 +51,43 @@ const Search = () => {
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
 
-  const searchBubble = splitParam(searchParams.get("search"));
-
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openSaveSearchModal, setOpenSaveSearchModal] =
     useState<boolean>(false);
   const [searchWord, setSearchWord] = useState<string>("");
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [notes, setNotes] = useState<string[]>([]);
+
+  // Lazily fetched the first time a search runs, then cached for the rest of
+  // the component's life — the company/industry facet list doesn't change
+  // within a session, and fetching unfiltered (search/keyword/date all
+  // unset) keeps it the full list regardless of what's currently applied.
+  const knownFacets = useRef<Promise<KnownFacets> | null>(null);
+
+  const loadKnownFacets = (): Promise<KnownFacets> => {
+    if (!knownFacets.current) {
+      knownFacets.current = getJobs({}, 1)
+        .then(({ companies, industries }) => ({
+          companies: companies
+            .map((item) => item.value)
+            .slice(0, MAX_KNOWN_VALUES),
+          industries: industries
+            .map((item) => item.value)
+            .slice(0, MAX_KNOWN_VALUES),
+        }))
+        .catch((err) => {
+          knownFacets.current = null;
+          throw err;
+        });
+    }
+
+    return knownFacets.current;
+  };
+
+  const activeFilters = BUBBLE_FIELDS.flatMap((field) =>
+    splitParam(searchParams.get(field)).map((value) => ({ field, value })),
+  );
 
   const requireUser = () => {
     if (user) return true;
@@ -37,30 +102,78 @@ const Search = () => {
     router.push(`/?${params.toString()}`, { scroll: false });
   };
 
-  const handleSearch = () => {
-    const entry = searchWord.trim();
-    if (!entry || searchBubble.includes(entry)) return;
+  const handleSearch = async () => {
+    const query = searchWord.trim();
+    if (!query || isSearching) return;
 
-    pushParams((params) =>
-      params.set("search", [...searchBubble, entry].join(",")),
-    );
-    setSearchWord("");
+    setIsSearching(true);
+    setError(null);
 
-    trackEvent(user, "Search", { type: "search", value: entry });
+    try {
+      const known = await loadKnownFacets();
+      const extracted = extractJobFilters(query, known);
+      const result = toSavedSearchParams(extracted, known);
+      const newNotes = toUnsupportedNotes(extracted);
+
+      if (Object.keys(result).length === 0 && newNotes.length === 0) {
+        newNotes.push(
+          "We couldn't match any filters to that search — try different wording.",
+        );
+      }
+
+      pushParams((params) => {
+        (Object.keys(result) as (keyof SavedSearchParams)[]).forEach((key) => {
+          const value = result[key];
+          if (!value) return;
+
+          // Every other field is a comma-joined set of values that should
+          // add to whatever's already active; a date range just replaces
+          // the last one.
+          if (key === "date") {
+            params.set("date", value);
+            return;
+          }
+
+          const merged = Array.from(
+            new Set([...splitParam(params.get(key)), ...value.split(",")]),
+          );
+          params.set(key, merged.join(","));
+        });
+      });
+
+      setNotes(newNotes);
+      setSearchWord("");
+
+      trackEvent(user, "Search", {
+        type: "search",
+        value: query,
+        params: result,
+      });
+    } catch {
+      const message = "Search is temporarily unavailable. Try again shortly.";
+      setError(message);
+      trackError(user, "Search", { query, message });
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const handleRemoveSearch = (entry: string) => {
-    const updated = searchBubble.filter((item) => item !== entry);
+  const handleRemoveFilter = (field: BubbleField, value: string) => {
+    const updated = splitParam(searchParams.get(field)).filter(
+      (item) => item !== value,
+    );
+
     pushParams((params) =>
       updated.length > 0
-        ? params.set("search", updated.join(","))
-        : params.delete("search"),
+        ? params.set(field, updated.join(","))
+        : params.delete(field),
     );
 
     trackEvent(user, "Search", {
       type: "remove search",
-      value: entry,
-      searches: updated.join(","),
+      field,
+      value,
+      remaining: updated.join(","),
     });
   };
 
@@ -82,39 +195,72 @@ const Search = () => {
           <S.Input
             type="text"
             name="mainSearch"
-            placeholder="Search jobs, keywords, skills..."
+            placeholder={EXAMPLE_QUERY}
             value={searchWord}
             onChange={(e) => setSearchWord(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            disabled={isSearching}
           />
           <div className="searchBtn">
             <button
               onClick={handleSearch}
-              disabled={searchWord.trim().length === 0}
+              disabled={isSearching || searchWord.trim().length === 0}
             >
-              Search Jobs
+              {isSearching ? "Searching..." : "Search Jobs"}
             </button>
             <button
               className="save"
               onClick={handleSaveSearchClick}
-              disabled={searchBubble.length === 0}
+              disabled={activeFilters.length === 0 && !searchParams.get("date")}
             >
               Save Search
             </button>
           </div>
         </S.Section>
-        {searchBubble.length > 0 && (
+        {activeFilters.length > 0 && (
           <S.KeywordBubble>
-            {searchBubble.map((item: string) => (
+            {activeFilters.map(({ field, value }) => (
               <button
                 className="bubble"
-                onClick={() => handleRemoveSearch(item)}
-                key={item}
+                onClick={() => handleRemoveFilter(field, value)}
+                key={`${field}-${value}`}
               >
-                {item} <span>x</span>
+                {FIELD_LABELS[field]}
+                {value} <span>x</span>
               </button>
             ))}
           </S.KeywordBubble>
+        )}
+        {error && (
+          <S.Notice className="error">
+            <div>{error}</div>
+            <button
+              className="dismiss"
+              onClick={() => setError(null)}
+              aria-label="Dismiss"
+            >
+              x
+            </button>
+          </S.Notice>
+        )}
+        {notes.length > 0 && (
+          <S.Notice>
+            <div>
+              Heads up:
+              <ul>
+                {notes.map((note) => (
+                  <li key={note}>{note}</li>
+                ))}
+              </ul>
+            </div>
+            <button
+              className="dismiss"
+              onClick={() => setNotes([])}
+              aria-label="Dismiss"
+            >
+              x
+            </button>
+          </S.Notice>
         )}
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />

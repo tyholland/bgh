@@ -19,7 +19,10 @@ export interface ExtractedJobFilters {
 
 const asStringArray = (value: unknown): string[] =>
   Array.isArray(value)
-    ? value.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    ? value.filter(
+        (item): item is string =>
+          typeof item === "string" && item.trim().length > 0,
+      )
     : [];
 
 // Only lets through values that exactly match (case-insensitively) a facet
@@ -61,9 +64,13 @@ export const toSavedSearchParams = (
   const postedWithinDays = extracted.postedWithinDays;
   if (
     typeof postedWithinDays === "number" &&
-    (SUPPORTED_POSTED_WITHIN_DAYS as readonly number[]).includes(postedWithinDays)
+    (SUPPORTED_POSTED_WITHIN_DAYS as readonly number[]).includes(
+      postedWithinDays,
+    )
   ) {
-    params.date = dayjs().subtract(postedWithinDays, "day").format("YYYY-MM-DD");
+    params.date = dayjs()
+      .subtract(postedWithinDays, "day")
+      .format("YYYY-MM-DD");
   }
 
   return params;
@@ -90,41 +97,149 @@ export interface KnownFacets {
 // Words that add no search value on their own — stripped from whatever's
 // left over after every other pass, so they don't pollute titleTerms.
 const STOPWORDS = new Set([
-  "a", "an", "the", "and", "or", "but", "for", "with", "that", "who", "which",
-  "of", "to", "in", "on", "at", "as", "by", "from", "into",
-  "find", "me", "i", "want", "looking", "search", "show", "get", "give", "please",
-  "job", "jobs", "role", "roles", "position", "positions",
-  "opening", "openings", "opportunity", "opportunities", "listing", "listings",
-  "use", "uses", "using", "used", "work", "works",
-  "is", "are", "was", "were", "be", "been", "posted", "within", "ago",
+  "a",
+  "an",
+  "the",
+  "and",
+  "or",
+  "but",
+  "for",
+  "with",
+  "that",
+  "who",
+  "which",
+  "of",
+  "to",
+  "in",
+  "on",
+  "at",
+  "as",
+  "by",
+  "from",
+  "into",
+  "find",
+  "me",
+  "i",
+  "want",
+  "looking",
+  "search",
+  "show",
+  "get",
+  "give",
+  "please",
+  "job",
+  "jobs",
+  "role",
+  "roles",
+  "position",
+  "positions",
+  "opening",
+  "openings",
+  "opportunity",
+  "opportunities",
+  "listing",
+  "listings",
+  "use",
+  "uses",
+  "using",
+  "used",
+  "work",
+  "works",
+  "is",
+  "are",
+  "was",
+  "were",
+  "be",
+  "been",
+  "posted",
+  "within",
+  "ago",
 ]);
 
 // Matched as OR terms against the broader "keyword" search (title +
 // description) rather than required-in-title terms — mostly specific
 // technologies/skills that show up in a description more often than a title.
 const SKILL_TERMS = [
-  "React", "Angular", "Vue", "Node.js", "Next.js", "Python", "Java", "JavaScript",
-  "TypeScript", "C++", "C#", "Golang", "Go", "Rust", "Ruby", "PHP", "Swift", "Kotlin",
-  "SQL", "PostgreSQL", "MySQL", "MongoDB", "Redis", "GraphQL",
-  "AWS", "Azure", "GCP", "Docker", "Kubernetes", "Terraform", "CI/CD",
-  "Figma", "Sketch", "Photoshop", "Illustrator",
-  "Salesforce", "HubSpot", "Excel", "Tableau", "Power BI", "SEO", "SEM", "CRM",
-  "HTML", "CSS", "REST",
+  "React",
+  "Angular",
+  "Vue",
+  "Node.js",
+  "Next.js",
+  "Python",
+  "Java",
+  "JavaScript",
+  "TypeScript",
+  "C++",
+  "C#",
+  "Golang",
+  "Go",
+  "Rust",
+  "Ruby",
+  "PHP",
+  "Swift",
+  "Kotlin",
+  "SQL",
+  "PostgreSQL",
+  "MySQL",
+  "MongoDB",
+  "Redis",
+  "GraphQL",
+  "AWS",
+  "Azure",
+  "GCP",
+  "Docker",
+  "Kubernetes",
+  "Terraform",
+  "CI/CD",
+  "Figma",
+  "Sketch",
+  "Photoshop",
+  "Illustrator",
+  "Salesforce",
+  "HubSpot",
+  "Excel",
+  "Tableau",
+  "Power BI",
+  "SEO",
+  "SEM",
+  "CRM",
+  "HTML",
+  "CSS",
+  "REST",
 ].sort((a, b) => b.length - a.length);
 
 // Matched against the job title ("search") — role seniority/function words
 // that plausibly appear verbatim in a title.
 const SENIORITY_TERMS = [
-  "Entry-level", "Entry level", "Mid-level", "Mid level",
-  "Junior", "Jr", "Senior", "Sr", "Lead", "Staff", "Principal",
-  "Director", "Head of", "VP", "Intern", "Manager",
+  "Entry-level",
+  "Entry level",
+  "Mid-level",
+  "Mid level",
+  "Junior",
+  "Jr",
+  "Senior",
+  "Sr",
+  "Lead",
+  "Staff",
+  "Principal",
+  "Director",
+  "Head of",
+  "VP",
+  "Intern",
+  "Manager",
 ].sort((a, b) => b.length - a.length);
 
 // No dedicated location/remote filter exists (see BACKEND_REPO_PLAN.md) —
 // best-effort via the broad keyword search rather than reported as
 // unsupported, since "remote" genuinely does show up in a lot of
 // descriptions.
-const REMOTE_PHRASES = ["remote", "work from home", "wfh", "telecommute", "telecommuting"];
+const REMOTE_PHRASES = [
+  "remote",
+  "work from home",
+  "wfh",
+  "telecommute",
+  "telecommuting",
+];
 
 // Catches "$100k", "100k+", "pay at least 100,000", "salary of $90k", etc.
 // Deliberately broad (and documented as a known limitation) rather than
@@ -134,7 +249,10 @@ const SALARY_REGEX =
   /(?:\b(?:pay|salary|compensation|comp)\b[^,.;]{0,40}?\$?\s?\d[\d,]*\s?k?\+?)|(?:\$\s?\d[\d,]*\s?k?\+?)|(?:\b\d{2,3}k\+?)/gi;
 
 const DATE_PATTERNS: { regex: RegExp; days: number }[] = [
-  { regex: /\b(?:today|last 24 hours|past 24 hours|last day|past day)\b/i, days: 1 },
+  {
+    regex: /\b(?:today|last 24 hours|past 24 hours|last day|past day)\b/i,
+    days: 1,
+  },
   { regex: /\b(?:last|past) 3 days\b/i, days: 3 },
   { regex: /\b(?:last|past) week\b/i, days: 7 },
   { regex: /\bthis week\b/i, days: 7 },
@@ -142,7 +260,8 @@ const DATE_PATTERNS: { regex: RegExp; days: number }[] = [
   { regex: /\bthis month\b/i, days: 30 },
 ];
 
-const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 // Matches `phrase` as a whole unit without gluing to surrounding
 // letters/digits (so "ui" doesn't match inside "build"), but — unlike a
@@ -161,7 +280,10 @@ const hasAlphanumeric = (phrase: string) => /[a-zA-Z0-9]/.test(phrase);
 
 // Strips every phrase (longest first, so "entry-level" is consumed before
 // "entry") found in `text`, returning what's left plus which phrases hit.
-const stripAll = (text: string, phrases: string[]): { text: string; found: string[] } => {
+const stripAll = (
+  text: string,
+  phrases: string[],
+): { text: string; found: string[] } => {
   const found: string[] = [];
   let next = text;
 
@@ -182,7 +304,9 @@ const closestSupportedDays = (days: number): number =>
     Math.abs(option - days) < Math.abs(closest - days) ? option : closest,
   );
 
-const extractPostedWithinDays = (text: string): { text: string; days: number | null } => {
+const extractPostedWithinDays = (
+  text: string,
+): { text: string; days: number | null } => {
   const genericMatch = text.match(/\b(?:last|past)\s+(\d+)\s+days?\b/i);
   if (genericMatch) {
     return {
@@ -226,7 +350,9 @@ export const extractJobFilters = (
     return " ";
   });
   if (salaryMatched) {
-    unsupported.push("Pay isn't filtered — job listings don't include salary data.");
+    unsupported.push(
+      "Pay isn't filtered — job listings don't include salary data.",
+    );
   }
 
   const posted = extractPostedWithinDays(working);
@@ -258,7 +384,9 @@ export const extractJobFilters = (
     .split(/[^a-zA-Z0-9]+/)
     .filter(
       (token) =>
-        token.length > 1 && !/^\d+$/.test(token) && !STOPWORDS.has(token.toLowerCase()),
+        token.length > 1 &&
+        !/^\d+$/.test(token) &&
+        !STOPWORDS.has(token.toLowerCase()),
     );
   titleTerms.push(...leftoverTerms);
 
