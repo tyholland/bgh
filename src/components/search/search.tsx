@@ -39,8 +39,8 @@ const BUBBLE_FIELDS: BubbleField[] = [
 const FIELD_LABELS: Record<BubbleField, string> = {
   company: "Company: ",
   industry: "Industry: ",
-  search: "",
-  keyword: "",
+  search: "Search: ",
+  keyword: "Keyword: ",
 };
 
 const splitParam = (value: string | null) =>
