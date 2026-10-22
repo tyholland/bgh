@@ -55,3 +55,49 @@ export const Pwd = styled.div`
     color: #fff;
   }
 `;
+
+export const Header = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+export const SignOutLink = styled.button`
+  && {
+    background: none;
+    color: #1439e6;
+    border: none;
+    padding: 0;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+    width: fit-content;
+  }
+`;
+
+export const TabList = styled.div`
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid #ddd;
+`;
+
+export const Tab = styled.button<{ $active: boolean }>`
+  && {
+    background: none;
+    color: ${({ $active }) => ($active ? "#1439e6" : "#555")};
+    border: none;
+    border-radius: 0;
+    border-bottom: 2px solid
+      ${({ $active }) => ($active ? "#1439e6" : "transparent")};
+    padding: 10px 4px;
+    margin-right: 24px;
+    font-weight: ${({ $active }) => ($active ? 700 : 400)};
+    cursor: pointer;
+  }
+`;
+
+export const Section = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+`;
