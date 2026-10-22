@@ -30,6 +30,7 @@ const FilterModal = ({
     !!searchParams.get("company") ||
     !!searchParams.get("industry") ||
     !!searchParams.get("date") ||
+    !!searchParams.get("keyword") ||
     !!searchParams.get("exact");
 
   const handleSaveSearch = () => {

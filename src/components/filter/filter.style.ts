@@ -152,3 +152,30 @@ export const CheckboxWrapper = styled.div`
   box-shadow: 0px 2px 15px #ddd;
   padding: 5px;
 `;
+
+export const KeywordBubble = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  margin-top: 5px;
+
+  .bubble {
+    background: #6faeff;
+    border-radius: 10px;
+    padding: 4px 8px;
+    color: #fff;
+    width: fit-content;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+
+    span {
+      font-weight: 700;
+    }
+  }
+`;
