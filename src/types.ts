@@ -85,6 +85,10 @@ export type SavedSearchParams = Omit<UrlParams, "page">;
 // did before alerts existed: just a shortcut back to these filters.
 export type AlertFrequency = "off" | "daily" | "weekly";
 
+// A saved job's alert has no "weekly" option — just whether a daily digest
+// of new postings matching its role title goes out.
+export type SavedJobAlertFrequency = "off" | "daily";
+
 export interface SavedSearch {
   id: string;
   uid: string;
@@ -105,5 +109,6 @@ export interface SavedJob {
   roleName: string;
   company: string | null;
   link: string;
+  alertFrequency: SavedJobAlertFrequency;
   createdAt: string;
 }

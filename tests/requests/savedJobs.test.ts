@@ -23,6 +23,7 @@ const savedJob: SavedJob = {
   roleName: "Backend Engineer",
   company: "Globex",
   link: "https://jobs.globex.example/backend-engineer",
+  alertFrequency: "off",
   createdAt: "2026-09-23T00:00:00.000Z",
 };
 
@@ -134,6 +135,61 @@ describe("getSavedJobs", () => {
 
       const { getSavedJobs } = await load();
       await expect(getSavedJobs(idToken)).rejects.toThrow(/401/);
+    });
+  });
+});
+
+describe("updateSavedJob", () => {
+  it("throws when NEXT_PUBLIC_API_BASE_URL is not set", async () => {
+    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "");
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { updateSavedJob } = await load();
+
+    await expect(
+      updateSavedJob("saved-1", "daily", idToken),
+    ).rejects.toThrow(/NEXT_PUBLIC_API_BASE_URL/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  describe("with a configured base URL", () => {
+    beforeEach(() => {
+      vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.test");
+    });
+
+    it("PATCHes the alertFrequency, authenticated with the id token", async () => {
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValue({ ok: true, status: 200 } as Response);
+      vi.stubGlobal("fetch", fetchMock);
+
+      const { updateSavedJob } = await load();
+      await updateSavedJob("saved-1", "daily", idToken);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const [url, init] = fetchMock.mock.calls[0];
+      expect(url).toBe("https://api.test/v1/saved-jobs/saved-1");
+      expect(init).toMatchObject({
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+      });
+      expect(JSON.parse(init.body)).toEqual({ alertFrequency: "daily" });
+    });
+
+    it("throws when the API responds with a non-OK status", async () => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn().mockResolvedValue({ ok: false, status: 404 } as Response),
+      );
+
+      const { updateSavedJob } = await load();
+      await expect(
+        updateSavedJob("saved-1", "off", idToken),
+      ).rejects.toThrow(/404/);
     });
   });
 });
