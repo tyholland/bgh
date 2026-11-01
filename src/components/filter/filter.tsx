@@ -29,12 +29,14 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
   const selectedCompanies = splitParam(searchParams.get("company"));
   const selectedIndustries = splitParam(searchParams.get("industry"));
+  const selectedKeywords = splitParam(searchParams.get("keyword"));
   const postedDate = searchParams.get("date") || "";
   const exactDate = searchParams.get("exact") || "";
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [companyQuery, setCompanyQuery] = useState<string>("");
   const [industryQuery, setIndustryQuery] = useState<string>("");
+  const [keywordInput, setKeywordInput] = useState<string>("");
   const [companyArr, setCompanyArr] = useState<string[]>(selectedCompanies);
   const [industryArr, setIndustryArr] = useState<string[]>(selectedIndustries);
   const [showExactDate, setShowExactDate] = useState<boolean>(
@@ -153,7 +155,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     trackEvent(user, "Filter", { type: "exact date", value: choice });
   };
 
-  const handleReset = (filter: "company" | "industry" | "date") => {
+  const handleReset = (filter: "company" | "industry" | "date" | "keyword") => {
     pushParams((params) => {
       params.delete(filter);
       if (filter === "company") setCompanyArr([]);
@@ -165,6 +167,30 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     });
 
     trackEvent(user, "Filter", { type: "reset", value: filter });
+  };
+
+  const handleAddKeyword = () => {
+    if (!requireUser()) return;
+
+    const value = keywordInput.trim();
+    if (!value) return;
+
+    const merged = Array.from(new Set([...selectedKeywords, value]));
+    pushParams((params) => params.set("keyword", merged.join(",")));
+    setKeywordInput("");
+
+    trackEvent(user, "Filter", { type: "keyword", value });
+  };
+
+  const handleRemoveKeyword = (value: string) => {
+    const updated = selectedKeywords.filter((item) => item !== value);
+    pushParams((params) =>
+      updated.length > 0
+        ? params.set("keyword", updated.join(","))
+        : params.delete("keyword"),
+    );
+
+    trackEvent(user, "Filter", { type: "remove keyword", value });
   };
 
   return (
@@ -208,6 +234,40 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
                 </option>
               ))}
             </S.Select>
+          )}
+        </div>
+        <div>
+          <S.FilterContent>
+            <div>Keyword Search</div>
+            <S.Input
+              type="text"
+              placeholder="Search keyword..."
+              name="keywordSearch"
+              value={keywordInput}
+              onChange={(e) => setKeywordInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAddKeyword()}
+            />
+          </S.FilterContent>
+          <S.FilterContent className="apply">
+            <button
+              onClick={handleAddKeyword}
+              disabled={keywordInput.trim().length === 0}
+            >
+              Apply
+            </button>
+          </S.FilterContent>
+          {selectedKeywords.length > 0 && (
+            <S.KeywordBubble>
+              {selectedKeywords.map((value) => (
+                <button
+                  className="bubble"
+                  onClick={() => handleRemoveKeyword(value)}
+                  key={value}
+                >
+                  {value} <span>x</span>
+                </button>
+              ))}
+            </S.KeywordBubble>
           )}
         </div>
         {companies.length > 0 && (

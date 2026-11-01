@@ -5,8 +5,12 @@ import Link from "next/link";
 import dayjs from "dayjs";
 import * as S from "./saved-jobs.style";
 import { getFirebaseAuth } from "@/functions/firebase";
-import { deleteSavedJob, getSavedJobs } from "@/requests/savedJobs";
-import { SavedJob } from "@/types";
+import {
+  deleteSavedJob,
+  getSavedJobs,
+  updateSavedJob,
+} from "@/requests/savedJobs";
+import { SavedJob, SavedJobAlertFrequency } from "@/types";
 import { trackError, trackEvent } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
@@ -24,6 +28,8 @@ const SavedJobs = () => {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [savingAlertId, setSavingAlertId] = useState<string | null>(null);
+  const [alertError, setAlertError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -88,6 +94,53 @@ const SavedJobs = () => {
     }
   };
 
+  const handleAlertFrequencyChange = async (
+    savedJob: SavedJob,
+    nextFrequency: SavedJobAlertFrequency,
+  ) => {
+    if (!user) return;
+
+    const previous = savedJob.alertFrequency;
+    setSavingAlertId(savedJob.id);
+    setAlertError(null);
+
+    setSavedJobs((prev) =>
+      prev.map((item) =>
+        item.id === savedJob.id
+          ? { ...item, alertFrequency: nextFrequency }
+          : item,
+      ),
+    );
+
+    try {
+      const idToken = await getFirebaseAuth().currentUser?.getIdToken();
+      if (!idToken) throw new Error("Not signed in");
+
+      await updateSavedJob(savedJob.id, nextFrequency, idToken);
+
+      trackEvent(user, "Update Saved Job Alert", {
+        type: "select",
+        id: savedJob.id,
+        alertFrequency: nextFrequency,
+      });
+    } catch (err) {
+      setSavedJobs((prev) =>
+        prev.map((item) =>
+          item.id === savedJob.id
+            ? { ...item, alertFrequency: previous }
+            : item,
+        ),
+      );
+      trackError(user, "Update Saved Job Alert", {
+        message: (err as { message?: string }).message ?? "",
+        id: savedJob.id,
+      });
+      setAlertError("We couldn't update that alert. Please try again.");
+    } finally {
+      setSavingAlertId(null);
+    }
+  };
+
   if (!user) {
     return (
       <S.Wrapper>
@@ -101,6 +154,7 @@ const SavedJobs = () => {
   return (
     <S.Wrapper>
       {actionError && <div className="error">{actionError}</div>}
+      {alertError && <div className="error">{alertError}</div>}
       {loadError ? (
         <div className="error">{loadError}</div>
       ) : savedJobs.length === 0 ? (
@@ -117,6 +171,22 @@ const SavedJobs = () => {
                 <div className="date">
                   Saved {dayjs(savedJob.createdAt).format("MM-DD-YYYY")}
                 </div>
+                <label className="alertFrequency">
+                  Email alerts:
+                  <select
+                    value={savedJob.alertFrequency}
+                    disabled={savingAlertId === savedJob.id}
+                    onChange={(e) =>
+                      handleAlertFrequencyChange(
+                        savedJob,
+                        e.target.value as SavedJobAlertFrequency,
+                      )
+                    }
+                  >
+                    <option value="off">Off</option>
+                    <option value="daily">Daily</option>
+                  </select>
+                </label>
               </div>
               <div className="actions">
                 <Link href={`/jobs/${savedJob.jobId}`}>View Job</Link>

@@ -9,7 +9,11 @@ import { CsvData } from "@/types";
 import { userAtom } from "@/caches/UserAtom";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
 import { getFirebaseAuth } from "@/functions/firebase";
-import { createSavedJob, deleteSavedJob, getSavedJobs } from "@/requests/savedJobs";
+import {
+  createSavedJob,
+  deleteSavedJob,
+  getSavedJobs,
+} from "@/requests/savedJobs";
 import { formatViewCount } from "@/functions/formatViewCount";
 import { jobHref } from "@/functions/jobHref";
 import SignInModal from "@/components/signIn-modal/signIn-modal";
@@ -161,7 +165,7 @@ const Job = ({ job, descriptionHtml, similarJobs }: JobProps) => {
 
         <S.ApplyBtn>
           <a
-            href={job.Link}
+            href={!user ? "#" : job.Link}
             target="_blank"
             rel="nofollow noopener noreferrer"
             onClick={(e) => {

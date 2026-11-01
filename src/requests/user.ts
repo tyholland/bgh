@@ -77,7 +77,9 @@ export const updateUser = async (user: User, idToken: string) => {
 export const getUser = async (
   uid: string,
   idToken: string,
-): Promise<UserProfilePayload & { emailNotifications: boolean }> => {
+): Promise<
+  UserProfilePayload & { emailNotifications: boolean; jobTitle: string | null }
+> => {
   if (!API_BASE_URL) {
     throw new Error("NEXT_PUBLIC_API_BASE_URL is not set — cannot load user.");
   }
@@ -123,5 +125,35 @@ export const updateEmailNotifications = async (
 
   if (!res.ok) {
     throw new Error(`Update notification preference API responded with ${res.status}`);
+  }
+};
+
+/**
+ * Updates the account's job title — like `emailNotifications`, this lives
+ * only in the API's `users` table and has no Firebase equivalent, so it's a
+ * partial update rather than going through `updateUser`.
+ */
+export const updateJobTitle = async (
+  uid: string,
+  jobTitle: string | null,
+  idToken: string,
+) => {
+  if (!API_BASE_URL) {
+    throw new Error(
+      "NEXT_PUBLIC_API_BASE_URL is not set — cannot update job title.",
+    );
+  }
+
+  const res = await fetch(`${API_BASE_URL}/v1/users/${uid}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ jobTitle }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Update job title API responded with ${res.status}`);
   }
 };

@@ -31,7 +31,7 @@ test.describe("job details", () => {
     await expect(page.getByText("Austin, TX")).toBeVisible();
 
     // The fixture description carries a <script> tag and an onerror handler —
-    // DOMPurify (sanitizeJobDescription.server.ts) must strip both before
+    // sanitize-html (sanitizeJobDescription.server.ts) must strip both before
     // they reach the DOM, so neither should ever run.
     const xssFlag = await page.evaluate(
       () => (window as unknown as { __xss?: boolean }).__xss,

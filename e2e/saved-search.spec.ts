@@ -3,6 +3,8 @@ import {
   signInAsTestUser,
   TEST_USER,
   UNIQUE_SEARCH_TERM,
+  UNIQUE_SEARCH_PARAM,
+  SEARCH_PLACEHOLDER,
 } from "./fixtures/test-data";
 
 interface SavedSearchRecord {
@@ -76,9 +78,7 @@ test("saves a search with an alert frequency, edits and applies it from the acco
     return route.fulfill({ status: 200, contentType: "application/json", body: "{}" });
   });
 
-  await page
-    .getByPlaceholder("Search jobs, keywords, skills...")
-    .fill(UNIQUE_SEARCH_TERM);
+  await page.getByPlaceholder(SEARCH_PLACEHOLDER).fill(UNIQUE_SEARCH_TERM);
   await page.getByRole("button", { name: "Search Jobs" }).click();
   await expect(page.getByText("1 jobs found")).toBeVisible();
 
@@ -100,7 +100,7 @@ test("saves a search with an alert frequency, edits and applies it from the acco
   await page.getByRole("link", { name: /Welcome Jordan/ }).click();
   await expect(page).toHaveURL("/account");
   await expect(page.getByText("My growth marketer search")).toBeVisible();
-  await expect(page.getByText(`Search: ${UNIQUE_SEARCH_TERM}`)).toBeVisible();
+  await expect(page.getByText(`Search: ${UNIQUE_SEARCH_PARAM}`)).toBeVisible();
 
   // The frequency picked in the modal carried through, and can still be
   // changed later from the account page (saved-searches.tsx's inline select).
@@ -110,7 +110,10 @@ test("saves a search with an alert frequency, edits and applies it from the acco
   await expect(alertSelect).toHaveValue("weekly");
 
   await page.getByRole("link", { name: "View Results" }).click();
-  await expect(page).toHaveURL(/search=Growth\+Marketer/);
+  await expect(page).toHaveURL(/search=/);
+  expect(new URL(page.url()).searchParams.get("search")).toBe(
+    UNIQUE_SEARCH_PARAM,
+  );
   await expect(page.getByText("1 jobs found")).toBeVisible();
 
   await page.getByRole("link", { name: /Welcome Jordan/ }).click();

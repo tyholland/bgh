@@ -10,6 +10,7 @@ import SignOutModal from "@/components/signOut-modal/signOut-modal";
 import SavedJobs from "@/components/saved-jobs/saved-jobs";
 import SavedSearches from "@/components/saved-searches/saved-searches";
 import NotificationSettings from "@/components/notification-settings/notification-settings";
+import JobTitle from "@/components/job-title/job-title";
 import {
   updatePassword,
   updateProfile,
@@ -46,6 +47,9 @@ const Account = () => {
   const [isSavingName, setIsSavingName] = useState<boolean>(false);
   const [nameSuccess, setNameSuccess] = useState<boolean>(false);
   const [nameError, setNameError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"activity" | "settings">(
+    "activity",
+  );
 
   if (user?.uid !== loadedUid) {
     setLoadedUid(user?.uid);
@@ -143,90 +147,121 @@ const Account = () => {
   return (
     <>
       <S.Wrapper>
-        <h1>Account</h1>
-        <div>Email: {user?.email}</div>
-        <hr />
-        <S.Pwd>
-          <h3>Name</h3>
-          {nameSuccess && (
-            <div className="success">Your name has been updated</div>
-          )}
-          {nameError && <div>{nameError}</div>}
-          <div>
-            <S.Input
-              type="text"
-              name="displayName"
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setDisplayName(e.target.value)
-              }
-              placeholder="Enter your name"
-              value={displayName}
-              required
-            />
-          </div>
-          <button
-            onClick={handleUpdateName}
-            disabled={
-              isSavingName ||
-              !displayName.trim() ||
-              displayName.trim() === user?.displayName
-            }
+        <S.Header>
+          <h1>Account</h1>
+          <S.SignOutLink onClick={() => setOpenModal(true)}>
+            Sign Out
+          </S.SignOutLink>
+        </S.Header>
+
+        <S.TabList>
+          <S.Tab
+            $active={activeTab === "activity"}
+            onClick={() => setActiveTab("activity")}
           >
-            {isSavingName ? "Saving..." : "Update Name"}
-          </button>
-        </S.Pwd>
-        <hr />
-        <S.Pwd>
-          <h3>Change Password</h3>
-          {pwdSuccess && (
-            <div className="success">Your Password has been updated</div>
-          )}
-          {pwdError && <div>{pwdError}</div>}
-          <div>
-            <S.Input
-              type="password"
-              name="password"
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setPwd(e.target.value)
-              }
-              placeholder="Enter current password"
-              value={pwd}
-              required
-            />
-          </div>
-          <div>
-            <S.Input
-              type="password"
-              name="confirm-password"
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                setConfirmPwd(e.target.value)
-              }
-              placeholder="Enter new password"
-              value={confirmPwd}
-              required
-            />
-          </div>
-          <button onClick={handleChangePwd} disabled={!pwd || !confirmPwd}>
-            Update Password
-          </button>
-        </S.Pwd>
-        <hr />
-        <S.Pwd>
-          <h3>Saved Jobs</h3>
-          <SavedJobs />
-        </S.Pwd>
-        <hr />
-        <S.Pwd>
-          <h3>Saved Searches</h3>
-          <SavedSearches />
-        </S.Pwd>
-        <hr />
-        <S.Pwd>
-          <h3>Notification Emails</h3>
-          <NotificationSettings />
-        </S.Pwd>
-        <hr />
-        <button onClick={() => setOpenModal(true)}>Sign Out</button>
+            Activity
+          </S.Tab>
+          <S.Tab
+            $active={activeTab === "settings"}
+            onClick={() => setActiveTab("settings")}
+          >
+            Account Settings
+          </S.Tab>
+        </S.TabList>
+
+        {activeTab === "activity" && (
+          <S.Section>
+            <S.Pwd>
+              <h3>Saved Jobs</h3>
+              <SavedJobs />
+            </S.Pwd>
+            <hr />
+            <S.Pwd>
+              <h3>Saved Searches</h3>
+              <SavedSearches />
+            </S.Pwd>
+            <hr />
+            <S.Pwd>
+              <h3>Notification Emails</h3>
+              <NotificationSettings />
+            </S.Pwd>
+          </S.Section>
+        )}
+
+        {activeTab === "settings" && (
+          <S.Section>
+            <S.Pwd>
+              <h3>Name</h3>
+              <div>Email: {user?.email}</div>
+              {nameSuccess && (
+                <div className="success">Your name has been updated</div>
+              )}
+              {nameError && <div>{nameError}</div>}
+              <div>
+                <S.Input
+                  type="text"
+                  name="displayName"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setDisplayName(e.target.value)
+                  }
+                  placeholder="Enter your name"
+                  value={displayName}
+                  required
+                />
+              </div>
+              <button
+                onClick={handleUpdateName}
+                disabled={
+                  isSavingName ||
+                  !displayName.trim() ||
+                  displayName.trim() === user?.displayName
+                }
+              >
+                {isSavingName ? "Saving..." : "Update Name"}
+              </button>
+            </S.Pwd>
+            <hr />
+            <S.Pwd>
+              <h3>Job Title</h3>
+              <JobTitle />
+            </S.Pwd>
+            <hr />
+            <S.Pwd>
+              <h3>Change Password</h3>
+              {pwdSuccess && (
+                <div className="success">Your Password has been updated</div>
+              )}
+              {pwdError && <div>{pwdError}</div>}
+              <div>
+                <S.Input
+                  type="password"
+                  name="password"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setPwd(e.target.value)
+                  }
+                  placeholder="Enter current password"
+                  value={pwd}
+                  required
+                />
+              </div>
+              <div>
+                <S.Input
+                  type="password"
+                  name="confirm-password"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setConfirmPwd(e.target.value)
+                  }
+                  placeholder="Enter new password"
+                  value={confirmPwd}
+                  required
+                />
+              </div>
+              <button onClick={handleChangePwd} disabled={!pwd || !confirmPwd}>
+                Update Password
+              </button>
+            </S.Pwd>
+          </S.Section>
+        )}
       </S.Wrapper>
       <SignOutModal openModal={openModal} setOpenModal={setOpenModal} />
     </>

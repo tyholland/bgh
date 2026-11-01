@@ -1,4 +1,4 @@
-import { SavedJob } from "@/types";
+import { SavedJob, SavedJobAlertFrequency } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -58,6 +58,35 @@ export const getSavedJobs = async (idToken: string): Promise<SavedJob[]> => {
 
   const { savedJobs } = await res.json();
   return savedJobs;
+};
+
+/**
+ * Changes a saved job's alert frequency (the only field editable after
+ * creation today — role/company/link still require delete-and-resave).
+ * Used by the inline frequency picker in
+ * src/components/saved-jobs/saved-jobs.tsx.
+ */
+export const updateSavedJob = async (
+  id: string,
+  alertFrequency: SavedJobAlertFrequency,
+  idToken: string,
+): Promise<void> => {
+  if (!API_BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL is not set — cannot update saved job.");
+  }
+
+  const res = await fetch(`${API_BASE_URL}/v1/saved-jobs/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    },
+    body: JSON.stringify({ alertFrequency }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Update saved job API responded with ${res.status}`);
+  }
 };
 
 /**
