@@ -74,7 +74,15 @@ test("saves a job from its detail page, manages it from the account page", async
 
   await page.goto(`/jobs/${ENRICHED_JOB_ID}`);
 
-  await page.getByRole("button", { name: /Save Job/ }).click();
+  // Under full-suite parallel load the dev server can be slow enough that
+  // the default 5s expect timeout races the save request rather than the
+  // UI update itself — wait for the POST to land before asserting on it.
+  await Promise.all([
+    page.waitForResponse(
+      (res) => res.url().includes("/v1/saved-jobs") && res.request().method() === "POST",
+    ),
+    page.getByRole("button", { name: /Save Job/ }).click(),
+  ]);
   await expect(page.getByRole("button", { name: /Saved/ })).toBeVisible();
 
   await page.getByRole("link", { name: /Welcome Jordan/ }).click();

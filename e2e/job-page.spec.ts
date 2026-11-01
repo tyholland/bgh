@@ -3,7 +3,6 @@ import {
   ENRICHED_JOB_ID,
   ENRICHED_JOB_ROLE,
   ENRICHED_JOB_COMPANY,
-  ENRICHED_JOB_LINK,
   JOB_WITHOUT_DETAILS_ID,
   JOB_WITHOUT_DETAILS_ROLE,
 } from "./fixtures/test-data";
@@ -63,10 +62,19 @@ test.describe("job detail page", () => {
     await page.getByRole("button", { name: "Additional Details" }).click();
     await expect(page.getByText("Remote")).toBeVisible();
 
+    // Signed out, the real URL is hidden (job.tsx: `href={!user ? "#" : job.Link}`)
+    // and clicking gates on sign-in instead of navigating — see
+    // job-details.spec.ts's "opens the original posting in a new tab" for the
+    // signed-in path that reveals ENRICHED_JOB_LINK.
     const applyLink = page.getByRole("link", { name: /Apply on/ });
-    await expect(applyLink).toHaveAttribute("href", ENRICHED_JOB_LINK);
+    await expect(applyLink).toHaveAttribute("href", "#");
     await expect(applyLink).toHaveAttribute("rel", /nofollow/);
     await expect(applyLink).toHaveAttribute("target", "_blank");
+
+    await applyLink.click();
+    await expect(
+      page.getByRole("heading", { name: "Please Sign In" }),
+    ).toBeVisible();
   });
 
   test("emits JobPosting JSON-LD for an enriched job", async ({ page }) => {
