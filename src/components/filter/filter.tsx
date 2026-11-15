@@ -7,6 +7,8 @@ import { trackEvent } from "@/functions/mixpanel";
 import SignInModal from "../signIn-modal/signIn-modal";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
+import { subscriptionStatusAtom } from "@/caches/SubscriptionAtom";
+import { hasActiveAccess } from "@/functions/subscription";
 import { Facet } from "@/types";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -26,6 +28,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
+  const subscriptionStatus = useAtomValue(subscriptionStatusAtom);
 
   const selectedCompanies = splitParam(searchParams.get("company"));
   const selectedIndustries = splitParam(searchParams.get("industry"));
@@ -74,8 +77,8 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     [industries, industryQuery],
   );
 
-  const requireUser = () => {
-    if (user) return true;
+  const requireAccess = () => {
+    if (user && hasActiveAccess(subscriptionStatus)) return true;
     setOpenModal(true);
     return false;
   };
@@ -100,7 +103,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   };
 
   const applyCheckboxes = (type: "company" | "industry") => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
 
     const values = type === "company" ? companyArr : industryArr;
     pushParams((params) => params.set(type, values.join(",")));
@@ -109,7 +112,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   };
 
   const handleDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
 
     const choice = e.target.value;
 
@@ -140,7 +143,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   };
 
   const handleExactDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
 
     const choice = e.target.value;
     pushParams((params) => {
@@ -170,7 +173,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   };
 
   const handleAddKeyword = () => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
 
     const value = keywordInput.trim();
     if (!value) return;

@@ -25,6 +25,19 @@ employer career pages so job seekers find them sooner.
   and only filter implementation.
 - `POST /api/revalidate` (bearer `REVALIDATE_SECRET`) is called by the API after
   each ingest to refresh the `leads` cache tag.
+- Access is gated on a signed-in **and** subscribed/trialing user
+  (`src/functions/subscription.ts`'s `hasActiveAccess`, driven by
+  `subscriptionStatusAtom` — populated from `GET /v1/users/:uid` right after
+  sign-in). `src/components/signIn-modal/signIn-modal.tsx` shows one of two
+  messages depending on which part is missing: signed out gets "sign up and
+  get a free 7-day trial"; signed in without an active trial/subscription
+  gets a "Start Free Trial" button straight to the Stripe Payment Link
+  (`NEXT_PUBLIC_STRIPE_PAYMENT_LINK`, see `src/functions/stripeCheckout.ts`).
+  A brand-new sign-up (email/password or Google) is sent to that same link
+  immediately after account creation, before landing on the page it was
+  trying to reach. The backend's Stripe webhook
+  (`bgh_node`'s `src/routes/stripeWebhook.ts`) is what actually flips
+  `subscriptionStatus` to `trialing`/`active`.
 - `POST /api/ai-search` turns a free-text query ("remote senior UI developer,
   React, $100k+, posted this week") into the same filter query params Search/
   Filter produce. Rule-based, not an LLM call — `src/functions/aiSearch.ts`'s
@@ -55,6 +68,8 @@ NEXT_PUBLIC_FIREBASE_SENDER_ID=
 NEXT_PUBLIC_FIREBASE_ID=
 
 NEXT_PUBLIC_MIXPANEL_TOKEN=
+
+NEXT_PUBLIC_STRIPE_PAYMENT_LINK=  # Stripe Payment Link URL for the free trial
 ```
 
 ## Develop

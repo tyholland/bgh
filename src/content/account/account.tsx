@@ -10,6 +10,7 @@ import SignOutModal from "@/components/signOut-modal/signOut-modal";
 import SavedJobs from "@/components/saved-jobs/saved-jobs";
 import SavedSearches from "@/components/saved-searches/saved-searches";
 import NotificationSettings from "@/components/notification-settings/notification-settings";
+import SubscriptionStatus from "@/components/subscription-status/subscription-status";
 import JobTitle from "@/components/job-title/job-title";
 import {
   updatePassword,
@@ -171,6 +172,11 @@ const Account = () => {
 
         {activeTab === "activity" && (
           <S.Section>
+            <S.Pwd>
+              <h3>Subscription</h3>
+              <SubscriptionStatus />
+            </S.Pwd>
+            <hr />
             <S.Pwd>
               <h3>Saved Jobs</h3>
               <SavedJobs />

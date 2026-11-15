@@ -6,14 +6,14 @@ export const ModalWrapper = styled.div`
   gap: 16px;
 `;
 
-export const ModalBtn = styled.div`
+export const ModalBtn = styled.div<{ $single?: boolean }>`
   display: flex;
-  justify-content: space-between;
+  justify-content: ${({ $single }) => ($single ? "center" : "space-between")};
   align-items: center;
   margin-top: 20px;
 
   button {
-    width: 100px;
+    width: ${({ $single }) => ($single ? "100%" : "100px")};
     padding: 10px;
     border-radius: 20px;
     border: none;

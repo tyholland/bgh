@@ -12,12 +12,13 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { useAtomValue } from "jotai";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import * as S from "./sign-in.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import ResetPwd from "@/components/reset-pwd-modal/reset-pwd-modal";
 import { getSafeRedirect } from "@/functions/safeRedirect";
 import { signInWithGoogle } from "@/functions/googleAuth";
+import { getStripeCheckoutUrl } from "@/functions/stripeCheckout";
 import GoogleIcon from "@/svg/GoogleIcon";
 
 const SignIn = () => {
@@ -31,6 +32,10 @@ const SignIn = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
+  // See sign-up.tsx's identical comment — the Google button here can also
+  // create a brand-new account (Firebase doesn't care which page it was
+  // clicked from), which should redirect to Stripe instead of `redirectTo`.
+  const suppressAutoRedirect = useRef(false);
 
   useEffect(() => {
     trackPage(user, "Sign In", window.location.href);
@@ -38,7 +43,7 @@ const SignIn = () => {
   }, []);
 
   useEffect(() => {
-    if (user) router.replace(redirectTo);
+    if (user && !suppressAutoRedirect.current) router.replace(redirectTo);
   }, [user, router, redirectTo]);
 
   const handleSignIn = async () => {
@@ -69,6 +74,7 @@ const SignIn = () => {
   const handleGoogleSignIn = async () => {
     setIsGoogleSubmitting(true);
     setErrorMsg(null);
+    suppressAutoRedirect.current = true;
 
     try {
       const { user: fbUser, isNewUser } = await signInWithGoogle();
@@ -79,8 +85,23 @@ const SignIn = () => {
         email: fbUser.email || "",
       });
 
+      if (isNewUser) {
+        const checkoutUrl = getStripeCheckoutUrl(fbUser.uid, fbUser.email);
+        if (checkoutUrl) {
+          trackEvent(null, "Start Free Trial", {
+            type: "signup-redirect",
+            provider: "google",
+          });
+          window.location.href = checkoutUrl;
+          return;
+        }
+      }
+
+      suppressAutoRedirect.current = false;
       router.replace(redirectTo);
     } catch (error) {
+      suppressAutoRedirect.current = false;
+
       const code = (error as { code?: string }).code ?? "unknown";
 
       setIsGoogleSubmitting(false);

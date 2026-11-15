@@ -11,6 +11,8 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import List from "@/components/list/list";
 import { userAtom } from "@/caches/UserAtom";
+import { subscriptionStatusAtom } from "@/caches/SubscriptionAtom";
+import { hasActiveAccess } from "@/functions/subscription";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
@@ -43,6 +45,7 @@ const Home = ({ csvData }: HomeProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
+  const subscriptionStatus = useAtomValue(subscriptionStatusAtom);
   const [isListView, setIsListView] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openFilterModal, setOpenFilterModal] = useState<boolean>(false);
@@ -57,7 +60,7 @@ const Home = ({ csvData }: HomeProps) => {
   }, []);
 
   const handleSort = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (!user) {
+    if (!user || !hasActiveAccess(subscriptionStatus)) {
       setOpenModal(true);
       return;
     }
@@ -72,7 +75,7 @@ const Home = ({ csvData }: HomeProps) => {
   };
 
   const handleSaveSearchClick = () => {
-    if (!user) {
+    if (!user || !hasActiveAccess(subscriptionStatus)) {
       setOpenModal(true);
       return;
     }

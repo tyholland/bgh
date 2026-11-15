@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { trackEvent, trackError } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
+import { subscriptionStatusAtom } from "@/caches/SubscriptionAtom";
+import { hasActiveAccess } from "@/functions/subscription";
 import SignInModal from "../signIn-modal/signIn-modal";
 import SaveSearchModal from "../save-search-modal/save-search-modal";
 import { getJobs } from "@/requests/jobs";
@@ -50,6 +52,7 @@ const Search = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
+  const subscriptionStatus = useAtomValue(subscriptionStatusAtom);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openSaveSearchModal, setOpenSaveSearchModal] =
@@ -89,8 +92,8 @@ const Search = () => {
     splitParam(searchParams.get(field)).map((value) => ({ field, value })),
   );
 
-  const requireUser = () => {
-    if (user) return true;
+  const requireAccess = () => {
+    if (user && hasActiveAccess(subscriptionStatus)) return true;
     setOpenModal(true);
     return false;
   };
@@ -178,7 +181,7 @@ const Search = () => {
   };
 
   const handleSaveSearchClick = () => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
     setOpenSaveSearchModal(true);
   };
 

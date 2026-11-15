@@ -1,4 +1,4 @@
-import { User } from "@/types";
+import { SubscriptionStatus, User } from "@/types";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -71,14 +71,20 @@ export const updateUser = async (user: User, idToken: string) => {
 
 /**
  * Fetches the caller's own profile, including preferences (e.g.
- * `emailNotifications`) that live only in the API's `users` table and have no
+ * `emailNotifications`) and Stripe-driven state (`subscriptionStatus`,
+ * `trialEndsAt`) that live only in the API's `users` table and have no
  * Firebase equivalent. `idToken` must belong to `uid`.
  */
 export const getUser = async (
   uid: string,
   idToken: string,
 ): Promise<
-  UserProfilePayload & { emailNotifications: boolean; jobTitle: string | null }
+  UserProfilePayload & {
+    emailNotifications: boolean;
+    jobTitle: string | null;
+    subscriptionStatus: SubscriptionStatus;
+    trialEndsAt: string | null;
+  }
 > => {
   if (!API_BASE_URL) {
     throw new Error("NEXT_PUBLIC_API_BASE_URL is not set — cannot load user.");
