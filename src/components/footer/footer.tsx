@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import Image from "next/image";
 import LinkedInIcon from "@/svg/LinkedInIcon";
+import InstagramIcon from "@/svg/InstagramIcon";
+import FacebookIcon from "@/svg/FacebookIcon";
 
 const Footer = () => {
   const year = dayjs().format("YYYY");
@@ -25,12 +27,28 @@ const Footer = () => {
       </div>
       <div className="social">
         <a
-          href="https://www.linkedin.com/groups/40962102/"
+          href="https://www.linkedin.com/company/bgh-scout"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="BGH Scout LinkedIn Group"
+          aria-label="BGH Scout LinkedIn"
         >
           <LinkedInIcon />
+        </a>
+        <a
+          href="https://www.instagram.com/bgh_scout"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="BGH Scout Instagram"
+        >
+          <InstagramIcon />
+        </a>
+        <a
+          href="https://www.facebook.com/people/BGH-Scout/615799168717987"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="BGH Scout Facebook"
+        >
+          <FacebookIcon />
         </a>
       </div>
       <div className="copy">
