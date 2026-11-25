@@ -48,6 +48,21 @@ export const Input = styled.input`
   width: 100%;
 `;
 
+export const DateTrigger = styled.button`
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 10px;
+  padding: 5px 10px;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export const FilterContent = styled.div`
   display: flex;
   gap: 8px;

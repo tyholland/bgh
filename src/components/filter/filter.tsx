@@ -5,6 +5,7 @@ import * as S from "./filter.style";
 import { useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/functions/mixpanel";
 import SignInModal from "../signIn-modal/signIn-modal";
+import SelectDateModal from "../select-date-modal/select-date-modal";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
 import { subscriptionStatusAtom } from "@/caches/SubscriptionAtom";
@@ -45,6 +46,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const [showExactDate, setShowExactDate] = useState<boolean>(
     exactDate.length > 0,
   );
+  const [dateModalOpen, setDateModalOpen] = useState<boolean>(false);
 
   // Re-seed the checkbox drafts from the URL whenever the committed selection
   // changes underneath us (Apply, reset elsewhere, browser back) — the React
@@ -60,6 +62,13 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     setIndustryArr(selectedIndustries);
     setShowExactDate(exactDate.length > 0);
   }
+
+  // scrapDates is already sorted ascending (see getJobs/the API) and each
+  // entry is a "YYYY-MM-DD" string, so lexical min/max line up with
+  // chronological min/max and double as the native date input's bounds —
+  // there's no scraped data outside this range to filter by.
+  const minScrapDate = scrapDates[0];
+  const maxScrapDate = scrapDates[scrapDates.length - 1];
 
   const companyList = useMemo(
     () =>
@@ -134,6 +143,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
 
     if (choice === "open") {
       setShowExactDate(true);
+      setDateModalOpen(true);
       return;
     }
 
@@ -158,10 +168,9 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     });
   };
 
-  const handleExactDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
+  const handleExactDateFilter = (choice: string) => {
     if (!requireAccess()) return;
 
-    const choice = e.target.value;
     pushParams((params) => {
       params.delete("date");
       if (choice) {
@@ -254,18 +263,14 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.Select>
           )}
           {showExactDate && (
-            <S.Select
-              name="exactDateSelect"
-              onChange={handleExactDateFilter}
-              value={exactDate}
+            <S.DateTrigger
+              type="button"
+              onClick={() => setDateModalOpen(true)}
             >
-              <option value="">Select Specific Date</option>
-              {scrapDates.map((item: string) => (
-                <option value={item} key={item}>
-                  {dayjs(item).format("MM-DD-YYYY")}
-                </option>
-              ))}
-            </S.Select>
+              {exactDate
+                ? dayjs(exactDate).format("MM-DD-YYYY")
+                : "Select Specific Date"}
+            </S.DateTrigger>
           )}
         </div>
         <div>
@@ -398,6 +403,14 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
         )}
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
+      <SelectDateModal
+        isOpen={dateModalOpen}
+        onClose={() => setDateModalOpen(false)}
+        value={exactDate}
+        onSubmit={handleExactDateFilter}
+        minDate={minScrapDate}
+        maxDate={maxScrapDate}
+      />
     </>
   );
 };
