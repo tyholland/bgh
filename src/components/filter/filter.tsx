@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as S from "./filter.style";
 import { useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/functions/mixpanel";
@@ -83,10 +83,26 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     return false;
   };
 
+  // Tracks the params we last pushed so a quick second action (e.g. removing
+  // two keyword bubbles back-to-back) builds on top of that instead of the
+  // current `searchParams`, which may still reflect the pre-navigation URL
+  // and would otherwise re-add whatever the first action just removed.
+  const pendingParams = useRef<string | null>(null);
+  const searchParamsString = searchParams.toString();
+
+  useEffect(() => {
+    if (pendingParams.current === searchParamsString) {
+      pendingParams.current = null;
+    }
+  }, [searchParamsString]);
+
   const pushParams = (mutate: (params: URLSearchParams) => void) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(
+      pendingParams.current ?? searchParams.toString(),
+    );
     mutate(params);
     params.set("page", "1");
+    pendingParams.current = params.toString();
     router.push(`/?${params.toString()}`, { scroll: false });
   };
 
@@ -178,20 +194,33 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     const value = keywordInput.trim();
     if (!value) return;
 
-    const merged = Array.from(new Set([...selectedKeywords, value]));
-    pushParams((params) => params.set("keyword", merged.join(",")));
+    // Read the current keywords from `params` itself, not `selectedKeywords`
+    // — `params` is seeded from `pendingParams` and reflects any
+    // not-yet-committed change from a just-prior action, while
+    // `selectedKeywords` can still be the pre-navigation snapshot.
+    pushParams((params) => {
+      const merged = Array.from(
+        new Set([...splitParam(params.get("keyword")), value]),
+      );
+      params.set("keyword", merged.join(","));
+    });
     setKeywordInput("");
 
     trackEvent(user, "Filter", { type: "keyword", value });
   };
 
   const handleRemoveKeyword = (value: string) => {
-    const updated = selectedKeywords.filter((item) => item !== value);
-    pushParams((params) =>
-      updated.length > 0
-        ? params.set("keyword", updated.join(","))
-        : params.delete("keyword"),
-    );
+    pushParams((params) => {
+      const updated = splitParam(params.get("keyword")).filter(
+        (item) => item !== value,
+      );
+
+      if (updated.length > 0) {
+        params.set("keyword", updated.join(","));
+      } else {
+        params.delete("keyword");
+      }
+    });
 
     trackEvent(user, "Filter", { type: "remove keyword", value });
   };
