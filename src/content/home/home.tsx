@@ -6,16 +6,20 @@ import * as S from "./home.style";
 import Pagination from "@/components/pagination/pagination";
 import Search from "@/components/search/search";
 import { AllSearchData } from "@/types";
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import List from "@/components/list/list";
 import { userAtom } from "@/caches/UserAtom";
 import { subscriptionStatusAtom } from "@/caches/SubscriptionAtom";
 import { hasActiveAccess } from "@/functions/subscription";
+import { getFirebaseAuth } from "@/functions/firebase";
+import { getUser } from "@/requests/user";
+import { syncCheckoutSession } from "@/requests/stripeCheckout";
+import { writeStoredSubscriptionStatus } from "@/functions/subscriptionState";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { trackEvent, trackPage } from "@/functions/mixpanel";
+import { trackError, trackEvent, trackPage } from "@/functions/mixpanel";
 
 dayjs.extend(relativeTime);
 import SignInModal from "@/components/signIn-modal/signIn-modal";
@@ -46,6 +50,7 @@ const Home = ({ csvData }: HomeProps) => {
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
   const subscriptionStatus = useAtomValue(subscriptionStatusAtom);
+  const setSubscriptionStatus = useSetAtom(subscriptionStatusAtom);
   const [isListView, setIsListView] = useState<boolean>(false);
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openFilterModal, setOpenFilterModal] = useState<boolean>(false);
@@ -58,6 +63,59 @@ const Home = ({ csvData }: HomeProps) => {
     trackPage(user, "Home", window.location.href);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Stripe's Payment Link redirects back here as
+  // /?checkout=success&session_id=... right after payment (see
+  // src/functions/stripeCheckout.ts). The checkout.session.completed webhook
+  // will eventually sync the subscription, but that's async and can lag —
+  // syncing it here too means the account reflects the new subscription the
+  // moment the user lands back on the site, not whenever Stripe's webhook
+  // happens to arrive.
+  useEffect(() => {
+    if (!user) return;
+
+    const checkout = searchParams.get("checkout");
+    const sessionId = searchParams.get("session_id");
+    if (checkout !== "success" || !sessionId) return;
+
+    let cancelled = false;
+
+    const sync = async () => {
+      try {
+        const idToken = await getFirebaseAuth().currentUser?.getIdToken();
+        if (!idToken) throw new Error("Not signed in");
+
+        await syncCheckoutSession(sessionId, idToken);
+
+        const profile = await getUser(user.uid, idToken);
+        if (cancelled) return;
+
+        writeStoredSubscriptionStatus(profile.subscriptionStatus);
+        setSubscriptionStatus(profile.subscriptionStatus);
+      } catch (err) {
+        if (!cancelled) {
+          trackError(user, "Sync Checkout Session", {
+            message: (err as { message?: string }).message ?? "",
+          });
+        }
+      } finally {
+        if (!cancelled) {
+          const params = new URLSearchParams(searchParams.toString());
+          params.delete("checkout");
+          params.delete("session_id");
+          const query = params.toString();
+          router.replace(query ? `/?${query}` : "/", { scroll: false });
+        }
+      }
+    };
+
+    sync();
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const handleSort = (e: ChangeEvent<HTMLSelectElement>) => {
     if (!user || !hasActiveAccess(subscriptionStatus)) {
