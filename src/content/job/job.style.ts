@@ -16,6 +16,42 @@ export const Wrapper = styled.div`
   }
 `;
 
+export const BlurWrapper = styled.div`
+  position: relative;
+`;
+
+export const AccessOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  padding: 24px;
+  background: rgba(255, 250, 241, 0.85);
+  border-radius: 10px;
+
+  p {
+    margin: 0;
+    max-width: 360px;
+  }
+
+  button {
+    width: fit-content;
+    padding: 10px 24px;
+    border-radius: 20px;
+    border: none;
+    background: #1439e6;
+    color: #fff;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+`;
+
 export const Back = styled.div`
   a {
     color: #1439e6;

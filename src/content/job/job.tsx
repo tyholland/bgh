@@ -245,10 +245,24 @@ const Job = ({ job, descriptionHtml, similarJobs }: JobProps) => {
           {shareMessage && <span className="copied">{shareMessage}</span>}
         </S.ShareBtns>
         {descriptionHtml && (
-          <div className={!hasActiveAccess(subscriptionStatus) ? "blur" : ""}>
-            <span className="title">Job Description:</span>{" "}
-            <div dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
-          </div>
+          <S.BlurWrapper>
+            <div className={!hasActiveAccess(subscriptionStatus) ? "blur" : ""}>
+              <span className="title">Job Description:</span>{" "}
+              <div dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+            </div>
+            {!hasActiveAccess(subscriptionStatus) && (
+              <S.AccessOverlay>
+                <p>
+                  {user
+                    ? "Start your free 7-day trial to unlock full access to BGH features."
+                    : "Sign up and get a free 7-day trial to unlock BGH features — already have an account? Sign in instead."}
+                </p>
+                <button type="button" onClick={() => requireAccess()}>
+                  {user ? "Start Free Trial" : "Sign Up"}
+                </button>
+              </S.AccessOverlay>
+            )}
+          </S.BlurWrapper>
         )}
         <S.AdditionalBtn>
           <button
