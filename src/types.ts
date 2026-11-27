@@ -66,6 +66,15 @@ export interface PaginationClick {
   selected: number;
 }
 
+// Mirrors the backend's SubscriptionStatus (bgh_node's src/types.ts) — kept
+// in sync with Stripe's own statuses, collapsed to the ones that matter here.
+export type SubscriptionStatus =
+  | "none"
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled";
+
 export interface User {
   email: string | null;
   providerId: string;

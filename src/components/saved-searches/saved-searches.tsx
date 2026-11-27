@@ -32,6 +32,25 @@ const describeParams = (params: SavedSearchParams) =>
     .map((key) => `${FIELD_LABELS[key]}: ${params[key]}`)
     .join(" · ") || "All jobs";
 
+// `params.date` is stored as the absolute "posted after" date computed at
+// save time (see filter.tsx's handleDateFilter and aiSearch.ts), so it goes
+// stale the moment time passes — a search saved as "last 7 days" still
+// points at that frozen date weeks later instead of the last 7 days from
+// now. Re-derive it from the original day offset (createdAt minus the saved
+// date) applied to today, the same way filter.tsx's dropdown recovers a day
+// count from an absolute date. `exact` is a specific calendar date the user
+// chose on purpose, so it's left untouched.
+const resolveParams = (savedSearch: SavedSearch): SavedSearchParams => {
+  const { params, createdAt } = savedSearch;
+  if (!params.date) return params;
+
+  const daysAgo = dayjs(createdAt).diff(dayjs(params.date), "day");
+  return {
+    ...params,
+    date: dayjs().subtract(daysAgo, "day").format("YYYY-MM-DD"),
+  };
+};
+
 const toQueryString = (params: SavedSearchParams) => {
   const query = new URLSearchParams();
 
@@ -184,7 +203,9 @@ const SavedSearches = () => {
     });
 
     try {
-      await navigator.clipboard.writeText(buildShareableUrl(savedSearch.params));
+      await navigator.clipboard.writeText(
+        buildShareableUrl(resolveParams(savedSearch)),
+      );
       setCopiedId(savedSearch.id);
       setTimeout(() => setCopiedId(null), 2500);
     } catch {
@@ -246,7 +267,7 @@ const SavedSearches = () => {
                 </label>
               </div>
               <div className="actions">
-                <Link href={`/?${toQueryString(savedSearch.params)}`}>
+                <Link href={`/?${toQueryString(resolveParams(savedSearch))}`}>
                   View Results
                 </Link>
                 <button onClick={() => handleCopyLink(savedSearch)}>

@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as S from "./search.style";
 import { useRouter, useSearchParams } from "next/navigation";
 import { trackEvent, trackError } from "@/functions/mixpanel";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
+import { subscriptionStatusAtom } from "@/caches/SubscriptionAtom";
+import { hasActiveAccess } from "@/functions/subscription";
 import SignInModal from "../signIn-modal/signIn-modal";
 import SaveSearchModal from "../save-search-modal/save-search-modal";
 import { getJobs } from "@/requests/jobs";
@@ -50,6 +52,7 @@ const Search = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
+  const subscriptionStatus = useAtomValue(subscriptionStatusAtom);
 
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [openSaveSearchModal, setOpenSaveSearchModal] =
@@ -64,6 +67,19 @@ const Search = () => {
   // within a session, and fetching unfiltered (search/keyword/date all
   // unset) keeps it the full list regardless of what's currently applied.
   const knownFacets = useRef<Promise<KnownFacets> | null>(null);
+
+  // Tracks the params we last pushed so a quick second click (e.g. removing
+  // two bubbles back-to-back) builds on top of that instead of the current
+  // `searchParams`, which may still reflect the pre-navigation URL and would
+  // otherwise re-add whatever the first click just removed.
+  const pendingParams = useRef<string | null>(null);
+  const searchParamsString = searchParams.toString();
+
+  useEffect(() => {
+    if (pendingParams.current === searchParamsString) {
+      pendingParams.current = null;
+    }
+  }, [searchParamsString]);
 
   const loadKnownFacets = (): Promise<KnownFacets> => {
     if (!knownFacets.current) {
@@ -89,16 +105,19 @@ const Search = () => {
     splitParam(searchParams.get(field)).map((value) => ({ field, value })),
   );
 
-  const requireUser = () => {
-    if (user) return true;
+  const requireAccess = () => {
+    if (user && hasActiveAccess(subscriptionStatus)) return true;
     setOpenModal(true);
     return false;
   };
 
   const pushParams = (mutate: (params: URLSearchParams) => void) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(
+      pendingParams.current ?? searchParams.toString(),
+    );
     mutate(params);
     params.set("page", "1");
+    pendingParams.current = params.toString();
     router.push(`/?${params.toString()}`, { scroll: false });
   };
 
@@ -159,26 +178,33 @@ const Search = () => {
   };
 
   const handleRemoveFilter = (field: BubbleField, value: string) => {
-    const updated = splitParam(searchParams.get(field)).filter(
-      (item) => item !== value,
-    );
+    // Read the field's current values from `params` itself, not the outer
+    // `searchParams` hook — `params` is seeded from `pendingParams` and
+    // reflects any not-yet-committed removal from a just-prior click, while
+    // `searchParams` can still be the pre-navigation snapshot.
+    let remaining: string[] = [];
+    pushParams((params) => {
+      remaining = splitParam(params.get(field)).filter(
+        (item) => item !== value,
+      );
 
-    pushParams((params) =>
-      updated.length > 0
-        ? params.set(field, updated.join(","))
-        : params.delete(field),
-    );
+      if (remaining.length > 0) {
+        params.set(field, remaining.join(","));
+      } else {
+        params.delete(field);
+      }
+    });
 
     trackEvent(user, "Search", {
       type: "remove search",
       field,
       value,
-      remaining: updated.join(","),
+      remaining: remaining.join(","),
     });
   };
 
   const handleSaveSearchClick = () => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
     setOpenSaveSearchModal(true);
   };
 

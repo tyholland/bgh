@@ -13,11 +13,12 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useAtomValue } from "jotai";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import * as S from "./sign-up.style";
 import ErrorBlock from "@/components/errorBlock/errorBlock";
 import { getSafeRedirect } from "@/functions/safeRedirect";
 import { signInWithGoogle } from "@/functions/googleAuth";
+import { getStripeCheckoutUrl } from "@/functions/stripeCheckout";
 import GoogleIcon from "@/svg/GoogleIcon";
 
 const SignUp = () => {
@@ -32,6 +33,12 @@ const SignUp = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isGoogleSubmitting, setIsGoogleSubmitting] = useState<boolean>(false);
+  // Set synchronously at the top of handleCreate/handleGoogleSignIn, before
+  // any await — a brand new account redirects to Stripe instead of
+  // `redirectTo`, but userAtom updating (via authProvider's own, separate
+  // onAuthStateChanged listener) would otherwise race this effect into
+  // firing the normal redirect first.
+  const suppressAutoRedirect = useRef(false);
 
   useEffect(() => {
     trackPage(user, "Sign Up", window.location.href);
@@ -39,12 +46,13 @@ const SignUp = () => {
   }, []);
 
   useEffect(() => {
-    if (user) router.replace(redirectTo);
+    if (user && !suppressAutoRedirect.current) router.replace(redirectTo);
   }, [user, router, redirectTo]);
 
   const handleCreate = async () => {
     setIsSubmitting(true);
     setErrorMsg(null);
+    suppressAutoRedirect.current = true;
 
     const name = `${firstName} ${lastName}`.trim();
 
@@ -94,8 +102,21 @@ const SignUp = () => {
         name,
       });
 
+      // Every brand-new account goes straight to Stripe to start its trial —
+      // a hard navigation (not router.replace), since the Payment Link is
+      // hosted on Stripe's own domain.
+      const checkoutUrl = getStripeCheckoutUrl(fbUser.uid, fbUser.email);
+      if (checkoutUrl) {
+        trackEvent(null, "Start Free Trial", { type: "signup-redirect" });
+        window.location.href = checkoutUrl;
+        return;
+      }
+
+      suppressAutoRedirect.current = false;
       router.replace(redirectTo);
     } catch (error) {
+      suppressAutoRedirect.current = false;
+
       const code = (error as { code?: string }).code ?? "unknown";
       const message = (error as { message?: string }).message ?? "";
 
@@ -108,6 +129,7 @@ const SignUp = () => {
   const handleGoogleSignIn = async () => {
     setIsGoogleSubmitting(true);
     setErrorMsg(null);
+    suppressAutoRedirect.current = true;
 
     try {
       const { user: fbUser, isNewUser } = await signInWithGoogle();
@@ -118,8 +140,23 @@ const SignUp = () => {
         email: fbUser.email || "",
       });
 
+      if (isNewUser) {
+        const checkoutUrl = getStripeCheckoutUrl(fbUser.uid, fbUser.email);
+        if (checkoutUrl) {
+          trackEvent(null, "Start Free Trial", {
+            type: "signup-redirect",
+            provider: "google",
+          });
+          window.location.href = checkoutUrl;
+          return;
+        }
+      }
+
+      suppressAutoRedirect.current = false;
       router.replace(redirectTo);
     } catch (error) {
+      suppressAutoRedirect.current = false;
+
       const code = (error as { code?: string }).code ?? "unknown";
 
       setIsGoogleSubmitting(false);

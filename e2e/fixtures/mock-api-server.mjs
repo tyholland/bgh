@@ -131,6 +131,35 @@ const server = createServer((req, res) => {
     return;
   }
 
+  // GET /v1/users/:uid — stands in for the real API's user profile store.
+  // Every test fixture user defaults to an active subscription (most specs
+  // sign in as someone who's already past the paywall); a uid containing
+  // "no-sub" opts out, for the handful of tests that specifically cover the
+  // "signed in but never started a trial" gated state (see
+  // e2e/subscription-gate.spec.ts).
+  const userByIdMatch = req.url.match(/^\/v1\/users\/([^/?]+)/);
+  if (req.method === "GET" && userByIdMatch) {
+    const uid = decodeURIComponent(userByIdMatch[1]);
+    const subscriptionStatus = uid.includes("no-sub") ? "none" : "active";
+
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(
+      JSON.stringify({
+        uid,
+        email: null,
+        displayName: null,
+        phoneNumber: null,
+        photoURL: null,
+        providerId: "password",
+        emailNotifications: true,
+        jobTitle: null,
+        subscriptionStatus,
+        trialEndsAt: null,
+      }),
+    );
+    return;
+  }
+
   // GET /v1/jobs/:id — stands in for the single-job endpoint the /jobs/[id]
   // detail page needs (see BACKEND_REPO_PLAN.md §5). Mirrors the real API's
   // view_count behavior closely enough for e2e assertions: an in-memory,

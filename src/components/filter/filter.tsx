@@ -1,12 +1,15 @@
 "use client";
 
-import { ChangeEvent, useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as S from "./filter.style";
 import { useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/functions/mixpanel";
 import SignInModal from "../signIn-modal/signIn-modal";
+import SelectDateModal from "../select-date-modal/select-date-modal";
 import { useAtomValue } from "jotai";
 import { userAtom } from "@/caches/UserAtom";
+import { subscriptionStatusAtom } from "@/caches/SubscriptionAtom";
+import { hasActiveAccess } from "@/functions/subscription";
 import { Facet } from "@/types";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -26,6 +29,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
+  const subscriptionStatus = useAtomValue(subscriptionStatusAtom);
 
   const selectedCompanies = splitParam(searchParams.get("company"));
   const selectedIndustries = splitParam(searchParams.get("industry"));
@@ -42,6 +46,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   const [showExactDate, setShowExactDate] = useState<boolean>(
     exactDate.length > 0,
   );
+  const [dateModalOpen, setDateModalOpen] = useState<boolean>(false);
 
   // Re-seed the checkbox drafts from the URL whenever the committed selection
   // changes underneath us (Apply, reset elsewhere, browser back) — the React
@@ -57,6 +62,13 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     setIndustryArr(selectedIndustries);
     setShowExactDate(exactDate.length > 0);
   }
+
+  // scrapDates is already sorted ascending (see getJobs/the API) and each
+  // entry is a "YYYY-MM-DD" string, so lexical min/max line up with
+  // chronological min/max and double as the native date input's bounds —
+  // there's no scraped data outside this range to filter by.
+  const minScrapDate = scrapDates[0];
+  const maxScrapDate = scrapDates[scrapDates.length - 1];
 
   const companyList = useMemo(
     () =>
@@ -74,16 +86,32 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     [industries, industryQuery],
   );
 
-  const requireUser = () => {
-    if (user) return true;
+  const requireAccess = () => {
+    if (user && hasActiveAccess(subscriptionStatus)) return true;
     setOpenModal(true);
     return false;
   };
 
+  // Tracks the params we last pushed so a quick second action (e.g. removing
+  // two keyword bubbles back-to-back) builds on top of that instead of the
+  // current `searchParams`, which may still reflect the pre-navigation URL
+  // and would otherwise re-add whatever the first action just removed.
+  const pendingParams = useRef<string | null>(null);
+  const searchParamsString = searchParams.toString();
+
+  useEffect(() => {
+    if (pendingParams.current === searchParamsString) {
+      pendingParams.current = null;
+    }
+  }, [searchParamsString]);
+
   const pushParams = (mutate: (params: URLSearchParams) => void) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(
+      pendingParams.current ?? searchParams.toString(),
+    );
     mutate(params);
     params.set("page", "1");
+    pendingParams.current = params.toString();
     router.push(`/?${params.toString()}`, { scroll: false });
   };
 
@@ -100,7 +128,7 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   };
 
   const applyCheckboxes = (type: "company" | "industry") => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
 
     const values = type === "company" ? companyArr : industryArr;
     pushParams((params) => params.set(type, values.join(",")));
@@ -109,12 +137,13 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   };
 
   const handleDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
 
     const choice = e.target.value;
 
     if (choice === "open") {
       setShowExactDate(true);
+      setDateModalOpen(true);
       return;
     }
 
@@ -139,10 +168,9 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
     });
   };
 
-  const handleExactDateFilter = (e: ChangeEvent<HTMLSelectElement>) => {
-    if (!requireUser()) return;
+  const handleExactDateFilter = (choice: string) => {
+    if (!requireAccess()) return;
 
-    const choice = e.target.value;
     pushParams((params) => {
       params.delete("date");
       if (choice) {
@@ -170,25 +198,38 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
   };
 
   const handleAddKeyword = () => {
-    if (!requireUser()) return;
+    if (!requireAccess()) return;
 
     const value = keywordInput.trim();
     if (!value) return;
 
-    const merged = Array.from(new Set([...selectedKeywords, value]));
-    pushParams((params) => params.set("keyword", merged.join(",")));
+    // Read the current keywords from `params` itself, not `selectedKeywords`
+    // — `params` is seeded from `pendingParams` and reflects any
+    // not-yet-committed change from a just-prior action, while
+    // `selectedKeywords` can still be the pre-navigation snapshot.
+    pushParams((params) => {
+      const merged = Array.from(
+        new Set([...splitParam(params.get("keyword")), value]),
+      );
+      params.set("keyword", merged.join(","));
+    });
     setKeywordInput("");
 
     trackEvent(user, "Filter", { type: "keyword", value });
   };
 
   const handleRemoveKeyword = (value: string) => {
-    const updated = selectedKeywords.filter((item) => item !== value);
-    pushParams((params) =>
-      updated.length > 0
-        ? params.set("keyword", updated.join(","))
-        : params.delete("keyword"),
-    );
+    pushParams((params) => {
+      const updated = splitParam(params.get("keyword")).filter(
+        (item) => item !== value,
+      );
+
+      if (updated.length > 0) {
+        params.set("keyword", updated.join(","));
+      } else {
+        params.delete("keyword");
+      }
+    });
 
     trackEvent(user, "Filter", { type: "remove keyword", value });
   };
@@ -222,18 +263,14 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
             </S.Select>
           )}
           {showExactDate && (
-            <S.Select
-              name="exactDateSelect"
-              onChange={handleExactDateFilter}
-              value={exactDate}
+            <S.DateTrigger
+              type="button"
+              onClick={() => setDateModalOpen(true)}
             >
-              <option value="">Select Specific Date</option>
-              {scrapDates.map((item: string) => (
-                <option value={item} key={item}>
-                  {dayjs(item).format("MM-DD-YYYY")}
-                </option>
-              ))}
-            </S.Select>
+              {exactDate
+                ? dayjs(exactDate).format("MM-DD-YYYY")
+                : "Select Specific Date"}
+            </S.DateTrigger>
           )}
         </div>
         <div>
@@ -366,6 +403,14 @@ const Filter = ({ companies, industries, scrapDates }: FilterProps) => {
         )}
       </S.Wrapper>
       <SignInModal openModal={openModal} setOpenModal={setOpenModal} />
+      <SelectDateModal
+        isOpen={dateModalOpen}
+        onClose={() => setDateModalOpen(false)}
+        value={exactDate}
+        onSubmit={handleExactDateFilter}
+        minDate={minScrapDate}
+        maxDate={maxScrapDate}
+      />
     </>
   );
 };
