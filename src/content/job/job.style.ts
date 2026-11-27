@@ -22,7 +22,9 @@ export const BlurWrapper = styled.div`
 
 export const AccessOverlay = styled.div`
   position: absolute;
-  inset: 0;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -30,8 +32,11 @@ export const AccessOverlay = styled.div`
   gap: 12px;
   text-align: center;
   padding: 24px;
-  background: rgba(255, 250, 241, 0.85);
+  background: rgba(255, 250, 241);
   border-radius: 10px;
+  height: 200px;
+  width: 500px;
+  max-width: calc(100% - 32px);
 
   p {
     margin: 0;

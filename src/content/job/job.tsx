@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import dayjs from "dayjs";
 import { useAtomValue } from "jotai";
 import * as S from "./job.style";
@@ -11,6 +12,7 @@ import { subscriptionStatusAtom } from "@/caches/SubscriptionAtom";
 import { hasActiveAccess } from "@/functions/subscription";
 import { trackEvent, trackPage } from "@/functions/mixpanel";
 import { getFirebaseAuth } from "@/functions/firebase";
+import { getStripeCheckoutUrl } from "@/functions/stripeCheckout";
 import {
   createSavedJob,
   deleteSavedJob,
@@ -36,6 +38,9 @@ interface JobProps {
 }
 
 const Job = ({ job, descriptionHtml, similarJobs }: JobProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const user = useAtomValue(userAtom);
   const subscriptionStatus = useAtomValue(subscriptionStatusAtom);
   const details = job.Details;
@@ -51,6 +56,34 @@ const Job = ({ job, descriptionHtml, similarJobs }: JobProps) => {
     if (user && hasActiveAccess(subscriptionStatus)) return true;
     setOpenModal(true);
     return false;
+  };
+
+  // The blurred-description overlay's own CTA — unlike requireAccess() above,
+  // this skips SignInModal entirely and acts immediately: a signed-in user
+  // with no active access goes straight to Stripe checkout (same as
+  // SignInModal's handleStartTrial), a signed-out visitor goes straight to
+  // sign-up (same as its goToAuth("/sign-up")).
+  const handleUnlockAccess = () => {
+    if (user) {
+      const checkoutUrl = getStripeCheckoutUrl(user.uid, user.email);
+      if (!checkoutUrl) return;
+
+      trackEvent(user, "Start Free Trial", {
+        type: "button",
+        from: "job-overlay",
+      });
+      window.location.href = checkoutUrl;
+      return;
+    }
+
+    const query = searchParams.toString();
+    const redirectTo = `${pathname}${query ? `?${query}` : ""}`;
+
+    trackEvent(null, "Start Free Trial", {
+      type: "signup-redirect",
+      from: "job-overlay",
+    });
+    router.push(`/sign-up?redirect=${encodeURIComponent(redirectTo)}`);
   };
 
   const shareText = `${job["Role Name"]} at ${job.Company}`;
@@ -255,9 +288,9 @@ const Job = ({ job, descriptionHtml, similarJobs }: JobProps) => {
                 <p>
                   {user
                     ? "Start your free 7-day trial to unlock full access to BGH features."
-                    : "Sign up and get a free 7-day trial to unlock BGH features — already have an account? Sign in instead."}
+                    : "Sign up and get a free 7-day trial to unlock BGH features"}
                 </p>
-                <button type="button" onClick={() => requireAccess()}>
+                <button type="button" onClick={handleUnlockAccess}>
                   {user ? "Start Free Trial" : "Sign Up"}
                 </button>
               </S.AccessOverlay>
